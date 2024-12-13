@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,17 +16,51 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Upload } from "lucide-react"
+import { toast } from "sonner"
 
 const NewDesign = () => {
   const navigate = useNavigate()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [width, setWidth] = useState("")
   const [height, setHeight] = useState("")
   const [style, setStyle] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const balloonStyles = ["Straight", "Curved", "Cluster"]
-  const balloonColors = ["Red", "Blue", "White", "Gold"]
+  const balloonColors = ["Red", "Blue", "White", "Gold", "Pink", "Purple", "Green"]
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Create URL for preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+        
+        // Simulate automatic dimension detection
+        // In a real app, you'd use image processing here
+        const img = new Image()
+        img.onload = () => {
+          const estimatedWidth = Math.ceil(img.width / 100)
+          const estimatedHeight = Math.ceil(img.height / 100)
+          setWidth(estimatedWidth.toString())
+          setHeight(estimatedHeight.toString())
+          
+          // Simulate color detection
+          // In a real app, you'd use color analysis
+          const defaultColors = ["Red", "White"]
+          setSelectedColors(defaultColors)
+          setStyle("Cluster")
+          
+          toast.success("Design analyzed successfully!")
+        }
+        img.src = reader.result as string
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   const handleGenerateForm = () => {
     navigate("/production-forms", {
@@ -35,6 +69,7 @@ const NewDesign = () => {
         height,
         style,
         colors: selectedColors,
+        imagePreview,
       },
     })
   }
@@ -46,6 +81,34 @@ const NewDesign = () => {
       </h1>
 
       <div className="space-y-6">
+        {/* Image Upload Section */}
+        <div className="space-y-4">
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 transition-colors"
+               onClick={() => fileInputRef.current?.click()}>
+            {imagePreview ? (
+              <img 
+                src={imagePreview} 
+                alt="Design Preview" 
+                className="max-h-64 mx-auto rounded-lg"
+              />
+            ) : (
+              <div className="space-y-2">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="text-sm text-gray-500">
+                  Click to upload your design image
+                </p>
+              </div>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+          </div>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="width">Width (ft)</Label>
           <Input

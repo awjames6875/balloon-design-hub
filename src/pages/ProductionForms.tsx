@@ -15,6 +15,7 @@ interface DesignState {
   height: string
   style: string
   colors: string[]
+  imagePreview: string | null
 }
 
 const ProductionForms = () => {
@@ -25,7 +26,6 @@ const ProductionForms = () => {
   // Calculate balloons needed based on dimensions and style
   const calculateBalloons = (width: number, height: number, style: string) => {
     // Basic calculation: 1 balloon per square foot
-    // This is a simplified calculation - in a real app, you'd want more sophisticated logic
     const area = width * height
     const baseBalloons = Math.ceil(area)
 
@@ -55,6 +55,16 @@ const ProductionForms = () => {
       <h1 className="text-2xl font-bold text-center mb-8">Production Form</h1>
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        {designState?.imagePreview && (
+          <div className="mb-6">
+            <img
+              src={designState.imagePreview}
+              alt="Design Preview"
+              className="max-h-64 mx-auto rounded-lg"
+            />
+          </div>
+        )}
+        
         <div className="mb-4 text-sm text-gray-600">
           <p>Design Specifications:</p>
           <p>Width: {designState?.width || "N/A"} ft</p>
