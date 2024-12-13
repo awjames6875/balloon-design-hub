@@ -13,11 +13,10 @@ import { useToast } from "@/components/ui/use-toast"
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import { BarChart, Bar, XAxis, YAxis } from "recharts"
 import { balloonDensityData, calculateRequiredStock } from "@/lib/balloon-density"
 
 interface BalloonInventory {
@@ -120,12 +119,8 @@ const Inventory = () => {
               <YAxis />
               <Bar dataKey="actual" fill="var(--color-actual)" />
               <Bar dataKey="effective" fill="var(--color-effective)" />
-              <ChartTooltip>
-                <ChartTooltipContent />
-              </ChartTooltip>
-              <ChartLegend>
-                <ChartLegendContent />
-              </ChartLegend>
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartLegend content={<ChartLegendContent />} />
             </BarChart>
           </ChartContainer>
         </div>
