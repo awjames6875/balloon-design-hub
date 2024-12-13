@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/use-toast"
 import {
   ChartContainer,
   ChartTooltip,
+  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
@@ -119,8 +120,8 @@ const Inventory = () => {
               <YAxis />
               <Bar dataKey="actual" fill="var(--color-actual)" />
               <Bar dataKey="effective" fill="var(--color-effective)" />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <ChartLegend content={<ChartLegendContent />} />
+              <ChartTooltip content={ChartTooltipContent} />
+              <ChartLegend content={ChartLegendContent} />
             </BarChart>
           </ChartContainer>
         </div>
