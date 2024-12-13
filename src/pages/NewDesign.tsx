@@ -23,7 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ChevronDown, Upload, Image as ImageIcon } from "lucide-react"
+import { ChevronDown, Upload, Image as ImageIcon, ArrowRight } from "lucide-react"
 import { toast } from "sonner"
 import { Textarea } from "@/components/ui/textarea"
 
@@ -279,13 +279,21 @@ const NewDesign = () => {
         </Card>
       </div>
 
-      <div className="mt-8 flex justify-center">
+      <div className="mt-8 flex justify-center gap-4">
         <Button
           className="w-full max-w-md"
           onClick={handleGenerateForm}
           disabled={!width || !height || !style || selectedColors.length === 0}
         >
           Generate Production Form
+        </Button>
+        <Button
+          variant="secondary"
+          className="w-full max-w-[200px]"
+          onClick={() => navigate("/production-forms")}
+        >
+          Next
+          <ArrowRight className="ml-2" />
         </Button>
       </div>
     </div>
