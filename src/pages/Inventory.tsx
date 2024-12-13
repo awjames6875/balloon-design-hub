@@ -120,8 +120,12 @@ const Inventory = () => {
               <YAxis />
               <Bar dataKey="actual" fill="var(--color-actual)" />
               <Bar dataKey="effective" fill="var(--color-effective)" />
-              <ChartTooltip content={ChartTooltipContent} />
-              <ChartLegend content={ChartLegendContent} />
+              <ChartTooltip>
+                <ChartTooltipContent />
+              </ChartTooltip>
+              <ChartLegend>
+                <ChartLegendContent />
+              </ChartLegend>
             </BarChart>
           </ChartContainer>
         </div>
