@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { ProductionDetails } from "@/components/production/ProductionDetails";
 import { Tables } from "@/integrations/supabase/types";
 import { updateInventoryQuantities } from "@/utils/inventoryUtils";
+import { calculateBalloonRequirements } from "@/utils/balloonCalculations";
+import { useQuery } from "@tanstack/react-query";
 
 interface DesignState {
   clientName: string;
@@ -22,6 +24,12 @@ const ProductionForms = () => {
   const navigate = useNavigate();
   const designState = location.state as DesignState;
 
+  const { data: balloonFormula, isLoading } = useQuery({
+    queryKey: ['balloonFormula', designState?.length, designState?.shape],
+    queryFn: () => calculateBalloonRequirements(parseInt(designState?.length), designState?.shape),
+    enabled: !!designState?.length,
+  });
+
   const calculateProductionTime = (totalClusters: number) => {
     const minutesPerCluster = 15;
     const totalMinutes = totalClusters * minutesPerCluster;
@@ -30,21 +38,39 @@ const ProductionForms = () => {
     return `${hours}h ${minutes}m`;
   };
 
+  if (!designState) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">No Design Specifications</h1>
+        <p className="mb-4">Please create a new design first.</p>
+        <Button onClick={() => navigate("/new-design")}>Create New Design</Button>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p>Loading formula calculations...</p>
+      </div>
+    );
+  }
+
   const productionDetails: Tables<"production_details"> = {
     id: 0,
-    client_name: designState?.clientName || "",
-    project_name: designState?.projectName || "",
-    dimensions_ft: parseInt(designState?.length) || 0,
-    width_ft: parseInt(designState?.width) || 1,
-    shape: designState?.shape || "Straight",
-    colors: designState?.colors || [],
-    base_clusters: 10,
-    extra_clusters: 5,
-    total_clusters: 15,
-    littles_quantity: 30,
-    grapes_quantity: 20,
-    balloons_11in: 150,
-    balloons_16in: 50,
+    client_name: designState.clientName,
+    project_name: designState.projectName,
+    dimensions_ft: parseInt(designState.length),
+    width_ft: parseInt(designState.width) || 1,
+    shape: designState.shape,
+    colors: designState.colors,
+    base_clusters: balloonFormula?.base_clusters || 0,
+    extra_clusters: balloonFormula?.extra_clusters || 0,
+    total_clusters: balloonFormula?.total_clusters || 0,
+    littles_quantity: balloonFormula?.littles_quantity || 0,
+    grapes_quantity: balloonFormula?.grapes_quantity || 0,
+    balloons_11in: balloonFormula?.balloons_11in || 0,
+    balloons_16in: balloonFormula?.balloons_16in || 0,
     accents: {
       starbursts: {
         quantity: 5,
@@ -55,9 +81,9 @@ const ProductionForms = () => {
         type: "Large Accent Balloons"
       }
     },
-    production_time: calculateProductionTime(15),
+    production_time: calculateProductionTime(balloonFormula?.total_clusters || 0),
     creation_date: null,
-    total_balloons: 200
+    total_balloons: balloonFormula?.total_balloons || 0
   };
 
   const handleFinalizeProduction = async () => {
@@ -85,16 +111,6 @@ const ProductionForms = () => {
       toast.success("Production finalized! Inventory updated successfully.");
     }
   };
-
-  if (!designState) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-2xl font-bold mb-4">No Design Specifications</h1>
-        <p className="mb-4">Please create a new design first.</p>
-        <Button onClick={() => navigate("/new-design")}>Create New Design</Button>
-      </div>
-    );
-  }
 
   console.log("Design state length:", designState.length);
   console.log("Parsed dimensions:", parseInt(designState.length));
