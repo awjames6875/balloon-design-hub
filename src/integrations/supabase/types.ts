@@ -78,6 +78,27 @@ export type Database = {
         }
         Relationships: []
       }
+      design_image_analysis: {
+        Row: {
+          created_at: string | null
+          detected_colors: Json
+          id: number
+          image_path: string
+        }
+        Insert: {
+          created_at?: string | null
+          detected_colors?: Json
+          id?: number
+          image_path: string
+        }
+        Update: {
+          created_at?: string | null
+          detected_colors?: Json
+          id?: number
+          image_path?: string
+        }
+        Relationships: []
+      }
       production_details: {
         Row: {
           accents: Json

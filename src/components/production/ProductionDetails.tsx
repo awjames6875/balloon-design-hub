@@ -8,9 +8,6 @@ interface ProductionDetailsProps {
 }
 
 export const ProductionDetails = ({ details, clientReference, designPreview }: ProductionDetailsProps) => {
-  // Convert accents object to string for display
-  const accentsDisplay = details.accents ? JSON.stringify(details.accents, null, 2) : "";
-
   return (
     <div className="space-y-6">
       {(clientReference || designPreview) && (
@@ -120,15 +117,6 @@ export const ProductionDetails = ({ details, clientReference, designPreview }: P
                 <p className="text-muted-foreground">{details.balloons_16in}</p>
               </div>
             </div>
-
-            {details.accents && Object.keys(details.accents).length > 0 && (
-              <div>
-                <h4 className="font-semibold mb-1">Accent Balloons</h4>
-                <pre className="text-sm text-muted-foreground">
-                  {accentsDisplay}
-                </pre>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
