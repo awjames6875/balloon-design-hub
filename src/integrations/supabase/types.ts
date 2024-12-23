@@ -9,7 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      balloonformula: {
+        Row: {
+          balloons_11in: number
+          balloons_16in: number
+          base_clusters: number
+          extra_clusters: number
+          grapes_quantity: number
+          id: number
+          littles_quantity: number
+          size_ft: number
+          total_balloons: number
+          total_clusters: number
+        }
+        Insert: {
+          balloons_11in: number
+          balloons_16in: number
+          base_clusters: number
+          extra_clusters: number
+          grapes_quantity: number
+          id?: number
+          littles_quantity: number
+          size_ft: number
+          total_balloons: number
+          total_clusters: number
+        }
+        Update: {
+          balloons_11in?: number
+          balloons_16in?: number
+          base_clusters?: number
+          extra_clusters?: number
+          grapes_quantity?: number
+          id?: number
+          littles_quantity?: number
+          size_ft?: number
+          total_balloons?: number
+          total_clusters?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
