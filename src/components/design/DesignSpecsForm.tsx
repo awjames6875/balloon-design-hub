@@ -24,11 +24,6 @@ interface DesignSpecsFormProps {
   onSubmit: (data: DesignSpecsFormData) => void
 }
 
-interface ClientProject {
-  client_name: string
-  project_name: string
-}
-
 export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
@@ -37,28 +32,8 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
   const [shape, setShape] = useState("Straight")
-  const [existingProjects, setExistingProjects] = useState<ClientProject[]>([])
   
   const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
-
-  useEffect(() => {
-    fetchExistingProjects()
-  }, [])
-
-  const fetchExistingProjects = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("client_projects")
-        .select("client_name, project_name")
-        .order("created_at", { ascending: false })
-
-      if (error) throw error
-      setExistingProjects(data || [])
-    } catch (error) {
-      console.error("Error fetching projects:", error)
-      toast.error("Failed to load existing projects")
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -107,17 +82,14 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
     }
   }
 
-  const handleProjectSelect = (project: ClientProject) => {
+  const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
     setClientName(project.client_name)
     setProjectName(project.project_name)
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <ProjectSearch
-        existingProjects={existingProjects}
-        onProjectSelect={handleProjectSelect}
-      />
+      <ProjectSearch onProjectSelect={handleProjectSelect} />
 
       <ClientInfoFields
         clientName={clientName}
