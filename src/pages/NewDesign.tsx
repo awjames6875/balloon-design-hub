@@ -2,12 +2,21 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ImageUpload } from "@/components/design/ImageUpload"
 import { DesignSpecsForm, type DesignSpecsFormData } from "@/components/design/DesignSpecsForm"
+import { ClusterDetailsForm } from "@/components/design/ClusterDetailsForm"
 import { toast } from "sonner"
+
+interface ColorCluster {
+  color: string
+  baseClusters: number
+  extraClusters: number
+}
 
 const NewDesign = () => {
   const navigate = useNavigate()
   const [clientImage, setClientImage] = useState<string | null>(null)
   const [designImage, setDesignImage] = useState<string | null>(null)
+  const [showClusterDetails, setShowClusterDetails] = useState(false)
+  const [designData, setDesignData] = useState<DesignSpecsFormData | null>(null)
 
   const handleClientImageUpload = (file: File) => {
     const reader = new FileReader()
@@ -33,18 +42,34 @@ const NewDesign = () => {
       return
     }
 
+    setDesignData(data)
+    setShowClusterDetails(true)
+  }
+
+  const handleClusterDetailsSubmit = (clusters: ColorCluster[]) => {
+    if (!designData) return
+
     navigate("/production-forms", {
       state: {
-        clientName: data.clientName,
-        projectName: data.projectName,
-        length: data.length,
-        colors: data.colors,
+        clientName: designData.clientName,
+        projectName: designData.projectName,
+        length: designData.length,
+        colors: designData.colors,
         imagePreview: designImage,
         clientReference: clientImage,
-        shape: data.shape,
-        style: data.style,
+        shape: designData.shape,
+        style: designData.style,
+        clusters: clusters,
       },
     })
+  }
+
+  if (showClusterDetails) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <ClusterDetailsForm onNext={handleClusterDetailsSubmit} />
+      </div>
+    )
   }
 
   return (
