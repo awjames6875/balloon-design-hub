@@ -38,6 +38,17 @@ export const calculateTotalBalloons = (baseClusters: number, extraClusters: numb
   return Math.round(totalBalloons);
 };
 
+export const estimateProductionTime = (totalClusters: number, timePerCluster: number = 15): string => {
+  console.log("Estimating production time for clusters:", totalClusters, "time per cluster:", timePerCluster);
+  const totalMinutes = totalClusters * timePerCluster;
+  
+  // Convert to hours and minutes format
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  
+  return `${hours}h ${minutes}m`;
+};
+
 export const fetchBalloonFormula = async (size: number, shape: string) => {
   console.log("Fetching formula for size:", size, "and shape:", shape);
   
