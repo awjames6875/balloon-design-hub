@@ -5,7 +5,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import { BarChart, Bar, XAxis, YAxis } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts"
 
 interface BalloonChartProps {
   data: Array<{
@@ -35,9 +35,20 @@ export function BalloonChart({ data }: BalloonChartProps) {
           <YAxis />
           <Bar dataKey="actual" fill="var(--color-actual)" />
           <Bar dataKey="effective" fill="var(--color-effective)" />
-          <ChartTooltip>
-            <ChartTooltipContent />
-          </ChartTooltip>
+          <Tooltip 
+            content={({ active, payload, label }) => {
+              if (active && payload && payload.length) {
+                return (
+                  <ChartTooltipContent
+                    active={active}
+                    payload={payload}
+                    label={label}
+                  />
+                )
+              }
+              return null
+            }}
+          />
           <ChartLegend>
             <ChartLegendContent />
           </ChartLegend>
