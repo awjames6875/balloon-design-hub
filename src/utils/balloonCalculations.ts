@@ -1,10 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
 
-interface BalloonStyle {
-  style_name: string;
-  density_factor: number;
-}
-
 export const calculateBaseClusters = async (length: number, style: string): Promise<number> => {
   console.log("Calculating base clusters for length:", length, "and style:", style);
   
@@ -25,6 +20,7 @@ export const calculateBaseClusters = async (length: number, style: string): Prom
     throw new Error(`Balloon style '${style}' not found`);
   }
 
+  console.log("Retrieved density factor:", styleData.density_factor);
   const baseClusters = length * styleData.density_factor;
   return Math.round(baseClusters);
 };
@@ -33,6 +29,13 @@ export const calculateExtraClusters = (baseClusters: number, extraPercentage: nu
   console.log("Calculating extra clusters with base clusters:", baseClusters, "and percentage:", extraPercentage);
   const extraClusters = baseClusters * extraPercentage;
   return Math.round(extraClusters);
+};
+
+export const calculateTotalBalloons = (baseClusters: number, extraClusters: number, balloonsPerCluster: number = 11): number => {
+  console.log("Calculating total balloons with base clusters:", baseClusters, "extra clusters:", extraClusters, "balloons per cluster:", balloonsPerCluster);
+  const totalClusters = baseClusters + extraClusters;
+  const totalBalloons = totalClusters * balloonsPerCluster;
+  return Math.round(totalBalloons);
 };
 
 export const fetchBalloonFormula = async (size: number, shape: string) => {
