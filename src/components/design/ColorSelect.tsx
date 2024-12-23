@@ -1,5 +1,11 @@
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Tooltip,
   TooltipContent,
@@ -14,7 +20,7 @@ interface ColorSelectProps {
 export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps) => {
   const balloonColors = ["Orange", "Wild Berry", "Golden Rod", "Teal"]
 
-  const toggleColor = (color: string) => {
+  const handleColorSelect = (color: string) => {
     if (selectedColors.includes(color)) {
       onColorsChange(selectedColors.filter((c) => c !== color))
     } else {
@@ -29,7 +35,7 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="text-xs text-muted-foreground cursor-help">
-              (Click colors to select multiple)
+              (Click multiple colors to select)
             </span>
           </TooltipTrigger>
           <TooltipContent>
@@ -38,18 +44,25 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
         </Tooltip>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {balloonColors.map((color) => (
-          <Button
-            key={color}
-            variant={selectedColors.includes(color) ? "default" : "outline"}
-            onClick={() => toggleColor(color)}
-            className="w-full justify-center"
-          >
-            {color}
-          </Button>
-        ))}
-      </div>
+      <Select
+        value={selectedColors.length > 0 ? selectedColors[selectedColors.length - 1] : undefined}
+        onValueChange={handleColorSelect}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select colors" />
+        </SelectTrigger>
+        <SelectContent>
+          {balloonColors.map((color) => (
+            <SelectItem
+              key={color}
+              value={color}
+              className={selectedColors.includes(color) ? "bg-accent" : ""}
+            >
+              {color}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       {selectedColors.length > 0 && (
         <div className="text-sm text-muted-foreground">
