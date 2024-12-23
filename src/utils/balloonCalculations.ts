@@ -11,20 +11,28 @@ export interface BalloonFormula {
   balloons_11in: number;
   balloons_16in: number;
   total_balloons: number;
+  shape: string;
+  shape_multiplier: number;
 }
 
 export interface CalculationResult {
   formula: BalloonFormula;
   baseClusters: number;
   extraClusters: number;
+  totalClusters: number;
+  littlesQuantity: number;
+  grapesQuantity: number;
+  balloons11in: number;
+  balloons16in: number;
   totalBalloons: number;
 }
 
-export const fetchBalloonFormula = async (size: number): Promise<BalloonFormula | null> => {
+export const fetchBalloonFormula = async (size: number, shape: string): Promise<BalloonFormula | null> => {
   const { data, error } = await supabase
     .from('balloonformula')
     .select('*')
     .eq('size_ft', size)
+    .eq('shape', shape)
     .maybeSingle();
 
   if (error) {
@@ -35,17 +43,24 @@ export const fetchBalloonFormula = async (size: number): Promise<BalloonFormula 
   return data;
 };
 
-export const calculateBalloonRequirements = async (size: number): Promise<CalculationResult | null> => {
-  const formula = await fetchBalloonFormula(size);
+export const calculateBalloonRequirements = async (size: number, shape: string): Promise<CalculationResult | null> => {
+  const formula = await fetchBalloonFormula(size, shape);
   
   if (!formula) {
     return null;
   }
 
+  const multiplier = formula.shape_multiplier || 1;
+
   return {
     formula,
-    baseClusters: formula.base_clusters,
-    extraClusters: formula.extra_clusters,
-    totalBalloons: formula.total_balloons,
+    baseClusters: Math.round(formula.base_clusters * multiplier),
+    extraClusters: Math.round(formula.extra_clusters * multiplier),
+    totalClusters: Math.round(formula.total_clusters * multiplier),
+    littlesQuantity: Math.round(formula.littles_quantity * multiplier),
+    grapesQuantity: Math.round(formula.grapes_quantity * multiplier),
+    balloons11in: Math.round(formula.balloons_11in * multiplier),
+    balloons16in: Math.round(formula.balloons_16in * multiplier),
+    totalBalloons: Math.round(formula.total_balloons * multiplier),
   };
 };

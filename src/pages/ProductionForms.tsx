@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ProductionDetails } from "@/components/production/ProductionDetails";
 import { Tables } from "@/integrations/supabase/types";
 import { updateInventoryQuantities } from "@/utils/inventoryUtils";
+import { calculateBalloonRequirements } from "@/utils/balloonCalculations";
 
 interface DesignState {
   clientName: string;
@@ -12,6 +13,7 @@ interface DesignState {
   width: string;
   height: string;
   colors: string[];
+  shape: string;
   imagePreview: string;
   clientReference: string | null;
 }
@@ -34,6 +36,7 @@ const ProductionForms = () => {
     client_name: designState?.clientName || "",
     project_name: designState?.projectName || "",
     dimensions_ft: parseInt(designState?.width) || 0,
+    shape: designState?.shape || "Straight",
     colors: designState?.colors || [],
     base_clusters: 10,
     extra_clusters: 5,
@@ -53,7 +56,8 @@ const ProductionForms = () => {
       }
     },
     production_time: calculateProductionTime(15),
-    creation_date: null
+    creation_date: null,
+    total_balloons: 200
   };
 
   const handleFinalizeProduction = async () => {

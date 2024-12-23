@@ -166,6 +166,8 @@ export type Database = {
           littles_quantity: number
           production_time: string | null
           project_name: string
+          shape: string
+          total_balloons: number | null
           total_clusters: number
         }
         Insert: {
@@ -183,6 +185,8 @@ export type Database = {
           littles_quantity: number
           production_time?: string | null
           project_name: string
+          shape?: string
+          total_balloons?: number | null
           total_clusters: number
         }
         Update: {
@@ -200,6 +204,8 @@ export type Database = {
           littles_quantity?: number
           production_time?: string | null
           project_name?: string
+          shape?: string
+          total_balloons?: number | null
           total_clusters?: number
         }
         Relationships: []
