@@ -48,15 +48,17 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
         value={selectedColors.length > 0 ? selectedColors[selectedColors.length - 1] : undefined}
         onValueChange={handleColorSelect}
       >
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="w-full bg-background border-input">
           <SelectValue placeholder="Select colors" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-popover border shadow-md">
           {balloonColors.map((color) => (
             <SelectItem
               key={color}
               value={color}
-              className={selectedColors.includes(color) ? "bg-accent" : ""}
+              className={`${
+                selectedColors.includes(color) ? "bg-accent" : "bg-background hover:bg-accent"
+              }`}
             >
               {color}
             </SelectItem>
