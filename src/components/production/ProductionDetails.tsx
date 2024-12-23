@@ -107,7 +107,7 @@ export const ProductionDetails = ({ details, clientReference, designPreview }: P
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               <div>
                 <h4 className="font-semibold mb-1">11" Balloons</h4>
                 <p className="text-muted-foreground">{details.balloons_11in}</p>
@@ -115,6 +115,10 @@ export const ProductionDetails = ({ details, clientReference, designPreview }: P
               <div>
                 <h4 className="font-semibold mb-1">16" Balloons</h4>
                 <p className="text-muted-foreground">{details.balloons_16in}</p>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1">Total Balloons</h4>
+                <p className="text-muted-foreground">{details.total_balloons}</p>
               </div>
             </div>
           </div>
