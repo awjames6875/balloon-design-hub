@@ -1,13 +1,6 @@
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -21,53 +14,43 @@ interface ColorSelectProps {
 export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps) => {
   const balloonColors = ["Orange", "Wild Berry", "Golden Rod", "Teal"]
 
+  const toggleColor = (color: string) => {
+    if (selectedColors.includes(color)) {
+      onColorsChange(selectedColors.filter((c) => c !== color))
+    } else {
+      onColorsChange([...selectedColors, color])
+    }
+  }
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Label>Balloon Colors</Label>
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="text-xs text-muted-foreground cursor-help">
-              (Click multiple colors to select them)
+              (Click colors to select multiple)
             </span>
           </TooltipTrigger>
           <TooltipContent>
-            <p>You can select multiple colors from the dropdown</p>
+            <p>Click multiple colors to select them</p>
           </TooltipContent>
         </Tooltip>
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {balloonColors.map((color) => (
           <Button
-            variant="outline"
-            className="w-full justify-between"
-            role="combobox"
+            key={color}
+            variant={selectedColors.includes(color) ? "default" : "outline"}
+            onClick={() => toggleColor(color)}
+            className="w-full justify-center"
           >
-            {selectedColors.length === 0
-              ? "Select colors"
-              : selectedColors.join(", ")}
-            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {color}
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-[200px] bg-white dark:bg-gray-800 border shadow-lg">
-          {balloonColors.map((color) => (
-            <DropdownMenuCheckboxItem
-              key={color}
-              checked={selectedColors.includes(color)}
-              onCheckedChange={(checked) => {
-                onColorsChange(
-                  checked
-                    ? [...selectedColors, color]
-                    : selectedColors.filter((c) => c !== color)
-                )
-              }}
-              className="hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              {color}
-            </DropdownMenuCheckboxItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        ))}
+      </div>
+
       {selectedColors.length > 0 && (
         <div className="text-sm text-muted-foreground">
           Selected: {selectedColors.join(", ")}
