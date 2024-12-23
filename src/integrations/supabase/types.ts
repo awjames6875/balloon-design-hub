@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       balloonformula: {
         Row: {
+          accents: Json | null
           balloons_11in: number
           balloons_16in: number
           base_clusters: number
@@ -23,6 +24,7 @@ export type Database = {
           total_clusters: number
         }
         Insert: {
+          accents?: Json | null
           balloons_11in: number
           balloons_16in: number
           base_clusters: number
@@ -35,6 +37,7 @@ export type Database = {
           total_clusters: number
         }
         Update: {
+          accents?: Json | null
           balloons_11in?: number
           balloons_16in?: number
           base_clusters?: number
@@ -44,6 +47,60 @@ export type Database = {
           littles_quantity?: number
           size_ft?: number
           total_balloons?: number
+          total_clusters?: number
+        }
+        Relationships: []
+      }
+      production_details: {
+        Row: {
+          accents: Json
+          balloons_11in: number
+          balloons_16in: number
+          base_clusters: number
+          client_name: string
+          colors: Json
+          creation_date: string | null
+          dimensions_ft: number
+          extra_clusters: number
+          grapes_quantity: number
+          id: number
+          littles_quantity: number
+          production_time: string | null
+          project_name: string
+          total_clusters: number
+        }
+        Insert: {
+          accents?: Json
+          balloons_11in: number
+          balloons_16in: number
+          base_clusters: number
+          client_name: string
+          colors?: Json
+          creation_date?: string | null
+          dimensions_ft: number
+          extra_clusters: number
+          grapes_quantity: number
+          id?: number
+          littles_quantity: number
+          production_time?: string | null
+          project_name: string
+          total_clusters: number
+        }
+        Update: {
+          accents?: Json
+          balloons_11in?: number
+          balloons_16in?: number
+          base_clusters?: number
+          client_name?: string
+          colors?: Json
+          creation_date?: string | null
+          dimensions_ft?: number
+          extra_clusters?: number
+          grapes_quantity?: number
+          id?: number
+          littles_quantity?: number
+          production_time?: string | null
+          project_name?: string
           total_clusters?: number
         }
         Relationships: []
