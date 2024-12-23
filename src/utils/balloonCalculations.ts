@@ -11,12 +11,11 @@ export interface BalloonFormula {
   balloons_11in: number;
   balloons_16in: number;
   total_balloons: number;
-  style: string;
-  style_multiplier: number;
+  shape: string;
+  shape_multiplier: number;
 }
 
 export interface CalculationResult {
-  formula: BalloonFormula;
   baseClusters: number;
   extraClusters: number;
   totalClusters: number;
@@ -32,7 +31,7 @@ export const fetchBalloonFormula = async (size: number, style: string): Promise<
     .from('balloonformula')
     .select('*')
     .eq('size_ft', size)
-    .eq('style', style)
+    .eq('shape', style) // Changed from 'style' to 'shape'
     .maybeSingle();
 
   if (error) {
@@ -50,10 +49,9 @@ export const calculateBalloonRequirements = async (size: number, style: string):
     return null;
   }
 
-  const multiplier = formula.style_multiplier || 1;
+  const multiplier = formula.shape_multiplier || 1;
 
   return {
-    formula,
     baseClusters: Math.round(formula.base_clusters * multiplier),
     extraClusters: Math.round(formula.extra_clusters * multiplier),
     totalClusters: Math.round(formula.total_clusters * multiplier),
