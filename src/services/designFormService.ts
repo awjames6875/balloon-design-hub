@@ -3,12 +3,13 @@ import { toast } from "sonner"
 import { DesignSpecsFormData } from "@/components/design/DesignSpecsForm"
 
 export const fetchBalloonFormula = async (size: number, shape: string) => {
+  console.log("Fetching formula for size:", size, "and shape:", shape)
+  
   const { data, error } = await supabase
     .from("balloonformula")
-    .select()
+    .select("*")
     .eq("size_ft", size)
     .eq("shape", shape)
-    .limit(1)
     .maybeSingle()
 
   if (error) {
@@ -16,6 +17,7 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
     throw error
   }
 
+  console.log("Retrieved balloon formula:", data)
   return data
 }
 
@@ -24,9 +26,12 @@ export const calculateBalloonRequirements = async (length: number, style: string
     const formula = await fetchBalloonFormula(length, style)
     
     if (!formula) {
+      console.log("No formula found for length:", length, "and style:", style)
       return null
     }
 
+    console.log("Using formula:", formula)
+    
     return {
       baseClusters: formula.base_clusters,
       extraClusters: formula.extra_clusters,
