@@ -10,6 +10,7 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
     .select()
     .eq("size_ft", size)
     .eq("shape", shape)
+    .limit(1)
     .maybeSingle()
 
   if (error) {
@@ -61,6 +62,7 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
       .select("id")
       .eq("client_name", formData.clientName)
       .eq("project_name", formData.projectName)
+      .limit(1)
       .maybeSingle()
 
     // Only insert if project doesn't exist
