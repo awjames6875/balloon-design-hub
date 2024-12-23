@@ -44,7 +44,7 @@ export const saveProject = async ({
       }
     }
 
-    const calculations = await calculateBalloonRequirements(parseInt(length), style)
+    const calculations = await calculateBalloonRequirements(parseInt(length), shape)
     
     if (!calculations) {
       toast.error("Could not find balloon formula for the selected dimensions and style")
