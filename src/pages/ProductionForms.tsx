@@ -28,7 +28,7 @@ const ProductionForms = () => {
     queryFn: async () => {
       if (!designState?.length) return null;
       const result = await calculateBalloonRequirements(parseInt(designState.length), designState.shape);
-      console.log("Balloon formula result:", result); // Add logging to debug
+      console.log("Balloon formula result:", result);
       return result;
     },
     enabled: !!designState?.length,
@@ -104,7 +104,7 @@ const ProductionForms = () => {
       {
         color: "Orange",
         size: "11in",
-        quantity: productionDetails.base_clusters,
+        quantity: productionDetails.balloons_11in,
       },
       {
         color: "Wildberry",
