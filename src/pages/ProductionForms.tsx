@@ -26,9 +26,9 @@ const ProductionForms = () => {
     id: 0, // This will be set by the database
     client_name: designState?.clientName || "",
     project_name: designState?.projectName || "",
-    dimensions_ft: parseInt(designState?.width || "0"),
+    dimensions_ft: parseInt(designState?.width) || 0, // Convert string to number
     colors: designState?.colors || [],
-    base_clusters: 10, // These values should come from your calculation logic
+    base_clusters: 10,
     extra_clusters: 5,
     total_clusters: 15,
     littles_quantity: 30,
@@ -63,7 +63,7 @@ const ProductionForms = () => {
       const { error } = await supabase
         .from("balloon_inventory")
         .update({ 
-          quantity: `quantity - ${update.quantity}`
+          quantity: supabase.sql`quantity - ${update.quantity}`
         })
         .eq("color", update.color)
         .eq("size", update.size);
