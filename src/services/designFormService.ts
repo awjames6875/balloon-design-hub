@@ -1,58 +1,7 @@
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { DesignSpecsFormData } from "@/components/design/DesignSpecsForm"
-
-export const fetchBalloonFormula = async (size: number, shape: string) => {
-  console.log("Fetching formula for size:", size, "and shape:", shape)
-  
-  const { data, error } = await supabase
-    .from("balloonformula")
-    .select()
-    .eq("size_ft", size)
-    .eq("shape", shape)
-    .limit(1)
-    .maybeSingle()
-
-  if (error) {
-    console.error("Error fetching balloon formula:", error)
-    throw error
-  }
-
-  if (!data) {
-    throw new Error(`No formula found for size ${size}ft and shape ${shape}`)
-  }
-
-  console.log("Retrieved balloon formula:", data)
-  return data
-}
-
-export const calculateBalloonRequirements = async (length: number, style: string) => {
-  try {
-    console.log("Calculating requirements for length:", length, "and style:", style)
-    const formula = await fetchBalloonFormula(length, style)
-    
-    if (!formula) {
-      console.log("No formula found for length:", length, "and style:", style)
-      return null
-    }
-
-    console.log("Using formula:", formula)
-    
-    return {
-      baseClusters: formula.base_clusters,
-      extraClusters: formula.extra_clusters,
-      totalClusters: formula.total_clusters,
-      littlesQuantity: formula.littles_quantity,
-      grapesQuantity: formula.grapes_quantity,
-      balloons11in: formula.balloons_11in,
-      balloons16in: formula.balloons_16in,
-      totalBalloons: formula.total_balloons,
-    }
-  } catch (error) {
-    console.error("Error calculating balloon requirements:", error)
-    throw error
-  }
-}
+import { calculateBalloonRequirements } from "./balloonFormulaService"
 
 export const saveDesignForm = async (formData: DesignSpecsFormData) => {
   try {
@@ -84,7 +33,7 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
     const calculations = await calculateBalloonRequirements(parseInt(formData.length), formData.style)
     
     if (!calculations) {
-      toast.error("Could not find balloon formula for the selected dimensions and style")
+      toast.error("Could not calculate balloon requirements")
       return false
     }
 
