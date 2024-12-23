@@ -27,6 +27,7 @@ const ProductionForms = () => {
     queryKey: ['balloonFormula', designState?.length, designState?.shape],
     queryFn: async () => {
       if (!designState?.length) return null;
+      console.log("Fetching formula for length:", designState.length, "and shape:", designState.shape);
       const result = await calculateBalloonRequirements(parseInt(designState.length), designState.shape);
       console.log("Balloon formula result:", result);
       return result;

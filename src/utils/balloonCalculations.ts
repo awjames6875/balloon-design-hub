@@ -34,7 +34,7 @@ export const calculateBalloonRequirements = async (length: number, style: string
     console.log("Calculating requirements for length:", length, "and style:", style);
     const formula = await fetchBalloonFormula(length, style);
     
-    // Return the database values directly without any calculations
+    // Return the database values directly
     return {
       base_clusters: formula.base_clusters,
       extra_clusters: formula.extra_clusters,
