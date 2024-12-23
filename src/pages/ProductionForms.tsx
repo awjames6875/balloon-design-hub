@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
 import { toast } from "sonner";
 import { ProductionDetails } from "@/components/production/ProductionDetails";
-import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
+import { updateInventoryQuantities } from "@/utils/inventoryUtils";
 
 interface DesignState {
   clientName: string;
@@ -21,7 +21,6 @@ const ProductionForms = () => {
   const navigate = useNavigate();
   const designState = location.state as DesignState;
 
-  // Calculate production time based on clusters (15 minutes per cluster)
   const calculateProductionTime = (totalClusters: number) => {
     const minutesPerCluster = 15;
     const totalMinutes = totalClusters * minutesPerCluster;
@@ -30,9 +29,8 @@ const ProductionForms = () => {
     return `${hours}h ${minutes}m`;
   };
 
-  // Create production details from design state
   const productionDetails: Tables<"production_details"> = {
-    id: 0, // This will be set by the database
+    id: 0,
     client_name: designState?.clientName || "",
     project_name: designState?.projectName || "",
     dimensions_ft: parseInt(designState?.width) || 0,
@@ -58,7 +56,7 @@ const ProductionForms = () => {
     creation_date: null
   };
 
-  const updateInventory = async () => {
+  const handleFinalizeProduction = async () => {
     const updates = [
       {
         color: "Orange",
@@ -77,33 +75,7 @@ const ProductionForms = () => {
       },
     ];
 
-    for (const update of updates) {
-      const { data, error } = await supabase
-        .from("balloon_inventory")
-        .update({ quantity: supabase.rpc('decrement_quantity', { amount: update.quantity }) })
-        .eq("color", update.color)
-        .eq("size", update.size)
-        .select('quantity')
-        .single();
-
-      if (error) {
-        console.error("Error updating inventory:", error);
-        toast.error(`Failed to update inventory for ${update.color} ${update.size}`);
-        return false;
-      }
-
-      // Check if quantity was updated successfully
-      if (data.quantity < update.quantity) {
-        toast.error(`Insufficient inventory for ${update.color} ${update.size}`);
-        return false;
-      }
-    }
-
-    return true;
-  };
-
-  const handleFinalizeProduction = async () => {
-    const success = await updateInventory();
+    const success = await updateInventoryQuantities(updates);
     
     if (success) {
       toast.success("Production finalized! Inventory updated successfully.");
