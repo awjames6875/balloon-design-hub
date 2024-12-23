@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,6 +18,19 @@ import {
 import { ChevronDown } from "lucide-react"
 import { toast } from "sonner"
 import { balloonDensityData } from "@/lib/balloon-density"
+import { supabase } from "@/integrations/supabase/client"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 const balloonColors = ["Orange", "Wild Berry", "Golden Rod", "Teal"]
 
@@ -34,6 +47,11 @@ interface DesignSpecsFormProps {
   onSubmit: (data: DesignSpecsFormData) => void
 }
 
+interface ClientProject {
+  client_name: string
+  project_name: string
+}
+
 export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
@@ -41,8 +59,29 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [height, setHeight] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
+  const [existingProjects, setExistingProjects] = useState<ClientProject[]>([])
+  const [open, setOpen] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchExistingProjects()
+  }, [])
+
+  const fetchExistingProjects = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("client_projects")
+        .select("client_name, project_name")
+        .order("created_at", { ascending: false })
+
+      if (error) throw error
+      setExistingProjects(data || [])
+    } catch (error) {
+      console.error("Error fetching projects:", error)
+      toast.error("Failed to load existing projects")
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!clientName || !projectName) {
@@ -65,18 +104,70 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       return
     }
 
-    onSubmit({
-      clientName,
-      projectName,
-      width,
-      height,
-      colors: selectedColors,
-      style,
-    })
+    try {
+      const { error } = await supabase
+        .from("client_projects")
+        .insert([{ client_name: clientName, project_name: projectName }])
+
+      if (error) throw error
+
+      toast.success("Project saved successfully!")
+      
+      onSubmit({
+        clientName,
+        projectName,
+        width,
+        height,
+        colors: selectedColors,
+        style,
+      })
+    } catch (error) {
+      console.error("Error saving project:", error)
+      toast.error("Failed to save project")
+    }
+  }
+
+  const handleProjectSelect = (project: ClientProject) => {
+    setClientName(project.client_name)
+    setProjectName(project.project_name)
+    setOpen(false)
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="projectSearch">Search Existing Projects</Label>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between"
+            >
+              Search projects...
+              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full p-0">
+            <Command>
+              <CommandInput placeholder="Search projects..." />
+              <CommandEmpty>No projects found.</CommandEmpty>
+              <CommandGroup>
+                {existingProjects.map((project, index) => (
+                  <CommandItem
+                    key={index}
+                    onSelect={() => handleProjectSelect(project)}
+                  >
+                    {project.client_name} - {project.project_name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="clientName">Client Name</Label>
         <Input
