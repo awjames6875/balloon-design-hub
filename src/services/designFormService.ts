@@ -23,6 +23,7 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
 
 export const calculateBalloonRequirements = async (length: number, style: string) => {
   try {
+    console.log("Calculating requirements for length:", length, "and style:", style)
     const formula = await fetchBalloonFormula(length, style)
     
     if (!formula) {
@@ -31,6 +32,9 @@ export const calculateBalloonRequirements = async (length: number, style: string
     }
 
     console.log("Using formula:", formula)
+    console.log("Base clusters from formula:", formula.base_clusters)
+    console.log("Extra clusters from formula:", formula.extra_clusters)
+    console.log("Total clusters from formula:", formula.total_clusters)
     
     return {
       baseClusters: formula.base_clusters,
