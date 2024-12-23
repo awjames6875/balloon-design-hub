@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { ProjectSearch } from "./ProjectSearch"
 import { DimensionsInput } from "./DimensionsInput"
-import { ColorSelect } from "./ColorSelect"
 import { StyleSelect } from "./StyleSelect"
 import { ClientInfoFields } from "./ClientInfoFields"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
@@ -19,7 +18,6 @@ export interface DesignSpecsFormData {
   clientName: string
   projectName: string
   length: string
-  colors: string[]
   style: string
   shape: string
 }
@@ -32,7 +30,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
   const [length, setLength] = useState("")
-  const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
   const [shape, setShape] = useState("Straight")
   
@@ -48,11 +45,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
 
     if (!length) {
       toast.error("Please enter the length")
-      return
-    }
-
-    if (selectedColors.length === 0) {
-      toast.error("Please select at least one color")
       return
     }
 
@@ -80,7 +72,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         clientName,
         projectName,
         length,
-        colors: selectedColors,
         style,
         shape,
       }
@@ -122,11 +113,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         onValueChange={setStyle}
         styles={balloonStyles}
         isLoading={isLoadingStyles}
-      />
-
-      <ColorSelect
-        selectedColors={selectedColors}
-        onColorsChange={setSelectedColors}
       />
 
       <Button type="submit" className="w-full">
