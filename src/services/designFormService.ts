@@ -1,36 +1,11 @@
 import { supabase } from "@/integrations/supabase/client"
+import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
 import { toast } from "sonner"
 import { DesignSpecsFormData } from "@/components/design/DesignSpecsForm"
-import { calculateBalloonRequirements } from "./balloonFormulaService"
 
 export const saveDesignForm = async (formData: DesignSpecsFormData) => {
   try {
-    // Check if project already exists
-    const { data: existingProject } = await supabase
-      .from("client_projects")
-      .select("id")
-      .eq("client_name", formData.clientName)
-      .eq("project_name", formData.projectName)
-      .limit(1)
-      .maybeSingle()
-
-    // Only insert if project doesn't exist
-    if (!existingProject) {
-      const { error: projectError } = await supabase
-        .from("client_projects")
-        .insert([{
-          client_name: formData.clientName,
-          project_name: formData.projectName,
-        }])
-
-      if (projectError) {
-        console.error("Error saving client project:", projectError)
-        toast.error("Failed to save client project")
-        return false
-      }
-    }
-
-    const calculations = await calculateBalloonRequirements(parseInt(formData.length), formData.style)
+    const calculations = await calculateBalloonRequirements(parseInt(formData.length), formData.shape)
     
     if (!calculations) {
       toast.error("Could not calculate balloon requirements")
@@ -62,11 +37,27 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
       return false
     }
 
-    toast.success("Project saved successfully!")
+    // Save client project if it doesn't exist
+    const { error: projectError } = await supabase
+      .from("client_projects")
+      .insert([{
+        client_name: formData.clientName,
+        project_name: formData.projectName,
+      }])
+      .select()
+      .single()
+
+    if (projectError && !projectError.message.includes('duplicate key')) {
+      console.error("Error saving client project:", projectError)
+      toast.error("Failed to save client project")
+      return false
+    }
+
+    toast.success("Design form saved successfully!")
     return true
   } catch (error) {
-    console.error("Error saving project:", error)
-    toast.error("Failed to save project")
+    console.error("Error saving design form:", error)
+    toast.error("Failed to save design form")
     return false
   }
 }
