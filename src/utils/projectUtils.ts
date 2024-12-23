@@ -6,7 +6,6 @@ interface SaveProjectParams {
   clientName: string
   projectName: string
   length: string
-  width: string
   colors: string[]
   style: string
   shape: string
@@ -16,7 +15,6 @@ export const saveProject = async ({
   clientName,
   projectName,
   length,
-  width,
   colors,
   style,
   shape,
@@ -60,16 +58,15 @@ export const saveProject = async ({
         client_name: clientName,
         project_name: projectName,
         dimensions_ft: parseInt(length),
-        width_ft: parseInt(width),
         colors: colors,
-        base_clusters: calculations.baseClusters,
-        extra_clusters: calculations.extraClusters,
-        total_clusters: calculations.totalClusters,
-        littles_quantity: calculations.littlesQuantity,
-        grapes_quantity: calculations.grapesQuantity,
-        balloons_11in: calculations.balloons11in,
-        balloons_16in: calculations.balloons16in,
-        total_balloons: calculations.totalBalloons,
+        base_clusters: calculations.base_clusters,
+        extra_clusters: calculations.extra_clusters,
+        total_clusters: calculations.total_clusters,
+        littles_quantity: calculations.littles_quantity,
+        grapes_quantity: calculations.grapes_quantity,
+        balloons_11in: calculations.balloons_11in,
+        balloons_16in: calculations.balloons_16in,
+        total_balloons: calculations.total_balloons,
         shape: shape,
       }])
 
