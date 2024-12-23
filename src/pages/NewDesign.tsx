@@ -2,16 +2,9 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ImageUpload } from "@/components/design/ImageUpload"
 import { DesignSpecsForm, type DesignSpecsFormData } from "@/components/design/DesignSpecsForm"
-import { ClusterDetailsForm } from "@/components/design/ClusterDetailsForm"
 import { AccessoriesDetailsForm } from "@/components/design/AccessoriesDetailsForm"
 import { ProductionSummary } from "@/components/design/ProductionSummary"
 import { toast } from "sonner"
-
-interface ColorCluster {
-  color: string
-  baseClusters: number
-  extraClusters: number
-}
 
 interface Accessory {
   type: string
@@ -22,11 +15,9 @@ const NewDesign = () => {
   const navigate = useNavigate()
   const [clientImage, setClientImage] = useState<string | null>(null)
   const [designImage, setDesignImage] = useState<string | null>(null)
-  const [showClusterDetails, setShowClusterDetails] = useState(false)
   const [showAccessoriesDetails, setShowAccessoriesDetails] = useState(false)
   const [showProductionSummary, setShowProductionSummary] = useState(false)
   const [designData, setDesignData] = useState<DesignSpecsFormData | null>(null)
-  const [clusterData, setClusterData] = useState<ColorCluster[] | null>(null)
   const [accessoriesData, setAccessoriesData] = useState<Accessory[] | null>(null)
 
   const handleClientImageUpload = (file: File) => {
@@ -54,11 +45,6 @@ const NewDesign = () => {
     }
 
     setDesignData(data)
-    setShowClusterDetails(true)
-  }
-
-  const handleClusterDetailsSubmit = (clusters: ColorCluster[]) => {
-    setClusterData(clusters)
     setShowAccessoriesDetails(true)
   }
 
@@ -71,7 +57,7 @@ const NewDesign = () => {
     navigate("/production-forms")
   }
 
-  if (showProductionSummary && designData && clusterData && accessoriesData) {
+  if (showProductionSummary && designData && accessoriesData) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <ProductionSummary
@@ -79,7 +65,7 @@ const NewDesign = () => {
           projectName={designData.projectName}
           dimensions={designData.length}
           style={designData.style}
-          colorClusters={clusterData}
+          colorClusters={[]} // Empty array since we removed color clusters
           accessories={accessoriesData}
           onFinalize={handleProductionFinalize}
         />
@@ -91,14 +77,6 @@ const NewDesign = () => {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <AccessoriesDetailsForm onNext={handleAccessoriesSubmit} />
-      </div>
-    )
-  }
-
-  if (showClusterDetails) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <ClusterDetailsForm onNext={handleClusterDetailsSubmit} />
       </div>
     )
   }
