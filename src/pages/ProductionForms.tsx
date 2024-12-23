@@ -36,6 +36,7 @@ const ProductionForms = () => {
     client_name: designState?.clientName || "",
     project_name: designState?.projectName || "",
     dimensions_ft: parseInt(designState?.width) || 0,
+    width_ft: parseInt(designState?.width) || 1,
     shape: designState?.shape || "Straight",
     colors: designState?.colors || [],
     base_clusters: 10,
