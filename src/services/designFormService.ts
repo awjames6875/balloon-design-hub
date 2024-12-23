@@ -43,7 +43,7 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
         client_name: formData.clientName,
         project_name: formData.projectName,
         dimensions_ft: parseInt(formData.length),
-        colors: formData.colors,
+        colors: [], // Set to empty array since we removed color selection
         base_clusters: calculations.base_clusters,
         extra_clusters: calculations.extra_clusters,
         total_clusters: calculations.total_clusters,
