@@ -78,19 +78,23 @@ const ProductionForms = () => {
     ];
 
     for (const update of updates) {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("balloon_inventory")
-        .update({ 
-          quantity: supabase.rpc('decrement_quantity', { 
-            amount: update.quantity 
-          })
-        })
+        .update({ quantity: supabase.rpc('decrement_quantity', { amount: update.quantity }) })
         .eq("color", update.color)
-        .eq("size", update.size);
+        .eq("size", update.size)
+        .select('quantity')
+        .single();
 
       if (error) {
         console.error("Error updating inventory:", error);
         toast.error(`Failed to update inventory for ${update.color} ${update.size}`);
+        return false;
+      }
+
+      // Check if quantity was updated successfully
+      if (data.quantity < update.quantity) {
+        toast.error(`Insufficient inventory for ${update.color} ${update.size}`);
         return false;
       }
     }
