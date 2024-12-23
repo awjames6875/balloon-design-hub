@@ -1,5 +1,33 @@
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+
+interface BalloonStyle {
+  style_name: string;
+  density_factor: number;
+}
+
+export const calculateBaseClusters = async (length: number, style: string): Promise<number> => {
+  console.log("Calculating base clusters for length:", length, "and style:", style);
+  
+  // Fetch the density factor from the database
+  const { data: styleData, error } = await supabase
+    .from("balloon_styles")
+    .select("density_factor")
+    .eq("style_name", style)
+    .single();
+
+  if (error) {
+    console.error("Error fetching balloon style:", error);
+    throw error;
+  }
+
+  if (!styleData) {
+    console.error("Style not found:", style);
+    throw new Error(`Balloon style '${style}' not found`);
+  }
+
+  const baseClusters = length * styleData.density_factor;
+  return Math.round(baseClusters);
+};
 
 export const fetchBalloonFormula = async (size: number, shape: string) => {
   console.log("Fetching formula for size:", size, "and shape:", shape);
@@ -14,14 +42,12 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
 
   if (error) {
     console.error("Error fetching balloon formula:", error);
-    toast.error("Error fetching balloon formula");
     throw error;
   }
 
   if (!data) {
     const errorMessage = `No formula found for size ${size}ft and shape ${shape}`;
     console.error(errorMessage);
-    toast.error(errorMessage);
     throw new Error(errorMessage);
   }
 
@@ -29,10 +55,10 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
   return data;
 };
 
-export const calculateBalloonRequirements = async (length: number, style: string) => {
+export const calculateBalloonRequirements = async (length: number, shape: string) => {
   try {
-    console.log("Calculating requirements for length:", length, "and style:", style);
-    const formula = await fetchBalloonFormula(length, style);
+    console.log("Calculating requirements for length:", length, "and shape:", shape);
+    const formula = await fetchBalloonFormula(length, shape);
     
     // Return the database values directly
     return {
