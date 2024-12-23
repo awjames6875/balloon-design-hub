@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      balloon_inventory: {
+        Row: {
+          color: string
+          created_at: string | null
+          id: number
+          quantity: number
+          size: string
+          updated_at: string | null
+        }
+        Insert: {
+          color: string
+          created_at?: string | null
+          id?: number
+          quantity?: number
+          size: string
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          id?: number
+          quantity?: number
+          size?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       balloonformula: {
         Row: {
           accents: Json | null
