@@ -1,14 +1,13 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { supabase } from "@/integrations/supabase/client"
 import { ProjectSearch } from "./ProjectSearch"
 import { DimensionsInput } from "./DimensionsInput"
 import { ColorSelect } from "./ColorSelect"
 import { StyleSelect } from "./StyleSelect"
 import { ClientInfoFields } from "./ClientInfoFields"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
-import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
+import { saveProject } from "@/utils/projectUtils"
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -56,65 +55,16 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       return
     }
 
-    try {
-      // Check if project already exists
-      const { data: existingProject } = await supabase
-        .from("client_projects")
-        .select("id")
-        .eq("client_name", clientName)
-        .eq("project_name", projectName)
-        .maybeSingle()
+    const success = await saveProject({
+      clientName,
+      projectName,
+      length,
+      colors: selectedColors,
+      style,
+      shape,
+    })
 
-      // Only insert if project doesn't exist
-      if (!existingProject) {
-        const { error: projectError } = await supabase
-          .from("client_projects")
-          .insert([{
-            client_name: clientName,
-            project_name: projectName,
-          }])
-
-        if (projectError) {
-          console.error("Error saving client project:", projectError)
-          toast.error("Failed to save client project")
-          return
-        }
-      }
-
-      const calculations = await calculateBalloonRequirements(parseInt(length), style)
-      
-      if (!calculations) {
-        toast.error("Could not find balloon formula for the selected dimensions and style")
-        return
-      }
-
-      // Save production details
-      const { error: productionError } = await supabase
-        .from("production_details")
-        .insert([{
-          client_name: clientName,
-          project_name: projectName,
-          dimensions_ft: parseInt(length),
-          colors: selectedColors,
-          base_clusters: calculations.baseClusters,
-          extra_clusters: calculations.extraClusters,
-          total_clusters: calculations.totalClusters,
-          littles_quantity: calculations.littlesQuantity,
-          grapes_quantity: calculations.grapesQuantity,
-          balloons_11in: calculations.balloons11in,
-          balloons_16in: calculations.balloons16in,
-          total_balloons: calculations.totalBalloons,
-          shape: shape,
-        }])
-
-      if (productionError) {
-        console.error("Error saving production details:", productionError)
-        toast.error("Failed to save production details")
-        return
-      }
-
-      toast.success("Project saved successfully!")
-      
+    if (success) {
       onSubmit({
         clientName,
         projectName,
@@ -123,9 +73,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         style,
         shape,
       })
-    } catch (error) {
-      console.error("Error saving project:", error)
-      toast.error("Failed to save project")
     }
   }
 
