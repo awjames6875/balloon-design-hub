@@ -1,29 +1,14 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { ProjectSearch } from "./ProjectSearch"
 import { DimensionsInput } from "./DimensionsInput"
 import { ShapeSelect } from "./ShapeSelect"
+import { ColorSelect } from "./ColorSelect"
+import { StyleSelect } from "./StyleSelect"
+import { ClientInfoFields } from "./ClientInfoFields"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
-
-const balloonColors = ["Orange", "Wild Berry", "Golden Rod", "Teal"]
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -134,25 +119,12 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         onProjectSelect={handleProjectSelect}
       />
 
-      <div className="space-y-2">
-        <Label htmlFor="clientName">Client Name</Label>
-        <Input
-          id="clientName"
-          value={clientName}
-          onChange={(e) => setClientName(e.target.value)}
-          placeholder="Enter client name"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="projectName">Project Name</Label>
-        <Input
-          id="projectName"
-          value={projectName}
-          onChange={(e) => setProjectName(e.target.value)}
-          placeholder="Enter project name"
-        />
-      </div>
+      <ClientInfoFields
+        clientName={clientName}
+        projectName={projectName}
+        onClientNameChange={setClientName}
+        onProjectNameChange={setProjectName}
+      />
 
       <DimensionsInput
         width={width}
@@ -161,67 +133,19 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         onHeightChange={setHeight}
       />
 
-      <div className="space-y-2">
-        <Label>Balloon Style</Label>
-        <Select value={style} onValueChange={setStyle}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select balloon style" />
-          </SelectTrigger>
-          <SelectContent className="bg-white dark:bg-gray-800 border shadow-lg">
-            {isLoadingStyles ? (
-              <SelectItem value="loading">Loading styles...</SelectItem>
-            ) : (
-              balloonStyles?.map((item) => (
-                <SelectItem 
-                  key={item.style_name} 
-                  value={item.style_name}
-                  className="hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  {item.style_name}
-                </SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
-      </div>
+      <StyleSelect
+        value={style}
+        onValueChange={setStyle}
+        styles={balloonStyles}
+        isLoading={isLoadingStyles}
+      />
 
       <ShapeSelect value={shape} onValueChange={setShape} />
 
-      <div className="space-y-2">
-        <Label>Balloon Colors</Label>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-between"
-              role="combobox"
-            >
-              {selectedColors.length === 0
-                ? "Select colors"
-                : `${selectedColors.length} selected`}
-              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[200px] bg-white dark:bg-gray-800 border shadow-lg">
-            {balloonColors.map((color) => (
-              <DropdownMenuCheckboxItem
-                key={color}
-                checked={selectedColors.includes(color)}
-                onCheckedChange={(checked) => {
-                  setSelectedColors(
-                    checked
-                      ? [...selectedColors, color]
-                      : selectedColors.filter((c) => c !== color)
-                  )
-                }}
-                className="hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                {color}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <ColorSelect
+        selectedColors={selectedColors}
+        onColorsChange={setSelectedColors}
+      />
 
       <Button type="submit" className="w-full">
         Generate Production Form
