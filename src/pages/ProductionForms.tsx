@@ -5,13 +5,12 @@ import { toast } from "sonner";
 import { ProductionDetails } from "@/components/production/ProductionDetails";
 import { Tables } from "@/integrations/supabase/types";
 import { updateInventoryQuantities } from "@/utils/inventoryUtils";
-import { calculateBalloonRequirements } from "@/utils/balloonCalculations";
 
 interface DesignState {
   clientName: string;
   projectName: string;
+  length: string;
   width: string;
-  height: string;
   colors: string[];
   shape: string;
   imagePreview: string;
@@ -35,7 +34,7 @@ const ProductionForms = () => {
     id: 0,
     client_name: designState?.clientName || "",
     project_name: designState?.projectName || "",
-    dimensions_ft: parseInt(designState?.width) || 0,
+    dimensions_ft: parseInt(designState?.length) || 0,
     width_ft: parseInt(designState?.width) || 1,
     shape: designState?.shape || "Straight",
     colors: designState?.colors || [],
@@ -96,6 +95,9 @@ const ProductionForms = () => {
       </div>
     );
   }
+
+  console.log("Design state length:", designState.length);
+  console.log("Parsed dimensions:", parseInt(designState.length));
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
