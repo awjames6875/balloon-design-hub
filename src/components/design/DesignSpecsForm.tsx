@@ -9,6 +9,7 @@ import { ColorSelect } from "./ColorSelect"
 import { StyleSelect } from "./StyleSelect"
 import { ClientInfoFields } from "./ClientInfoFields"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
+import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -57,9 +58,32 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
     }
 
     try {
+      // Calculate balloon requirements
+      const calculations = await calculateBalloonRequirements(parseInt(width), shape)
+      
+      if (!calculations) {
+        toast.error("Could not find balloon formula for the selected size and shape")
+        return
+      }
+
+      // Save project details
       const { error } = await supabase
-        .from("client_projects")
-        .insert([{ client_name: clientName, project_name: projectName }])
+        .from("production_details")
+        .insert([{
+          client_name: clientName,
+          project_name: projectName,
+          dimensions_ft: parseInt(width),
+          colors: selectedColors,
+          shape,
+          base_clusters: calculations.baseClusters,
+          extra_clusters: calculations.extraClusters,
+          total_clusters: calculations.totalClusters,
+          littles_quantity: calculations.littlesQuantity,
+          grapes_quantity: calculations.grapesQuantity,
+          balloons_11in: calculations.balloons11in,
+          balloons_16in: calculations.balloons16in,
+          total_balloons: calculations.totalBalloons,
+        }])
 
       if (error) throw error
 

@@ -27,7 +27,7 @@ const NewDesign = () => {
     reader.readAsDataURL(file)
   }
 
-  const handleFormSubmit = (data: DesignSpecsFormData) => {
+  const handleFormSubmit = async (data: DesignSpecsFormData) => {
     if (!designImage) {
       toast.error("Please upload your balloon design")
       return
@@ -38,10 +38,11 @@ const NewDesign = () => {
         clientName: data.clientName,
         projectName: data.projectName,
         width: data.width,
-        height: data.height,
         colors: data.colors,
         imagePreview: designImage,
         clientReference: clientImage,
+        shape: data.shape,
+        style: data.style,
       },
     })
   }
