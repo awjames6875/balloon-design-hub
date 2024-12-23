@@ -64,9 +64,9 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
     try {
       // Calculate all balloon requirements
       const lengthNum = parseInt(length)
-      const baseClusters = await calculateBaseClusters(lengthNum, style)
-      const extraClusters = calculateExtraClusters(baseClusters)
-      const totalBalloons = calculateTotalBalloons(baseClusters, extraClusters)
+      const baseClusters = await calculateBaseClusters(lengthNum)
+      const extraClusters = await calculateExtraClusters(lengthNum)
+      const totalBalloons = await calculateTotalBalloons(lengthNum)
       const productionTime = estimateProductionTime(lengthNum)
 
       console.log("Calculated values:", {
