@@ -57,6 +57,16 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
     }
 
     try {
+      // First save the client project
+      const { error: projectError } = await supabase
+        .from("client_projects")
+        .insert([{
+          client_name: clientName,
+          project_name: projectName,
+        }])
+
+      if (projectError) throw projectError
+
       const calculations = await calculateBalloonRequirements(parseInt(length), style)
       
       if (!calculations) {
@@ -64,8 +74,8 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         return
       }
 
-      // Save project details
-      const { error } = await supabase
+      // Then save production details
+      const { error: productionError } = await supabase
         .from("production_details")
         .insert([{
           client_name: clientName,
@@ -83,7 +93,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
           shape: shape,
         }])
 
-      if (error) throw error
+      if (productionError) throw productionError
 
       toast.success("Project saved successfully!")
       

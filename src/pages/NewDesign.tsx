@@ -37,7 +37,7 @@ const NewDesign = () => {
       state: {
         clientName: data.clientName,
         projectName: data.projectName,
-        width: data.width,
+        length: data.length,
         colors: data.colors,
         imagePreview: designImage,
         clientReference: clientImage,
