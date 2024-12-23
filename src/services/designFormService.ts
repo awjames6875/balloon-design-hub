@@ -9,7 +9,7 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
     .eq("size_ft", size)
     .eq("shape", shape)
     .limit(1)
-    .single()
+    .maybeSingle()
 
   if (error) {
     console.error("Error fetching balloon formula:", error)
@@ -46,12 +46,18 @@ export const calculateBalloonRequirements = async (length: number, style: string
 export const saveDesignForm = async (formData: DesignSpecsFormData) => {
   try {
     // Check if project already exists
-    const { data: existingProject } = await supabase
+    const { data: existingProject, error: queryError } = await supabase
       .from("client_projects")
       .select("id")
       .eq("client_name", formData.clientName)
       .eq("project_name", formData.projectName)
-      .single()
+      .maybeSingle()
+
+    if (queryError) {
+      console.error("Error checking existing project:", queryError)
+      toast.error("Failed to check existing project")
+      return false
+    }
 
     // Only insert if project doesn't exist
     if (!existingProject) {
