@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { Search } from "lucide-react"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -19,10 +20,13 @@ interface ProjectSearchComboboxProps {
   onProjectSelect: (project: { client_name: string; project_name: string }) => void
 }
 
-export function ProjectSearchCombobox({ onProjectSelect }: ProjectSearchComboboxProps) {
+export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchComboboxProps) => {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  const { projects } = useProjectSearch()
+  const { data: projects, isLoading } = useProjectSearch()
+
+  // Ensure projects is an array even if undefined
+  const projectList = projects || []
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -34,32 +38,39 @@ export function ProjectSearchCombobox({ onProjectSelect }: ProjectSearchCombobox
           className="w-full justify-between"
         >
           {value
-            ? projects.find(
-                (project) =>
-                  `${project.client_name} - ${project.project_name}` === value
-              )?.project_name || "Search previous projects..."
-            : "Search previous projects..."}
-          <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            ? projectList.find((project) => 
+                `${project.client_name}-${project.project_name}` === value
+              )?.project_name
+            : "Search projects..."}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search projects..." />
-          <CommandEmpty>No projects found.</CommandEmpty>
+          <CommandEmpty>
+            {isLoading ? "Loading..." : "No projects found."}
+          </CommandEmpty>
           <CommandGroup>
-            {projects.map((project) => {
-              const projectLabel = `${project.client_name} - ${project.project_name}`
+            {projectList.map((project) => {
+              const projectValue = `${project.client_name}-${project.project_name}`
               return (
                 <CommandItem
-                  key={project.id}
-                  value={projectLabel}
+                  key={projectValue}
+                  value={projectValue}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue)
                     onProjectSelect(project)
                     setOpen(false)
                   }}
                 >
-                  {projectLabel}
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === projectValue ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {project.project_name} ({project.client_name})
                 </CommandItem>
               )
             })}
