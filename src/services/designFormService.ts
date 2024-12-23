@@ -44,14 +44,14 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
         project_name: formData.projectName,
         dimensions_ft: parseInt(formData.length),
         colors: [], // Set to empty array since we removed color selection
-        base_clusters: calculations.base_clusters,
-        extra_clusters: calculations.extra_clusters,
-        total_clusters: calculations.total_clusters,
-        littles_quantity: calculations.littles_quantity,
-        grapes_quantity: calculations.grapes_quantity,
-        balloons_11in: calculations.balloons_11in,
-        balloons_16in: calculations.balloons_16in,
-        total_balloons: calculations.total_balloons,
+        base_clusters: calculations.baseClusters,
+        extra_clusters: calculations.extraClusters,
+        total_clusters: calculations.totalClusters,
+        littles_quantity: calculations.littlesQuantity,
+        grapes_quantity: calculations.grapesQuantity,
+        balloons_11in: calculations.balloons11in,
+        balloons_16in: calculations.balloons16in,
+        total_balloons: calculations.totalBalloons,
         shape: formData.shape,
       }])
 

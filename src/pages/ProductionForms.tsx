@@ -77,13 +77,13 @@ const ProductionForms = () => {
     dimensions_ft: parseInt(designState.length),
     shape: designState.shape,
     colors: designState.colors,
-    base_clusters: balloonFormula.base_clusters,
-    extra_clusters: balloonFormula.extra_clusters,
-    total_clusters: balloonFormula.total_clusters,
-    littles_quantity: balloonFormula.total_clusters,
-    grapes_quantity: balloonFormula.grapes_quantity,
-    balloons_11in: balloonFormula.total_clusters * 11,
-    balloons_16in: balloonFormula.balloons_16in,
+    base_clusters: balloonFormula.baseClusters,
+    extra_clusters: balloonFormula.extraClusters,
+    total_clusters: balloonFormula.totalClusters,
+    littles_quantity: balloonFormula.littlesQuantity,
+    grapes_quantity: balloonFormula.grapesQuantity,
+    balloons_11in: balloonFormula.balloons11in,
+    balloons_16in: balloonFormula.balloons16in,
     accents: {
       starbursts: {
         quantity: 5,
@@ -94,15 +94,14 @@ const ProductionForms = () => {
         type: "Large Accent Balloons"
       }
     },
-    production_time: calculateProductionTime(balloonFormula.total_clusters),
+    production_time: calculateProductionTime(balloonFormula.totalClusters),
     creation_date: null,
-    total_balloons: balloonFormula.total_balloons,
+    total_balloons: balloonFormula.totalBalloons,
     width_ft: null
   };
 
   const handleFinalizeProduction = async () => {
     try {
-      // Save production details to the database
       const { error: productionError } = await supabase
         .from("production_details")
         .insert([productionDetails]);
