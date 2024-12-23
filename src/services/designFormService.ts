@@ -12,6 +12,30 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
       return false
     }
 
+    // First check if project exists
+    const { data: existingProject } = await supabase
+      .from("client_projects")
+      .select("id")
+      .eq("client_name", formData.clientName)
+      .eq("project_name", formData.projectName)
+      .maybeSingle()
+
+    // Only insert if project doesn't exist
+    if (!existingProject) {
+      const { error: projectError } = await supabase
+        .from("client_projects")
+        .insert([{
+          client_name: formData.clientName,
+          project_name: formData.projectName,
+        }])
+
+      if (projectError && !projectError.message.includes('duplicate key')) {
+        console.error("Error saving client project:", projectError)
+        toast.error("Failed to save client project")
+        return false
+      }
+    }
+
     // Save production details
     const { error: productionError } = await supabase
       .from("production_details")
@@ -34,22 +58,6 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
     if (productionError) {
       console.error("Error saving production details:", productionError)
       toast.error("Failed to save production details")
-      return false
-    }
-
-    // Save client project if it doesn't exist
-    const { error: projectError } = await supabase
-      .from("client_projects")
-      .insert([{
-        client_name: formData.clientName,
-        project_name: formData.projectName,
-      }])
-      .select()
-      .single()
-
-    if (projectError && !projectError.message.includes('duplicate key')) {
-      console.error("Error saving client project:", projectError)
-      toast.error("Failed to save client project")
       return false
     }
 
