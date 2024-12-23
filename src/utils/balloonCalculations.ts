@@ -29,6 +29,12 @@ export const calculateBaseClusters = async (length: number, style: string): Prom
   return Math.round(baseClusters);
 };
 
+export const calculateExtraClusters = (baseClusters: number, extraPercentage: number = 0.4): number => {
+  console.log("Calculating extra clusters with base clusters:", baseClusters, "and percentage:", extraPercentage);
+  const extraClusters = baseClusters * extraPercentage;
+  return Math.round(extraClusters);
+};
+
 export const fetchBalloonFormula = async (size: number, shape: string) => {
   console.log("Fetching formula for size:", size, "and shape:", shape);
   
