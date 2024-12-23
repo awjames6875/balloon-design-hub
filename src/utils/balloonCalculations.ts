@@ -38,13 +38,16 @@ export const calculateTotalBalloons = (baseClusters: number, extraClusters: numb
   return Math.round(totalBalloons);
 };
 
-export const estimateProductionTime = (totalClusters: number, timePerCluster: number = 15): string => {
-  console.log("Estimating production time for clusters:", totalClusters, "time per cluster:", timePerCluster);
-  const totalMinutes = totalClusters * timePerCluster;
+export const estimateProductionTime = (length: number): string => {
+  console.log("Estimating production time for length:", length);
+  
+  // Calculate total minutes based on 1h15m per 10ft
+  const minutesPer10Feet = 75; // 1h15m = 75 minutes
+  const totalMinutes = (length / 10) * minutesPer10Feet;
   
   // Convert to hours and minutes format
   const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
+  const minutes = Math.round(totalMinutes % 60);
   
   return `${hours}h ${minutes}m`;
 };
