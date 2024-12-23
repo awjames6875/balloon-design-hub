@@ -13,7 +13,7 @@ interface ShapeSelectProps {
 }
 
 export const ShapeSelect = ({ value, onValueChange }: ShapeSelectProps) => {
-  const shapes = ["Straight", "Curved", "S-Shaped", "Cluster"]
+  const shapes = ["Straight", "Curved"]
 
   return (
     <div className="space-y-2">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
@@ -14,7 +14,6 @@ export interface DesignSpecsFormData {
   clientName: string
   projectName: string
   width: string
-  height: string
   colors: string[]
   style: string
   shape: string
@@ -28,7 +27,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
   const [width, setWidth] = useState("")
-  const [height, setHeight] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
   const [shape, setShape] = useState("Straight")
@@ -43,8 +41,8 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       return
     }
 
-    if (!width || !height) {
-      toast.error("Please enter both width and height")
+    if (!width) {
+      toast.error("Please select a garland size")
       return
     }
 
@@ -71,7 +69,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         clientName,
         projectName,
         width,
-        height,
         colors: selectedColors,
         style,
         shape,
@@ -100,9 +97,9 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
 
       <DimensionsInput
         width={width}
-        height={height}
+        height=""
         onWidthChange={setWidth}
-        onHeightChange={setHeight}
+        onHeightChange={() => {}}
       />
 
       <StyleSelect

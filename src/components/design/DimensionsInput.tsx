@@ -1,5 +1,11 @@
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface DimensionsInputProps {
   width: string
@@ -10,33 +16,29 @@ interface DimensionsInputProps {
 
 export const DimensionsInput = ({
   width,
-  height,
   onWidthChange,
-  onHeightChange,
 }: DimensionsInputProps) => {
-  return (
-    <div className="grid md:grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="width">Width (ft)</Label>
-        <Input
-          id="width"
-          type="number"
-          value={width}
-          onChange={(e) => onWidthChange(e.target.value)}
-          placeholder="Enter width"
-        />
-      </div>
+  const sizeOptions = ["2", "3", "4", "6", "8", "10", "12", "14", "16"]
 
-      <div className="space-y-2">
-        <Label htmlFor="height">Height (ft)</Label>
-        <Input
-          id="height"
-          type="number"
-          value={height}
-          onChange={(e) => onHeightChange(e.target.value)}
-          placeholder="Enter height"
-        />
-      </div>
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="width">Garland Size (ft)</Label>
+      <Select value={width} onValueChange={onWidthChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select size" />
+        </SelectTrigger>
+        <SelectContent className="bg-white dark:bg-gray-800 border shadow-lg">
+          {sizeOptions.map((size) => (
+            <SelectItem
+              key={size}
+              value={size}
+              className="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              {size} ft
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   )
 }
