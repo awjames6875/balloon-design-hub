@@ -10,6 +10,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  TooltipProvider,
 } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
@@ -38,16 +39,18 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Label>Balloon Colors</Label>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="text-xs text-muted-foreground cursor-help">
-              (Click multiple colors to select)
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Click multiple colors to select them</p>
-          </TooltipContent>
-        </Tooltip>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-xs text-muted-foreground cursor-help">
+                (Click multiple colors to select)
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Click multiple colors to select them</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <Select onValueChange={handleColorSelect}>
