@@ -7,6 +7,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface ColorSelectProps {
   selectedColors: string[]
@@ -18,7 +23,19 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
 
   return (
     <div className="space-y-2">
-      <Label>Balloon Colors</Label>
+      <div className="flex items-center gap-2">
+        <Label>Balloon Colors</Label>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="text-xs text-muted-foreground cursor-help">
+              (Click multiple colors to select them)
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>You can select multiple colors from the dropdown</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -28,7 +45,7 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
           >
             {selectedColors.length === 0
               ? "Select colors"
-              : `${selectedColors.length} selected`}
+              : selectedColors.join(", ")}
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
@@ -51,6 +68,11 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
+      {selectedColors.length > 0 && (
+        <div className="text-sm text-muted-foreground">
+          Selected: {selectedColors.join(", ")}
+        </div>
+      )}
     </div>
   )
 }
