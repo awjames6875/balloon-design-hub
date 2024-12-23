@@ -10,21 +10,14 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from "@/components/ui/chart"
-import { BarChart, Bar, XAxis, YAxis } from "recharts"
-import { balloonDensityData, calculateRequiredStock } from "@/lib/balloon-density"
+import { balloonDensityData } from "@/lib/balloon-density"
+import { BalloonChart } from "@/components/charts/BalloonChart"
 
 interface BalloonInventory {
-  type: string;
-  style: string;
-  inStock: number;
-  toOrder: number;
+  type: string
+  style: string
+  inStock: number
+  toOrder: number
 }
 
 const initialInventory: BalloonInventory[] = [
@@ -58,8 +51,10 @@ const Inventory = () => {
     return inventory.map((item) => ({
       name: item.type,
       actual: item.inStock,
-      effective: Math.floor(item.inStock * 
-        (balloonDensityData.find(d => d.Style === item.style)?.Density || 1)),
+      effective: Math.floor(
+        item.inStock *
+          (balloonDensityData.find((d) => d.Style === item.style)?.Density || 1)
+      ),
     }))
   }
 
@@ -83,8 +78,9 @@ const Inventory = () => {
           <TableBody>
             {inventory.map((item) => {
               const effectiveStock = Math.floor(
-                item.inStock * 
-                (balloonDensityData.find(d => d.Style === item.style)?.Density || 1)
+                item.inStock *
+                  (balloonDensityData.find((d) => d.Style === item.style)
+                    ?.Density || 1)
               )
               return (
                 <TableRow key={`${item.type}-${item.style}`}>
@@ -102,33 +98,7 @@ const Inventory = () => {
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">Stock Usage Analytics</h2>
-        <div className="h-[300px]">
-          <ChartContainer
-            config={{
-              actual: {
-                label: "Actual Stock",
-                theme: { light: "hsl(220 80% 50%)", dark: "hsl(220 80% 50%)" },
-              },
-              effective: {
-                label: "Effective Stock",
-                theme: { light: "hsl(150 80% 50%)", dark: "hsl(150 80% 50%)" },
-              },
-            }}
-          >
-            <BarChart data={getUsageData()}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Bar dataKey="actual" fill="var(--color-actual)" />
-              <Bar dataKey="effective" fill="var(--color-effective)" />
-              <ChartTooltip>
-                <ChartTooltipContent />
-              </ChartTooltip>
-              <ChartLegend>
-                <ChartLegendContent />
-              </ChartLegend>
-            </BarChart>
-          </ChartContainer>
-        </div>
+        <BalloonChart data={getUsageData()} />
       </div>
 
       <div className="flex justify-center gap-4">
