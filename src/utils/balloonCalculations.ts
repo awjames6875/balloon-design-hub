@@ -6,12 +6,11 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
   
   const { data, error } = await supabase
     .from("balloonformula")
-    .select()
+    .select("*")
     .eq("size_ft", size)
     .eq("shape", shape)
-    .order('id', { ascending: false })
     .limit(1)
-    .maybeSingle()
+    .single()
 
   if (error) {
     console.error("Error fetching balloon formula:", error)
@@ -35,7 +34,7 @@ export const calculateBalloonRequirements = async (length: number, style: string
     console.log("Calculating requirements for length:", length, "and style:", style)
     const formula = await fetchBalloonFormula(length, style)
     
-    // Ensure we're returning the exact values from the database
+    // Return the exact values from the database without any modifications
     return {
       base_clusters: formula.base_clusters,
       extra_clusters: formula.extra_clusters,
