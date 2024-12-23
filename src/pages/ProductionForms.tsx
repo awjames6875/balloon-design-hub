@@ -21,12 +21,21 @@ const ProductionForms = () => {
   const navigate = useNavigate();
   const designState = location.state as DesignState;
 
+  // Calculate production time based on clusters (15 minutes per cluster)
+  const calculateProductionTime = (totalClusters: number) => {
+    const minutesPerCluster = 15;
+    const totalMinutes = totalClusters * minutesPerCluster;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours}h ${minutes}m`;
+  };
+
   // Create production details from design state
   const productionDetails: Tables<"production_details"> = {
     id: 0, // This will be set by the database
     client_name: designState?.clientName || "",
     project_name: designState?.projectName || "",
-    dimensions_ft: parseInt(designState?.width) || 0, // Convert string to number
+    dimensions_ft: parseInt(designState?.width) || 0,
     colors: designState?.colors || [],
     base_clusters: 10,
     extra_clusters: 5,
@@ -35,27 +44,36 @@ const ProductionForms = () => {
     grapes_quantity: 20,
     balloons_11in: 150,
     balloons_16in: 50,
-    accents: {},
-    production_time: null,
+    accents: {
+      starbursts: {
+        quantity: 5,
+        colors: ["Gold", "Silver"]
+      },
+      decorative: {
+        quantity: 3,
+        type: "Large Accent Balloons"
+      }
+    },
+    production_time: calculateProductionTime(15),
     creation_date: null
   };
 
-  const updateInventory = async (details: Tables<"production_details">) => {
+  const updateInventory = async () => {
     const updates = [
       {
         color: "Orange",
         size: "11in",
-        quantity: details.base_clusters,
+        quantity: productionDetails.base_clusters,
       },
       {
         color: "Wildberry",
         size: "11in",
-        quantity: details.extra_clusters,
+        quantity: productionDetails.extra_clusters,
       },
       {
         color: "Goldenrod",
         size: "16in",
-        quantity: details.balloons_16in,
+        quantity: productionDetails.balloons_16in,
       },
     ];
 
@@ -63,7 +81,9 @@ const ProductionForms = () => {
       const { error } = await supabase
         .from("balloon_inventory")
         .update({ 
-          quantity: supabase.sql`quantity - ${update.quantity}`
+          quantity: supabase.rpc('decrement_quantity', { 
+            amount: update.quantity 
+          })
         })
         .eq("color", update.color)
         .eq("size", update.size);
@@ -79,7 +99,7 @@ const ProductionForms = () => {
   };
 
   const handleFinalizeProduction = async () => {
-    const success = await updateInventory(productionDetails);
+    const success = await updateInventory();
     
     if (success) {
       toast.success("Production finalized! Inventory updated successfully.");
