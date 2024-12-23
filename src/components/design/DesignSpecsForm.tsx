@@ -124,12 +124,16 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       <div className="space-y-2">
         <Label>Balloon Style</Label>
         <Select value={style} onValueChange={setStyle}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select balloon style" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white dark:bg-gray-800 border shadow-lg">
             {balloonDensityData.map((item) => (
-              <SelectItem key={item.Style} value={item.Style}>
+              <SelectItem 
+                key={item.Style} 
+                value={item.Style}
+                className="hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
                 {item.Style}
               </SelectItem>
             ))}
@@ -152,7 +156,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
               <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[200px]">
+          <DropdownMenuContent className="w-[200px] bg-white dark:bg-gray-800 border shadow-lg">
             {balloonColors.map((color) => (
               <DropdownMenuCheckboxItem
                 key={color}
@@ -164,6 +168,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
                       : selectedColors.filter((c) => c !== color)
                   )
                 }}
+                className="hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 {color}
               </DropdownMenuCheckboxItem>
