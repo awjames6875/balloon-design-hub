@@ -1,58 +1,95 @@
 import { useState } from "react"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ChevronDown } from "lucide-react"
-
-interface ClientProject {
-  client_name: string
-  project_name: string
-}
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { useQuery } from "@tanstack/react-query"
+import { supabase } from "@/integrations/supabase/client"
 
 interface ProjectSearchProps {
-  existingProjects: ClientProject[]
-  onProjectSelect: (project: ClientProject) => void
+  onProjectSelect: (project: { client_name: string; project_name: string }) => void;
 }
 
-export const ProjectSearch = ({ existingProjects, onProjectSelect }: ProjectSearchProps) => {
+export function ProjectSearch({ onProjectSelect }: ProjectSearchProps) {
   const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("client_projects")
+        .select("*")
+        .order("created_at", { ascending: false })
+      
+      if (error) {
+        console.error("Error fetching projects:", error)
+        return []
+      }
+      
+      return data || []
+    },
+  })
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor="projectSearch">Search Existing Projects</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between"
-          >
-            Search projects...
-            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-full p-0">
-          <Command>
-            <CommandInput placeholder="Search projects..." />
-            <CommandEmpty>No projects found.</CommandEmpty>
-            <CommandGroup>
-              {existingProjects.map((project, index) => (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+        >
+          {value
+            ? projects.find(
+                (project) =>
+                  `${project.client_name} - ${project.project_name}` === value
+              )?.project_name
+            : "Search previous projects..."}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0">
+        <Command>
+          <CommandInput placeholder="Search projects..." />
+          <CommandEmpty>No projects found.</CommandEmpty>
+          <CommandGroup>
+            {projects.map((project) => {
+              const projectLabel = `${project.client_name} - ${project.project_name}`
+              return (
                 <CommandItem
-                  key={index}
-                  onSelect={() => {
+                  key={project.id}
+                  value={projectLabel}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue)
                     onProjectSelect(project)
                     setOpen(false)
                   }}
                 >
-                  {project.client_name} - {project.project_name}
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === projectLabel ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {projectLabel}
                 </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
+              )
+            })}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   )
 }
