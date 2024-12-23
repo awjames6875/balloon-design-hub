@@ -13,8 +13,7 @@ import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
 export interface DesignSpecsFormData {
   clientName: string
   projectName: string
-  width: string
-  height: string
+  length: string
   colors: string[]
   style: string
   shape: string
@@ -27,8 +26,7 @@ interface DesignSpecsFormProps {
 export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
-  const [width, setWidth] = useState("")
-  const [height, setHeight] = useState("")
+  const [length, setLength] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
   const [shape, setShape] = useState("Straight") // Default to Straight shape
@@ -43,8 +41,8 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       return
     }
 
-    if (!width || !height) {
-      toast.error("Please enter both width and length")
+    if (!length) {
+      toast.error("Please enter the length")
       return
     }
 
@@ -59,9 +57,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
     }
 
     try {
-      // Calculate balloon requirements using the larger dimension
-      const maxDimension = Math.max(parseInt(width), parseInt(height))
-      const calculations = await calculateBalloonRequirements(maxDimension, style)
+      const calculations = await calculateBalloonRequirements(parseInt(length), style)
       
       if (!calculations) {
         toast.error("Could not find balloon formula for the selected dimensions and style")
@@ -74,7 +70,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         .insert([{
           client_name: clientName,
           project_name: projectName,
-          dimensions_ft: maxDimension,
+          dimensions_ft: parseInt(length),
           colors: selectedColors,
           base_clusters: calculations.baseClusters,
           extra_clusters: calculations.extraClusters,
@@ -94,8 +90,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       onSubmit({
         clientName,
         projectName,
-        width,
-        height,
+        length,
         colors: selectedColors,
         style,
         shape,
@@ -123,10 +118,8 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       />
 
       <DimensionsInput
-        width={width}
-        height={height}
-        onWidthChange={setWidth}
-        onHeightChange={setHeight}
+        length={length}
+        onLengthChange={setLength}
       />
 
       <StyleSelect

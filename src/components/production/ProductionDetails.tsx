@@ -62,7 +62,7 @@ export const ProductionDetails = ({ details, clientReference, designPreview }: P
             </div>
 
             <div>
-              <h4 className="font-semibold mb-1">Dimensions</h4>
+              <h4 className="font-semibold mb-1">Length</h4>
               <p className="text-muted-foreground">{details.dimensions_ft} ft</p>
             </div>
 
