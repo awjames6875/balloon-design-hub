@@ -47,7 +47,12 @@ const ProductionForms = () => {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-2xl font-bold mb-4">No Design Specifications</h1>
-        <p className="mb-4">Please create a new design first.</p>
+        <p className="mb-4">For a 12ft straight garland:</p>
+        <ul className="list-disc list-inside mb-4">
+          <li>Base Clusters: 9</li>
+          <li>Extra Clusters: 3</li>
+          <li>Total Clusters: 12</li>
+        </ul>
         <Button onClick={() => navigate("/new-design")}>Create New Design</Button>
       </div>
     );
@@ -80,9 +85,9 @@ const ProductionForms = () => {
     base_clusters: balloonFormula.base_clusters,
     extra_clusters: balloonFormula.extra_clusters,
     total_clusters: balloonFormula.total_clusters,
-    littles_quantity: balloonFormula.littles_quantity,
+    littles_quantity: balloonFormula.total_clusters,
     grapes_quantity: balloonFormula.grapes_quantity,
-    balloons_11in: balloonFormula.balloons_11in,
+    balloons_11in: balloonFormula.total_clusters * 11,
     balloons_16in: balloonFormula.balloons_16in,
     accents: {
       starbursts: {
