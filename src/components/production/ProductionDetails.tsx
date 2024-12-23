@@ -8,6 +8,9 @@ interface ProductionDetailsProps {
 }
 
 export const ProductionDetails = ({ details, clientReference, designPreview }: ProductionDetailsProps) => {
+  // Convert accents object to string for display
+  const accentsDisplay = details.accents ? JSON.stringify(details.accents, null, 2) : "";
+
   return (
     <div className="space-y-6">
       {(clientReference || designPreview) && (
@@ -69,7 +72,7 @@ export const ProductionDetails = ({ details, clientReference, designPreview }: P
             <div>
               <h4 className="font-semibold mb-1">Colors</h4>
               <div className="flex flex-wrap gap-2">
-                {Array.isArray(details.colors) && details.colors.map((color, index) => (
+                {Array.isArray(details.colors) && details.colors.map((color: string, index: number) => (
                   <span
                     key={index}
                     className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -122,7 +125,7 @@ export const ProductionDetails = ({ details, clientReference, designPreview }: P
               <div>
                 <h4 className="font-semibold mb-1">Accent Balloons</h4>
                 <pre className="text-sm text-muted-foreground">
-                  {JSON.stringify(details.accents, null, 2)}
+                  {accentsDisplay}
                 </pre>
               </div>
             )}
