@@ -15,6 +15,7 @@ export interface DesignSpecsFormData {
   clientName: string
   projectName: string
   width: string
+  height: string
   colors: string[]
   style: string
   shape: string
@@ -28,6 +29,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
   const [width, setWidth] = useState("")
+  const [height, setHeight] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
   const [shape, setShape] = useState("Straight")
@@ -42,8 +44,8 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       return
     }
 
-    if (!width) {
-      toast.error("Please select a garland size")
+    if (!width || !height) {
+      toast.error("Please enter both width and length")
       return
     }
 
@@ -58,11 +60,12 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
     }
 
     try {
-      // Calculate balloon requirements
-      const calculations = await calculateBalloonRequirements(parseInt(width), shape)
+      // Calculate balloon requirements using the larger dimension
+      const maxDimension = Math.max(parseInt(width), parseInt(height))
+      const calculations = await calculateBalloonRequirements(maxDimension, shape)
       
       if (!calculations) {
-        toast.error("Could not find balloon formula for the selected size and shape")
+        toast.error("Could not find balloon formula for the selected dimensions and shape")
         return
       }
 
@@ -72,7 +75,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         .insert([{
           client_name: clientName,
           project_name: projectName,
-          dimensions_ft: parseInt(width),
+          dimensions_ft: maxDimension,
           colors: selectedColors,
           shape,
           base_clusters: calculations.baseClusters,
@@ -93,6 +96,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         clientName,
         projectName,
         width,
+        height,
         colors: selectedColors,
         style,
         shape,
@@ -121,9 +125,9 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
 
       <DimensionsInput
         width={width}
-        height=""
+        height={height}
         onWidthChange={setWidth}
-        onHeightChange={() => {}}
+        onHeightChange={setHeight}
       />
 
       <StyleSelect
