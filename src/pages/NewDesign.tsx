@@ -4,6 +4,7 @@ import { ImageUpload } from "@/components/design/ImageUpload"
 import { DesignSpecsForm, type DesignSpecsFormData } from "@/components/design/DesignSpecsForm"
 import { ClusterDetailsForm } from "@/components/design/ClusterDetailsForm"
 import { AccessoriesDetailsForm } from "@/components/design/AccessoriesDetailsForm"
+import { ProductionSummary } from "@/components/design/ProductionSummary"
 import { toast } from "sonner"
 
 interface ColorCluster {
@@ -23,8 +24,10 @@ const NewDesign = () => {
   const [designImage, setDesignImage] = useState<string | null>(null)
   const [showClusterDetails, setShowClusterDetails] = useState(false)
   const [showAccessoriesDetails, setShowAccessoriesDetails] = useState(false)
+  const [showProductionSummary, setShowProductionSummary] = useState(false)
   const [designData, setDesignData] = useState<DesignSpecsFormData | null>(null)
   const [clusterData, setClusterData] = useState<ColorCluster[] | null>(null)
+  const [accessoriesData, setAccessoriesData] = useState<Accessory[] | null>(null)
 
   const handleClientImageUpload = (file: File) => {
     const reader = new FileReader()
@@ -60,22 +63,28 @@ const NewDesign = () => {
   }
 
   const handleAccessoriesSubmit = (accessories: Accessory[]) => {
-    if (!designData || !clusterData) return
+    setAccessoriesData(accessories)
+    setShowProductionSummary(true)
+  }
 
-    navigate("/production-forms", {
-      state: {
-        clientName: designData.clientName,
-        projectName: designData.projectName,
-        length: designData.length,
-        colors: designData.colors,
-        imagePreview: designImage,
-        clientReference: clientImage,
-        shape: designData.shape,
-        style: designData.style,
-        clusters: clusterData,
-        accessories: accessories,
-      },
-    })
+  const handleProductionFinalize = () => {
+    navigate("/production-forms")
+  }
+
+  if (showProductionSummary && designData && clusterData && accessoriesData) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <ProductionSummary
+          clientName={designData.clientName}
+          projectName={designData.projectName}
+          dimensions={designData.length}
+          style={designData.style}
+          colorClusters={clusterData}
+          accessories={accessoriesData}
+          onFinalize={handleProductionFinalize}
+        />
+      </div>
+    )
   }
 
   if (showAccessoriesDetails) {
