@@ -52,7 +52,30 @@ export const estimateProductionTime = (length: number): string => {
   return `${hours}h ${minutes}m`;
 };
 
-export const fetchBalloonFormula = async (size: number, shape: string) => {
+export const calculateBalloonRequirements = async (length: number, shape: string) => {
+  try {
+    console.log("Calculating requirements for length:", length, "and shape:", shape);
+    const formula = await fetchBalloonFormula(length, shape);
+    
+    // Return the database values directly
+    return {
+      base_clusters: formula.base_clusters,
+      extra_clusters: formula.extra_clusters,
+      total_clusters: formula.total_clusters,
+      littles_quantity: formula.littles_quantity,
+      grapes_quantity: formula.grapes_quantity,
+      balloons_11in: formula.balloons_11in,
+      balloons_16in: formula.balloons_16in,
+      total_balloons: formula.total_balloons,
+    };
+  } catch (error) {
+    console.error("Error calculating balloon requirements:", error);
+    throw error;
+  }
+};
+
+// Helper function to fetch balloon formula from database
+const fetchBalloonFormula = async (size: number, shape: string) => {
   console.log("Fetching formula for size:", size, "and shape:", shape);
   
   const { data, error } = await supabase
@@ -76,26 +99,4 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
 
   console.log("Retrieved balloon formula:", data);
   return data;
-};
-
-export const calculateBalloonRequirements = async (length: number, shape: string) => {
-  try {
-    console.log("Calculating requirements for length:", length, "and shape:", shape);
-    const formula = await fetchBalloonFormula(length, shape);
-    
-    // Return the database values directly
-    return {
-      base_clusters: formula.base_clusters,
-      extra_clusters: formula.extra_clusters,
-      total_clusters: formula.total_clusters,
-      littles_quantity: formula.littles_quantity,
-      grapes_quantity: formula.grapes_quantity,
-      balloons_11in: formula.balloons_11in,
-      balloons_16in: formula.balloons_16in,
-      total_balloons: formula.total_balloons,
-    };
-  } catch (error) {
-    console.error("Error calculating balloon requirements:", error);
-    throw error;
-  }
 };

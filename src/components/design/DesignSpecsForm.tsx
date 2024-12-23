@@ -8,7 +8,12 @@ import { StyleSelect } from "./StyleSelect"
 import { ClientInfoFields } from "./ClientInfoFields"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
 import { saveDesignForm } from "@/services/designFormService"
-import { calculateBaseClusters } from "@/utils/balloonCalculations"
+import { 
+  calculateBaseClusters,
+  calculateExtraClusters,
+  calculateTotalBalloons,
+  estimateProductionTime
+} from "@/utils/balloonCalculations"
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -57,9 +62,19 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
     }
 
     try {
-      // Calculate base clusters before submitting
-      const baseClusters = await calculateBaseClusters(parseInt(length), style)
-      console.log("Calculated base clusters:", baseClusters)
+      // Calculate all balloon requirements
+      const lengthNum = parseInt(length)
+      const baseClusters = await calculateBaseClusters(lengthNum, style)
+      const extraClusters = calculateExtraClusters(baseClusters)
+      const totalBalloons = calculateTotalBalloons(baseClusters, extraClusters)
+      const productionTime = estimateProductionTime(lengthNum)
+
+      console.log("Calculated values:", {
+        baseClusters,
+        extraClusters,
+        totalBalloons,
+        productionTime
+      })
 
       const formData: DesignSpecsFormData = {
         clientName,
