@@ -4,7 +4,6 @@ import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { ProjectSearch } from "./ProjectSearch"
 import { DimensionsInput } from "./DimensionsInput"
-import { ShapeSelect } from "./ShapeSelect"
 import { ColorSelect } from "./ColorSelect"
 import { StyleSelect } from "./StyleSelect"
 import { ClientInfoFields } from "./ClientInfoFields"
@@ -18,7 +17,6 @@ export interface DesignSpecsFormData {
   height: string
   colors: string[]
   style: string
-  shape: string
 }
 
 interface DesignSpecsFormProps {
@@ -32,7 +30,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [height, setHeight] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
-  const [shape, setShape] = useState("Straight")
   
   const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
 
@@ -62,10 +59,10 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
     try {
       // Calculate balloon requirements using the larger dimension
       const maxDimension = Math.max(parseInt(width), parseInt(height))
-      const calculations = await calculateBalloonRequirements(maxDimension, shape)
+      const calculations = await calculateBalloonRequirements(maxDimension, style)
       
       if (!calculations) {
-        toast.error("Could not find balloon formula for the selected dimensions and shape")
+        toast.error("Could not find balloon formula for the selected dimensions and style")
         return
       }
 
@@ -77,7 +74,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
           project_name: projectName,
           dimensions_ft: maxDimension,
           colors: selectedColors,
-          shape,
           base_clusters: calculations.baseClusters,
           extra_clusters: calculations.extraClusters,
           total_clusters: calculations.totalClusters,
@@ -99,7 +95,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         height,
         colors: selectedColors,
         style,
-        shape,
       })
     } catch (error) {
       console.error("Error saving project:", error)
@@ -136,8 +131,6 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         styles={balloonStyles}
         isLoading={isLoadingStyles}
       />
-
-      <ShapeSelect value={shape} onValueChange={setShape} />
 
       <ColorSelect
         selectedColors={selectedColors}

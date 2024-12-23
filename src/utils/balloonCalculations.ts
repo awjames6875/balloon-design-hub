@@ -11,8 +11,8 @@ export interface BalloonFormula {
   balloons_11in: number;
   balloons_16in: number;
   total_balloons: number;
-  shape: string;
-  shape_multiplier: number;
+  style: string;
+  style_multiplier: number;
 }
 
 export interface CalculationResult {
@@ -27,12 +27,12 @@ export interface CalculationResult {
   totalBalloons: number;
 }
 
-export const fetchBalloonFormula = async (size: number, shape: string): Promise<BalloonFormula | null> => {
+export const fetchBalloonFormula = async (size: number, style: string): Promise<BalloonFormula | null> => {
   const { data, error } = await supabase
     .from('balloonformula')
     .select('*')
     .eq('size_ft', size)
-    .eq('shape', shape)
+    .eq('style', style)
     .maybeSingle();
 
   if (error) {
@@ -43,14 +43,14 @@ export const fetchBalloonFormula = async (size: number, shape: string): Promise<
   return data;
 };
 
-export const calculateBalloonRequirements = async (size: number, shape: string): Promise<CalculationResult | null> => {
-  const formula = await fetchBalloonFormula(size, shape);
+export const calculateBalloonRequirements = async (size: number, style: string): Promise<CalculationResult | null> => {
+  const formula = await fetchBalloonFormula(size, style);
   
   if (!formula) {
     return null;
   }
 
-  const multiplier = formula.shape_multiplier || 1;
+  const multiplier = formula.style_multiplier || 1;
 
   return {
     formula,
