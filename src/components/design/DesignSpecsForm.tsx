@@ -7,7 +7,7 @@ import { ColorSelect } from "./ColorSelect"
 import { StyleSelect } from "./StyleSelect"
 import { ClientInfoFields } from "./ClientInfoFields"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
-import { saveProject } from "@/utils/projectUtils"
+import { saveDesignForm } from "@/services/designFormService"
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -57,7 +57,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       return
     }
 
-    const success = await saveProject({
+    const formData: DesignSpecsFormData = {
       clientName,
       projectName,
       length,
@@ -65,18 +65,12 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       colors: selectedColors,
       style,
       shape,
-    })
+    }
+
+    const success = await saveDesignForm(formData)
 
     if (success) {
-      onSubmit({
-        clientName,
-        projectName,
-        length,
-        width,
-        colors: selectedColors,
-        style,
-        shape,
-      })
+      onSubmit(formData)
     }
   }
 
