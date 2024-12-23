@@ -48,12 +48,6 @@ const ProductionForms = () => {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-2xl font-bold mb-4">No Design Specifications</h1>
-        <p className="mb-4">For a 12ft straight garland:</p>
-        <ul className="list-disc list-inside mb-4">
-          <li>Base Clusters: 9</li>
-          <li>Extra Clusters: 3</li>
-          <li>Total Clusters: 12</li>
-        </ul>
         <Button onClick={() => navigate("/new-design")}>Create New Design</Button>
       </div>
     );
