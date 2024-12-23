@@ -8,8 +8,16 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { ChevronDown } from "lucide-react"
 import { toast } from "sonner"
+import { balloonDensityData } from "@/lib/balloon-density"
 
 const balloonColors = ["Orange", "Wildberry", "Goldenrod", "Teal"]
 
@@ -19,6 +27,7 @@ export interface DesignSpecsFormData {
   width: string
   height: string
   colors: string[]
+  style: string
 }
 
 interface DesignSpecsFormProps {
@@ -31,6 +40,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [width, setWidth] = useState("")
   const [height, setHeight] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
+  const [style, setStyle] = useState("")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,12 +60,18 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       return
     }
 
+    if (!style) {
+      toast.error("Please select a balloon style")
+      return
+    }
+
     onSubmit({
       clientName,
       projectName,
       width,
       height,
       colors: selectedColors,
+      style,
     })
   }
 
@@ -103,6 +119,22 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
             placeholder="Enter height"
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Balloon Style</Label>
+        <Select value={style} onValueChange={setStyle}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select balloon style" />
+          </SelectTrigger>
+          <SelectContent>
+            {balloonDensityData.map((item) => (
+              <SelectItem key={item.Style} value={item.Style}>
+                {item.Style}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
