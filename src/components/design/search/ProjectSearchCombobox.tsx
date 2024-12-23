@@ -23,7 +23,7 @@ interface ProjectSearchComboboxProps {
 export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchComboboxProps) => {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  const { data: projects, isLoading } = useProjectSearch()
+  const { projects, isError } = useProjectSearch()
 
   // Ensure projects is an array even if undefined
   const projectList = projects || []
@@ -49,7 +49,7 @@ export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchCombobox
         <Command>
           <CommandInput placeholder="Search projects..." />
           <CommandEmpty>
-            {isLoading ? "Loading..." : "No projects found."}
+            {isError ? "Failed to load projects." : "No projects found."}
           </CommandEmpty>
           <CommandGroup>
             {projectList.map((project) => {

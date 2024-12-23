@@ -17,6 +17,7 @@ export interface DesignSpecsFormData {
   height: string
   colors: string[]
   style: string
+  shape: string
 }
 
 interface DesignSpecsFormProps {
@@ -30,6 +31,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [height, setHeight] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
+  const [shape, setShape] = useState("Straight") // Default to Straight shape
   
   const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
 
@@ -82,6 +84,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
           balloons_11in: calculations.balloons11in,
           balloons_16in: calculations.balloons16in,
           total_balloons: calculations.totalBalloons,
+          shape: shape,
         }])
 
       if (error) throw error
@@ -95,6 +98,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         height,
         colors: selectedColors,
         style,
+        shape,
       })
     } catch (error) {
       console.error("Error saving project:", error)
