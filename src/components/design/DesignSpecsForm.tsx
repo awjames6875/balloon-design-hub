@@ -17,20 +17,10 @@ import {
 } from "@/components/ui/select"
 import { ChevronDown } from "lucide-react"
 import { toast } from "sonner"
-import { balloonDensityData } from "@/lib/balloon-density"
 import { supabase } from "@/integrations/supabase/client"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { ProjectSearch } from "./ProjectSearch"
+import { DimensionsInput } from "./DimensionsInput"
+import { useBalloonStyles } from "@/hooks/use-balloon-styles"
 
 const balloonColors = ["Orange", "Wild Berry", "Golden Rod", "Teal"]
 
@@ -60,7 +50,8 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
   const [existingProjects, setExistingProjects] = useState<ClientProject[]>([])
-  const [open, setOpen] = useState(false)
+  
+  const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
 
   useEffect(() => {
     fetchExistingProjects()
@@ -130,43 +121,14 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const handleProjectSelect = (project: ClientProject) => {
     setClientName(project.client_name)
     setProjectName(project.project_name)
-    setOpen(false)
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="projectSearch">Search Existing Projects</Label>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-full justify-between"
-            >
-              Search projects...
-              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
-            <Command>
-              <CommandInput placeholder="Search projects..." />
-              <CommandEmpty>No projects found.</CommandEmpty>
-              <CommandGroup>
-                {existingProjects.map((project, index) => (
-                  <CommandItem
-                    key={index}
-                    onSelect={() => handleProjectSelect(project)}
-                  >
-                    {project.client_name} - {project.project_name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
+      <ProjectSearch
+        existingProjects={existingProjects}
+        onProjectSelect={handleProjectSelect}
+      />
 
       <div className="space-y-2">
         <Label htmlFor="clientName">Client Name</Label>
@@ -188,29 +150,12 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="width">Width (ft)</Label>
-          <Input
-            id="width"
-            type="number"
-            value={width}
-            onChange={(e) => setWidth(e.target.value)}
-            placeholder="Enter width"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="height">Height (ft)</Label>
-          <Input
-            id="height"
-            type="number"
-            value={height}
-            onChange={(e) => setHeight(e.target.value)}
-            placeholder="Enter height"
-          />
-        </div>
-      </div>
+      <DimensionsInput
+        width={width}
+        height={height}
+        onWidthChange={setWidth}
+        onHeightChange={setHeight}
+      />
 
       <div className="space-y-2">
         <Label>Balloon Style</Label>
@@ -219,15 +164,19 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
             <SelectValue placeholder="Select balloon style" />
           </SelectTrigger>
           <SelectContent className="bg-white dark:bg-gray-800 border shadow-lg">
-            {balloonDensityData.map((item) => (
-              <SelectItem 
-                key={item.Style} 
-                value={item.Style}
-                className="hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                {item.Style}
-              </SelectItem>
-            ))}
+            {isLoadingStyles ? (
+              <SelectItem value="loading">Loading styles...</SelectItem>
+            ) : (
+              balloonStyles?.map((item) => (
+                <SelectItem 
+                  key={item.style_name} 
+                  value={item.style_name}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  {item.style_name}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>

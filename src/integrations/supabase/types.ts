@@ -36,6 +36,30 @@ export type Database = {
         }
         Relationships: []
       }
+      balloon_styles: {
+        Row: {
+          created_at: string | null
+          density_factor: number
+          description: string | null
+          id: number
+          style_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          density_factor: number
+          description?: string | null
+          id?: number
+          style_name: string
+        }
+        Update: {
+          created_at?: string | null
+          density_factor?: number
+          description?: string | null
+          id?: number
+          style_name?: string
+        }
+        Relationships: []
+      }
       balloonformula: {
         Row: {
           accents: Json | null
