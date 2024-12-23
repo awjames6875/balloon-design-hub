@@ -11,6 +11,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
+import { X } from "lucide-react"
 
 interface ColorSelectProps {
   selectedColors: string[]
@@ -26,6 +28,10 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
     } else {
       onColorsChange([...selectedColors, color])
     }
+  }
+
+  const removeColor = (colorToRemove: string) => {
+    onColorsChange(selectedColors.filter((color) => color !== colorToRemove))
   }
 
   return (
@@ -44,10 +50,7 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
         </Tooltip>
       </div>
 
-      <Select
-        value={selectedColors.length > 0 ? selectedColors[selectedColors.length - 1] : undefined}
-        onValueChange={handleColorSelect}
-      >
+      <Select onValueChange={handleColorSelect}>
         <SelectTrigger className="w-full bg-background border-input">
           <SelectValue placeholder="Select colors" />
         </SelectTrigger>
@@ -67,8 +70,23 @@ export const ColorSelect = ({ selectedColors, onColorsChange }: ColorSelectProps
       </Select>
 
       {selectedColors.length > 0 && (
-        <div className="text-sm text-muted-foreground">
-          Selected: {selectedColors.join(", ")}
+        <div className="flex flex-wrap gap-2">
+          {selectedColors.map((color) => (
+            <div
+              key={color}
+              className="flex items-center gap-1 bg-accent rounded-full px-3 py-1"
+            >
+              <span className="text-sm">{color}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-4 w-4 p-0 hover:bg-transparent"
+                onClick={() => removeColor(color)}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
         </div>
       )}
     </div>
