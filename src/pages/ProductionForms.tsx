@@ -12,7 +12,6 @@ interface DesignState {
   clientName: string;
   projectName: string;
   length: string;
-  width: string;
   colors: string[];
   shape: string;
   imagePreview: string;
@@ -61,7 +60,6 @@ const ProductionForms = () => {
     client_name: designState.clientName,
     project_name: designState.projectName,
     dimensions_ft: parseInt(designState.length),
-    width_ft: parseInt(designState.width) || 1,
     shape: designState.shape,
     colors: designState.colors,
     base_clusters: balloonFormula?.base_clusters || 0,
@@ -83,7 +81,8 @@ const ProductionForms = () => {
     },
     production_time: calculateProductionTime(balloonFormula?.total_clusters || 0),
     creation_date: null,
-    total_balloons: balloonFormula?.total_balloons || 0
+    total_balloons: balloonFormula?.total_balloons || 0,
+    width_ft: null
   };
 
   const handleFinalizeProduction = async () => {
@@ -111,9 +110,6 @@ const ProductionForms = () => {
       toast.success("Production finalized! Inventory updated successfully.");
     }
   };
-
-  console.log("Design state length:", designState.length);
-  console.log("Parsed dimensions:", parseInt(designState.length));
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">

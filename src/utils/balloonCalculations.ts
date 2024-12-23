@@ -25,14 +25,14 @@ export const calculateBalloonRequirements = async (length: number, style: string
     }
 
     return {
-      baseClusters: formula.base_clusters,
-      extraClusters: formula.extra_clusters,
-      totalClusters: formula.total_clusters,
-      littlesQuantity: formula.littles_quantity,
-      grapesQuantity: formula.grapes_quantity,
-      balloons11in: formula.balloons_11in,
-      balloons16in: formula.balloons_16in,
-      totalBalloons: formula.total_balloons,
+      base_clusters: formula.base_clusters,
+      extra_clusters: formula.extra_clusters,
+      total_clusters: formula.total_clusters,
+      littles_quantity: formula.littles_quantity,
+      grapes_quantity: formula.grapes_quantity,
+      balloons_11in: formula.balloons_11in,
+      balloons_16in: formula.balloons_16in,
+      total_balloons: formula.total_balloons,
     }
   } catch (error) {
     console.error("Error calculating balloon requirements:", error)
