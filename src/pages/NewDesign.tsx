@@ -35,6 +35,8 @@ const NewDesign = () => {
 
     navigate("/production-forms", {
       state: {
+        clientName: data.clientName,
+        projectName: data.projectName,
         width: data.width,
         height: data.height,
         colors: data.colors,
