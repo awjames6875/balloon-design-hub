@@ -7,6 +7,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { updateInventoryQuantities } from "@/utils/inventoryUtils";
 import { calculateBalloonRequirements } from "@/utils/balloonCalculations";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DesignState {
   clientName: string;
@@ -106,28 +107,46 @@ const ProductionForms = () => {
   };
 
   const handleFinalizeProduction = async () => {
-    const updates = [
-      {
-        color: "Orange",
-        size: "11in",
-        quantity: productionDetails.balloons_11in,
-      },
-      {
-        color: "Wildberry",
-        size: "11in",
-        quantity: productionDetails.extra_clusters,
-      },
-      {
-        color: "Goldenrod",
-        size: "16in",
-        quantity: productionDetails.balloons_16in,
-      },
-    ];
+    try {
+      // Save production details to the database
+      const { error: productionError } = await supabase
+        .from("production_details")
+        .insert([productionDetails]);
 
-    const success = await updateInventoryQuantities(updates);
-    
-    if (success) {
-      toast.success("Production finalized! Inventory updated successfully.");
+      if (productionError) {
+        console.error("Error saving production details:", productionError);
+        toast.error("Failed to save production details");
+        return;
+      }
+
+      // Update inventory quantities
+      const updates = [
+        {
+          color: "Orange",
+          size: "11in",
+          quantity: productionDetails.balloons_11in,
+        },
+        {
+          color: "Wildberry",
+          size: "11in",
+          quantity: productionDetails.extra_clusters,
+        },
+        {
+          color: "Goldenrod",
+          size: "16in",
+          quantity: productionDetails.balloons_16in,
+        },
+      ];
+
+      const success = await updateInventoryQuantities(updates);
+      
+      if (success) {
+        toast.success("Production finalized and saved successfully!");
+        // Optionally navigate to another page or refresh the data
+      }
+    } catch (error) {
+      console.error("Error finalizing production:", error);
+      toast.error("Failed to finalize production");
     }
   };
 
