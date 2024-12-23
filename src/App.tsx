@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { Toaster } from "@/components/ui/sonner"
-import { Index } from "@/pages/Index"
-import { NewDesign } from "@/pages/NewDesign"
-import { ProductionForms } from "@/pages/ProductionForms"
-import { Inventory } from "@/pages/Inventory"
+import Index from "@/pages/Index"
+import NewDesign from "@/pages/NewDesign"
+import ProductionForms from "@/pages/ProductionForms"
+import Inventory from "@/pages/Inventory"
 import { CreateProject } from "@/pages/CreateProject"
 
 function App() {
