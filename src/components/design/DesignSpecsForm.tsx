@@ -13,6 +13,7 @@ export interface DesignSpecsFormData {
   clientName: string
   projectName: string
   length: string
+  width: string
   colors: string[]
   style: string
   shape: string
@@ -26,9 +27,10 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
   const [length, setLength] = useState("")
+  const [width, setWidth] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
-  const [shape, setShape] = useState("Straight") // Default to Straight shape
+  const [shape, setShape] = useState("Straight")
   
   const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
 
@@ -40,8 +42,8 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       return
     }
 
-    if (!length) {
-      toast.error("Please enter the length")
+    if (!length || !width) {
+      toast.error("Please enter both length and width")
       return
     }
 
@@ -59,6 +61,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       clientName,
       projectName,
       length,
+      width,
       colors: selectedColors,
       style,
       shape,
@@ -69,6 +72,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         clientName,
         projectName,
         length,
+        width,
         colors: selectedColors,
         style,
         shape,
@@ -94,7 +98,9 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
 
       <DimensionsInput
         length={length}
+        width={width}
         onLengthChange={setLength}
+        onWidthChange={setWidth}
       />
 
       <StyleSelect

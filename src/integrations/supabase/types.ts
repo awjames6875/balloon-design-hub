@@ -75,6 +75,7 @@ export type Database = {
           size_ft: number
           total_balloons: number
           total_clusters: number
+          width_ft: number | null
         }
         Insert: {
           accents?: Json | null
@@ -90,6 +91,7 @@ export type Database = {
           size_ft: number
           total_balloons: number
           total_clusters: number
+          width_ft?: number | null
         }
         Update: {
           accents?: Json | null
@@ -105,6 +107,7 @@ export type Database = {
           size_ft?: number
           total_balloons?: number
           total_clusters?: number
+          width_ft?: number | null
         }
         Relationships: []
       }
@@ -169,6 +172,7 @@ export type Database = {
           shape: string
           total_balloons: number | null
           total_clusters: number
+          width_ft: number | null
         }
         Insert: {
           accents?: Json
@@ -188,6 +192,7 @@ export type Database = {
           shape?: string
           total_balloons?: number | null
           total_clusters: number
+          width_ft?: number | null
         }
         Update: {
           accents?: Json
@@ -207,6 +212,7 @@ export type Database = {
           shape?: string
           total_balloons?: number | null
           total_clusters?: number
+          width_ft?: number | null
         }
         Relationships: []
       }
