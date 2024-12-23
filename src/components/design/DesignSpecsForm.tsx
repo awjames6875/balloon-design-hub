@@ -19,7 +19,7 @@ import { ChevronDown } from "lucide-react"
 import { toast } from "sonner"
 import { balloonDensityData } from "@/lib/balloon-density"
 
-const balloonColors = ["Orange", "Wildberry", "Goldenrod", "Teal"]
+const balloonColors = ["Orange", "Wild Berry", "Golden Rod", "Teal"]
 
 export interface DesignSpecsFormData {
   clientName: string
