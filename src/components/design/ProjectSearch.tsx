@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,16 +16,17 @@ import {
 } from "@/components/ui/popover"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
+import { toast } from "sonner"
 
 interface ProjectSearchProps {
-  onProjectSelect: (project: { client_name: string; project_name: string }) => void;
+  onProjectSelect: (project: { client_name: string; project_name: string }) => void
 }
 
 export function ProjectSearch({ onProjectSelect }: ProjectSearchProps) {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
 
-  const { data: projects = [] } = useQuery({
+  const { data: projects = [], isError } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -34,8 +35,8 @@ export function ProjectSearch({ onProjectSelect }: ProjectSearchProps) {
         .order("created_at", { ascending: false })
       
       if (error) {
-        console.error("Error fetching projects:", error)
-        return []
+        toast.error("Failed to load projects")
+        throw error
       }
       
       return data || []
@@ -55,9 +56,9 @@ export function ProjectSearch({ onProjectSelect }: ProjectSearchProps) {
             ? projects.find(
                 (project) =>
                   `${project.client_name} - ${project.project_name}` === value
-              )?.project_name
+              )?.project_name || "Search previous projects..."
             : "Search previous projects..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
@@ -77,12 +78,6 @@ export function ProjectSearch({ onProjectSelect }: ProjectSearchProps) {
                     setOpen(false)
                   }}
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === projectLabel ? "opacity-100" : "opacity-0"
-                    )}
-                  />
                   {projectLabel}
                 </CommandItem>
               )
