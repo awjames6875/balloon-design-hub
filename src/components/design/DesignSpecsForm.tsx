@@ -8,18 +8,12 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { ChevronDown } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { ProjectSearch } from "./ProjectSearch"
 import { DimensionsInput } from "./DimensionsInput"
+import { ShapeSelect } from "./ShapeSelect"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
 
 const balloonColors = ["Orange", "Wild Berry", "Golden Rod", "Teal"]
@@ -31,6 +25,7 @@ export interface DesignSpecsFormData {
   height: string
   colors: string[]
   style: string
+  shape: string
 }
 
 interface DesignSpecsFormProps {
@@ -49,6 +44,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const [height, setHeight] = useState("")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [style, setStyle] = useState("")
+  const [shape, setShape] = useState("Straight")
   const [existingProjects, setExistingProjects] = useState<ClientProject[]>([])
   
   const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
@@ -111,6 +107,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         height,
         colors: selectedColors,
         style,
+        shape,
       })
     } catch (error) {
       console.error("Error saving project:", error)
@@ -180,6 +177,8 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
           </SelectContent>
         </Select>
       </div>
+
+      <ShapeSelect value={shape} onValueChange={setShape} />
 
       <div className="space-y-2">
         <Label>Balloon Colors</Label>
