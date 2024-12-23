@@ -9,7 +9,7 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
     .select()
     .eq("size_ft", size)
     .eq("shape", shape)
-    .order('id', { ascending: false })  // Get the most recent formula if multiple exist
+    .order('id', { ascending: false })
     .limit(1)
     .maybeSingle()
 
@@ -35,6 +35,7 @@ export const calculateBalloonRequirements = async (length: number, style: string
     console.log("Calculating requirements for length:", length, "and style:", style)
     const formula = await fetchBalloonFormula(length, style)
     
+    // Ensure we're returning the exact values from the database
     return {
       base_clusters: formula.base_clusters,
       extra_clusters: formula.extra_clusters,

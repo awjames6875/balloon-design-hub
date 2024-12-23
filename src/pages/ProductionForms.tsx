@@ -25,7 +25,12 @@ const ProductionForms = () => {
 
   const { data: balloonFormula, isLoading } = useQuery({
     queryKey: ['balloonFormula', designState?.length, designState?.shape],
-    queryFn: () => calculateBalloonRequirements(parseInt(designState?.length), designState?.shape),
+    queryFn: async () => {
+      if (!designState?.length) return null;
+      const result = await calculateBalloonRequirements(parseInt(designState.length), designState.shape);
+      console.log("Balloon formula result:", result); // Add logging to debug
+      return result;
+    },
     enabled: !!designState?.length,
   });
 
@@ -55,6 +60,15 @@ const ProductionForms = () => {
     );
   }
 
+  if (!balloonFormula) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p>Error loading balloon formula. Please try again.</p>
+        <Button onClick={() => navigate("/new-design")}>Create New Design</Button>
+      </div>
+    );
+  }
+
   const productionDetails: Tables<"production_details"> = {
     id: 0,
     client_name: designState.clientName,
@@ -62,13 +76,13 @@ const ProductionForms = () => {
     dimensions_ft: parseInt(designState.length),
     shape: designState.shape,
     colors: designState.colors,
-    base_clusters: balloonFormula?.base_clusters || 0,
-    extra_clusters: balloonFormula?.extra_clusters || 0,
-    total_clusters: balloonFormula?.total_clusters || 0,
-    littles_quantity: balloonFormula?.littles_quantity || 0,
-    grapes_quantity: balloonFormula?.grapes_quantity || 0,
-    balloons_11in: balloonFormula?.balloons_11in || 0,
-    balloons_16in: balloonFormula?.balloons_16in || 0,
+    base_clusters: balloonFormula.base_clusters,
+    extra_clusters: balloonFormula.extra_clusters,
+    total_clusters: balloonFormula.total_clusters,
+    littles_quantity: balloonFormula.littles_quantity,
+    grapes_quantity: balloonFormula.grapes_quantity,
+    balloons_11in: balloonFormula.balloons_11in,
+    balloons_16in: balloonFormula.balloons_16in,
     accents: {
       starbursts: {
         quantity: 5,
@@ -79,9 +93,9 @@ const ProductionForms = () => {
         type: "Large Accent Balloons"
       }
     },
-    production_time: calculateProductionTime(balloonFormula?.total_clusters || 0),
+    production_time: calculateProductionTime(balloonFormula.total_clusters),
     creation_date: null,
-    total_balloons: balloonFormula?.total_balloons || 0,
+    total_balloons: balloonFormula.total_balloons,
     width_ft: null
   };
 
