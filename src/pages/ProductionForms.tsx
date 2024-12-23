@@ -1,27 +1,19 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Home } from "lucide-react";
 import { calculateBalloonRequirements } from "@/utils/balloonCalculations";
 import { toast } from "sonner";
+import { ProductionDetails } from "@/components/production/ProductionDetails";
 
 interface DesignState {
+  clientName: string;
+  projectName: string;
   width: string;
   height: string;
-  style: string;
   colors: string[];
   imagePreview: string;
   clientReference: string | null;
-  notes: string;
 }
 
 const ProductionForms = () => {
@@ -29,7 +21,6 @@ const ProductionForms = () => {
   const navigate = useNavigate();
   const designState = location.state as DesignState;
 
-  // Fetch formula based on the width dimension
   const { data: calculationResult, isLoading } = useQuery({
     queryKey: ['balloonFormula', designState?.width],
     queryFn: () => calculateBalloonRequirements(Number(designState?.width || 0)),
@@ -51,123 +42,65 @@ const ProductionForms = () => {
     );
   }
 
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p>Loading production details...</p>
+      </div>
+    );
+  }
+
+  if (!calculationResult) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">Formula Not Found</h1>
+        <p className="mb-4">No formula found for the specified dimensions.</p>
+        <Button onClick={() => navigate("/new-design")}>Create New Design</Button>
+      </div>
+    );
+  }
+
+  const productionDetails = {
+    project_name: designState.projectName,
+    client_name: designState.clientName,
+    dimensions_ft: Number(designState.width),
+    colors: designState.colors,
+    base_clusters: calculationResult.formula.base_clusters,
+    extra_clusters: calculationResult.formula.extra_clusters,
+    total_clusters: calculationResult.formula.total_clusters,
+    littles_quantity: calculationResult.formula.littles_quantity,
+    grapes_quantity: calculationResult.formula.grapes_quantity,
+    balloons_11in: calculationResult.formula.balloons_11in,
+    balloons_16in: calculationResult.formula.balloons_16in,
+    accents: calculationResult.formula.accents,
+    production_time: "1 hr 15 min", // Example static time
+    creation_date: new Date().toISOString(),
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-2xl font-bold text-center mb-8">Production Form</h1>
 
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        {designState.clientReference && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Reference</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <img
-                src={designState.clientReference}
-                alt="Client Reference"
-                className="max-h-64 w-full object-contain rounded-lg"
-              />
-            </CardContent>
-          </Card>
-        )}
+      <ProductionDetails
+        details={productionDetails}
+        clientReference={designState.clientReference}
+        designPreview={designState.imagePreview}
+      />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Balloon Design</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <img
-              src={designState.imagePreview}
-              alt="Design Preview"
-              className="max-h-64 w-full object-contain rounded-lg"
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>Design Specifications</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4 mb-4 text-sm">
-              <div>
-                <p className="font-semibold">Dimensions:</p>
-                <p>{designState.width} ft × {designState.height} ft</p>
-              </div>
-              <div>
-                <p className="font-semibold">Style:</p>
-                <p>{designState.style}</p>
-              </div>
-              <div>
-                <p className="font-semibold">Total Area:</p>
-                <p>{Number(designState.width) * Number(designState.height)} sq ft</p>
-              </div>
-            </div>
-
-            {isLoading ? (
-              <div className="text-center py-4">Loading formula...</div>
-            ) : calculationResult ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Component</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">Base Clusters</TableCell>
-                    <TableCell className="text-right">{calculationResult.baseClusters}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Extra Clusters</TableCell>
-                    <TableCell className="text-right">{calculationResult.extraClusters}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Littles (L's)</TableCell>
-                    <TableCell className="text-right">{calculationResult.formula.littles_quantity}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">Grapes (G's)</TableCell>
-                    <TableCell className="text-right">{calculationResult.formula.grapes_quantity}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">11" Balloons</TableCell>
-                    <TableCell className="text-right">{calculationResult.formula.balloons_11in}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">16" Balloons</TableCell>
-                    <TableCell className="text-right">{calculationResult.formula.balloons_16in}</TableCell>
-                  </TableRow>
-                  <TableRow className="bg-muted/50">
-                    <TableCell className="font-bold">Total Balloons</TableCell>
-                    <TableCell className="text-right font-bold">{calculationResult.totalBalloons}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-4 text-red-500">
-                No formula found for the specified size
-              </div>
-            )}
-
-            {designState.notes && (
-              <div className="mt-4">
-                <p className="font-semibold mb-2">Additional Notes:</p>
-                <p className="text-sm text-gray-600 whitespace-pre-wrap">{designState.notes}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-8 gap-4">
         <Button
           onClick={() => navigate("/")}
+          variant="outline"
           className="flex items-center gap-2"
         >
           <Home className="h-4 w-4" />
           Back to Home
+        </Button>
+        <Button onClick={() => {
+          // TODO: Implement finalize production workflow
+          toast.success("Production finalized!");
+        }}>
+          Finalize Production
         </Button>
       </div>
     </div>
