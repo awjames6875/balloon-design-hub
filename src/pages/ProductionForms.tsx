@@ -34,9 +34,10 @@ const ProductionForms = () => {
     queryKey: ['balloonFormula', designState?.width],
     queryFn: () => calculateBalloonRequirements(Number(designState?.width || 0)),
     enabled: !!designState?.width,
-    onError: (error) => {
-      toast.error("Error fetching balloon formula");
-      console.error("Error:", error);
+    meta: {
+      onError: () => {
+        toast.error("Error fetching balloon formula");
+      }
     }
   });
 
