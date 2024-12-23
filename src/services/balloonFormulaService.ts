@@ -9,6 +9,7 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
     .select()
     .eq("size_ft", size)
     .eq("shape", shape)
+    .order('id', { ascending: false })  // Get the most recent formula if multiple exist
     .limit(1)
     .maybeSingle()
 
@@ -25,13 +26,11 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
     throw new Error(errorMessage)
   }
 
-  console.log("Retrieved balloon formula:", data)
   return data
 }
 
 export const calculateBalloonRequirements = async (length: number, style: string) => {
   try {
-    console.log("Calculating requirements for length:", length, "and style:", style)
     const formula = await fetchBalloonFormula(length, style)
     
     return {
@@ -45,7 +44,7 @@ export const calculateBalloonRequirements = async (length: number, style: string
       total_balloons: formula.total_balloons,
     }
   } catch (error) {
-    console.error("Error calculating balloon requirements:", error)
+    console.error("Error calculating balloon formula:", error)
     throw error
   }
 }
