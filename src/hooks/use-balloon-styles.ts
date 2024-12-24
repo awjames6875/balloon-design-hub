@@ -16,7 +16,11 @@ export const useBalloonStyles = () => {
         .select("*")
         .order("style_name")
 
-      if (error) throw error
+      if (error) {
+        console.error("Error fetching balloon styles:", error)
+        throw error
+      }
+
       return data as BalloonStyle[]
     },
   })

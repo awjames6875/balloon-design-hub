@@ -19,7 +19,7 @@ export const calculateBalloonRequirements = async (length: number, style: string
     .from("balloonformula")
     .select("*")
     .eq("size_ft", length)
-    .eq("shape", style)
+    .eq("shape", "Straight") // We use Straight calculations for all styles as per requirement
     .order('id', { ascending: false })
     .limit(1)
     .maybeSingle()

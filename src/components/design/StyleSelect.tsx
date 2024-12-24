@@ -22,7 +22,7 @@ export const StyleSelect = ({ value, onValueChange, styles, isLoading }: StyleSe
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select balloon style" />
         </SelectTrigger>
-        <SelectContent className="bg-white dark:bg-gray-800 border shadow-lg">
+        <SelectContent className="bg-white dark:bg-gray-800 border shadow-lg max-h-[200px] overflow-y-auto">
           {isLoading ? (
             <SelectItem value="loading">Loading styles...</SelectItem>
           ) : (
