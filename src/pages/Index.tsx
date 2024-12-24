@@ -23,11 +23,11 @@ const Index = () => {
       <div className="container mx-auto px-5 py-8 md:py-16">
         <div className="grid grid-cols-1 gap-8 mb-16">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-center md:text-left flex-1">
+            <div className="text-center flex-1">
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Balloon Design Manager
               </h1>
-              <p className="text-base md:text-lg text-gray-600 max-w-2xl">
+              <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
                 Create, manage, and track your balloon designs and inventory with ease
               </p>
             </div>
