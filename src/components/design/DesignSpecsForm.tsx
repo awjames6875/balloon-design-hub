@@ -99,6 +99,8 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     setSelectedColors(colors)
   }
 
+  const isFormValid = clientName && projectName && length && style && selectedColors.length > 0
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <ProjectInfoForm
@@ -118,7 +120,11 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
         onColorsSelected={handleColorsSelected}
       />
 
-      <Button type="submit" className="w-full">
+      <Button 
+        type="submit" 
+        className="w-full"
+        disabled={!isFormValid}
+      >
         Generate Production Form
       </Button>
     </form>
