@@ -1,4 +1,4 @@
-import { Palette, Package, ClipboardList, LogOut } from 'lucide-react';
+import { Balloon, PackageSearch, ClipboardList, LogOut } from 'lucide-react';
 import NavigationCard from '../components/NavigationCard';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,22 +46,25 @@ const Index = () => {
           <NavigationCard
             title="New Design"
             description="Create and customize new balloon arrangements"
-            icon={Palette}
+            icon={Balloon}
             to="/new-design"
             accentColor="pink"
+            imageSrc="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=400&auto=format&fit=crop"
           />
           <NavigationCard
             title="Inventory"
             description="Manage your balloon and supplies inventory"
-            icon={Package}
+            icon={PackageSearch}
             to="/inventory"
             accentColor="blue"
+            imageSrc="https://images.unsplash.com/photo-1527689368864-3a821dbccc34?q=80&w=400&auto=format&fit=crop"
           />
           <NavigationCard
             title="Production Forms"
             description="Track and manage production orders"
             icon={ClipboardList}
             to="/production-forms"
+            imageSrc="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=400&auto=format&fit=crop"
           />
         </div>
       </div>

@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom';
 import { LucideIcon } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 interface NavigationCardProps {
   title: string;
@@ -7,31 +8,41 @@ interface NavigationCardProps {
   icon: LucideIcon;
   to: string;
   accentColor?: string;
+  imageSrc?: string;
 }
 
-const NavigationCard = ({ title, description, icon: Icon, to, accentColor = 'primary' }: NavigationCardProps) => {
+const NavigationCard = ({ 
+  title, 
+  description, 
+  icon: Icon, 
+  to, 
+  accentColor = 'gray',
+  imageSrc
+}: NavigationCardProps) => {
+  const navigate = useNavigate();
+
   return (
-    <Link to={to} className="block">
-      <div className={`p-6 rounded-lg bg-white shadow-md hover:shadow-lg transition-all duration-300 hover:animate-card-hover border-l-4 ${
-        accentColor === 'pink' ? 'border-accent-pink' : 
-        accentColor === 'blue' ? 'border-accent-blue' : 
-        'border-primary'
-      }`}>
-        <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-full ${
-            accentColor === 'pink' ? 'bg-pink-100 text-accent-pink' : 
-            accentColor === 'blue' ? 'bg-blue-100 text-accent-blue' : 
-            'bg-purple-100 text-primary'
-          }`}>
-            <Icon className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-            <p className="text-gray-600 mt-1">{description}</p>
-          </div>
+    <Card 
+      className="relative overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+      onClick={() => navigate(to)}
+    >
+      {imageSrc && (
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={imageSrc} 
+            alt={title}
+            className="w-full h-full object-cover opacity-10"
+          />
         </div>
-      </div>
-    </Link>
+      )}
+      <CardContent className="relative z-10 p-6 bg-gradient-to-br from-white/80 to-transparent">
+        <div className={`flex items-center gap-4 mb-4 text-${accentColor}-500`}>
+          <Icon className="h-8 w-8" />
+          <h2 className="text-h2 font-semibold">{title}</h2>
+        </div>
+        <p className="text-gray-600">{description}</p>
+      </CardContent>
+    </Card>
   );
 };
 
