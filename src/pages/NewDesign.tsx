@@ -52,7 +52,7 @@ const NewDesign = () => {
         .from('design_images')
         .getPublicUrl(uploadData.path)
 
-      // Create analysis record with sample colors (replace with actual color detection)
+      // Create analysis record with sample colors
       const { error: analysisError } = await supabase
         .from('design_image_analysis')
         .insert([
