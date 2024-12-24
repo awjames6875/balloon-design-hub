@@ -4,9 +4,15 @@ interface ColorButtonProps {
   color: string
   isSelected: boolean
   onSelect: (color: string) => void
+  disabled?: boolean
 }
 
-export const ColorButton = ({ color, isSelected, onSelect }: ColorButtonProps) => {
+export const ColorButton = ({ 
+  color, 
+  isSelected, 
+  onSelect,
+  disabled = false 
+}: ColorButtonProps) => {
   const getColorName = (hexColor: string) => {
     const colorMap: Record<string, string> = {
       "#FFFFFF": "White",
@@ -27,8 +33,11 @@ export const ColorButton = ({ color, isSelected, onSelect }: ColorButtonProps) =
   return (
     <Button
       variant={isSelected ? "default" : "outline"}
-      className="w-full flex items-center justify-start gap-2 p-4"
-      onClick={() => onSelect(color)}
+      className={`w-full flex items-center justify-start gap-2 p-4 ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
+      onClick={() => !disabled && onSelect(color)}
+      disabled={disabled}
     >
       <div
         className="w-6 h-6 rounded-full border border-gray-300"

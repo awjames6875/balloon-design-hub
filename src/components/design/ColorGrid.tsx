@@ -4,12 +4,14 @@ interface ColorGridProps {
   availableColors: string[]
   selectedColors: string[]
   onColorSelect: (color: string) => void
+  disabled?: boolean
 }
 
 export const ColorGrid = ({
   availableColors,
   selectedColors,
   onColorSelect,
+  disabled = false,
 }: ColorGridProps) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -19,6 +21,7 @@ export const ColorGrid = ({
           color={color}
           isSelected={selectedColors.includes(color)}
           onSelect={onColorSelect}
+          disabled={disabled}
         />
       ))}
     </div>

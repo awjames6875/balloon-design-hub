@@ -44,6 +44,7 @@ export const ColorManager = ({
           }
         } catch (error) {
           console.error("Error analyzing colors:", error)
+          toast.error("Failed to analyze image colors")
         }
       }
     }
@@ -78,7 +79,7 @@ export const ColorManager = ({
   return (
     <Card className={`mt-4 ${disabled ? 'opacity-50' : ''}`}>
       <CardHeader>
-        <CardTitle>Select Balloon Colors (up to 4)</CardTitle>
+        <CardTitle>Select Balloon Colors (up to {MAX_COLORS})</CardTitle>
       </CardHeader>
       <CardContent>
         <ColorGrid
