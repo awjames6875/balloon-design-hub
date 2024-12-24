@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Package, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,6 +12,7 @@ import {
 import { useToast } from "@/components/ui/use-toast"
 import { balloonDensityData } from "@/lib/balloon-density"
 import { BalloonChart } from "@/components/charts/BalloonChart"
+import { supabase } from "@/integrations/supabase/client"
 
 interface BalloonInventory {
   type: string
@@ -20,16 +21,45 @@ interface BalloonInventory {
   toOrder: number
 }
 
-const initialInventory: BalloonInventory[] = [
-  { type: "Red", style: "Straight", inStock: 50, toOrder: 0 },
-  { type: "Blue", style: "Curved", inStock: 20, toOrder: 30 },
-  { type: "White", style: "Straight", inStock: 35, toOrder: 15 },
-  { type: "Gold", style: "Cluster", inStock: 25, toOrder: 25 },
-]
-
 const Inventory = () => {
-  const [inventory, setInventory] = useState<BalloonInventory[]>(initialInventory)
+  const [inventory, setInventory] = useState<BalloonInventory[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
+
+  useEffect(() => {
+    fetchInventory()
+  }, [])
+
+  const fetchInventory = async () => {
+    setIsLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('balloon_inventory')
+        .select('*')
+        .order('color')
+        .order('size')
+
+      if (error) throw error
+
+      const formattedInventory = data.map(item => ({
+        type: item.color,
+        style: item.size,
+        inStock: item.quantity,
+        toOrder: 0
+      }))
+
+      setInventory(formattedInventory)
+    } catch (error) {
+      console.error('Error fetching inventory:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load inventory data",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleOrder = () => {
     const itemsToOrder = inventory.filter((item) => item.toOrder > 0)
@@ -49,13 +79,17 @@ const Inventory = () => {
 
   const getUsageData = () => {
     return inventory.map((item) => ({
-      name: item.type,
+      name: `${item.type} (${item.style})`,
       actual: item.inStock,
       effective: Math.floor(
         item.inStock *
           (balloonDensityData.find((d) => d.Style === item.style)?.Density || 1)
       ),
     }))
+  }
+
+  if (isLoading) {
+    return <div className="container mx-auto px-4 py-8">Loading inventory...</div>
   }
 
   return (
@@ -69,29 +103,20 @@ const Inventory = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Balloon Type</TableHead>
-              <TableHead>Style</TableHead>
+              <TableHead>Size</TableHead>
               <TableHead className="text-right">In Stock</TableHead>
-              <TableHead className="text-right">Effective Stock</TableHead>
               <TableHead className="text-right">To Order</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {inventory.map((item) => {
-              const effectiveStock = Math.floor(
-                item.inStock *
-                  (balloonDensityData.find((d) => d.Style === item.style)
-                    ?.Density || 1)
-              )
-              return (
-                <TableRow key={`${item.type}-${item.style}`}>
-                  <TableCell className="font-medium">{item.type}</TableCell>
-                  <TableCell>{item.style}</TableCell>
-                  <TableCell className="text-right">{item.inStock}</TableCell>
-                  <TableCell className="text-right">{effectiveStock}</TableCell>
-                  <TableCell className="text-right">{item.toOrder}</TableCell>
-                </TableRow>
-              )
-            })}
+            {inventory.map((item, index) => (
+              <TableRow key={`${item.type}-${item.style}-${index}`}>
+                <TableCell className="font-medium">{item.type}</TableCell>
+                <TableCell>{item.style}</TableCell>
+                <TableCell className="text-right">{item.inStock}</TableCell>
+                <TableCell className="text-right">{item.toOrder}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </div>
@@ -111,21 +136,16 @@ const Inventory = () => {
           Order More Balloons
         </Button>
         <Button
-          onClick={() => {
-            toast({
-              title: "Analytics Updated",
-              description: "Stock usage patterns have been recalculated.",
-            })
-          }}
+          onClick={fetchInventory}
           className="flex items-center gap-2"
           variant="outline"
         >
           <TrendingUp className="h-4 w-4" />
-          Update Analytics
+          Refresh Inventory
         </Button>
       </div>
     </div>
   )
 }
 
-export default Inventory;
+export default Inventory
