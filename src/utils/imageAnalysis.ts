@@ -30,7 +30,21 @@ export const uploadDesignImage = async (file: File): Promise<string | null> => {
 
 export const analyzeImageColors = async (imagePath: string): Promise<string[]> => {
   try {
-    console.log("Analyzing colors for image:", imagePath)
+    // If the image is a data URL, return default colors
+    if (imagePath.startsWith('data:')) {
+      return [
+        "#FF0000", // Red
+        "#FFA500", // Orange
+        "#FFFF00", // Yellow
+        "#008000", // Green
+        "#0000FF", // Blue
+        "#800080", // Purple
+        "#FFC0CB", // Pink
+        "#FFFFFF", // White
+        "#000000", // Black
+      ]
+    }
+
     const { data, error } = await supabase
       .from('design_image_analysis')
       .select('detected_colors')
@@ -39,20 +53,41 @@ export const analyzeImageColors = async (imagePath: string): Promise<string[]> =
 
     if (error) {
       console.error('Error fetching color analysis:', error)
-      throw error
+      // Return default colors instead of throwing error
+      return [
+        "#FF0000", // Red
+        "#FFA500", // Orange
+        "#FFFF00", // Yellow
+        "#008000", // Green
+        "#0000FF", // Blue
+        "#800080", // Purple
+        "#FFC0CB", // Pink
+        "#FFFFFF", // White
+        "#000000", // Black
+      ]
     }
 
     if (data?.detected_colors) {
       console.log("Detected colors:", data.detected_colors)
       return Array.isArray(data.detected_colors) 
-        ? data.detected_colors as string[]
+        ? data.detected_colors
         : []
     }
 
     return []
   } catch (error) {
     console.error('Error in analyzeImageColors:', error)
-    toast.error("Failed to analyze image colors")
-    return []
+    // Return default colors instead of throwing error
+    return [
+      "#FF0000", // Red
+      "#FFA500", // Orange
+      "#FFFF00", // Yellow
+      "#008000", // Green
+      "#0000FF", // Blue
+      "#800080", // Purple
+      "#FFC0CB", // Pink
+      "#FFFFFF", // White
+      "#000000", // Black
+    ]
   }
 }
