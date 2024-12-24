@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ImageUpload } from "@/components/design/ImageUpload"
+import { uploadDesignImage } from "@/utils/imageAnalysis"
+import { toast } from "sonner"
 
 interface ImageUploadSectionProps {
   onImageUploaded: (imagePath: string) => void
@@ -7,11 +9,18 @@ interface ImageUploadSectionProps {
 
 export const ImageUploadSection = ({ onImageUploaded }: ImageUploadSectionProps) => {
   const handleImageUpload = async (file: File) => {
-    // Handle the file upload and get the image path
-    // Then call onImageUploaded with the path
-    // This is just a placeholder - implement your actual upload logic
-    const imagePath = URL.createObjectURL(file)
-    onImageUploaded(imagePath)
+    try {
+      const imagePath = await uploadDesignImage(file)
+      if (imagePath) {
+        onImageUploaded(imagePath)
+        toast.success("Image uploaded successfully")
+      } else {
+        toast.error("Failed to upload image")
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      toast.error("Failed to upload image")
+    }
   }
 
   return (
