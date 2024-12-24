@@ -5,7 +5,7 @@ import { DesignSpecsFormData } from "@/components/design/DesignSpecsForm"
 
 export const saveDesignForm = async (formData: DesignSpecsFormData) => {
   try {
-    const calculations = await calculateBalloonRequirements(parseInt(formData.length), formData.shape)
+    const calculations = await calculateBalloonRequirements(parseInt(formData.length), formData.style)
     
     if (!calculations) {
       toast.error("Could not calculate balloon requirements")
@@ -43,7 +43,7 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
         client_name: formData.clientName,
         project_name: formData.projectName,
         dimensions_ft: parseInt(formData.length),
-        colors: [], // Set to empty array since we removed color selection
+        colors: formData.colorClusters.map(c => c.color),
         base_clusters: calculations.baseClusters,
         extra_clusters: calculations.extraClusters,
         total_clusters: calculations.totalClusters,

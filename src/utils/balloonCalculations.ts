@@ -11,49 +11,49 @@ interface BalloonRequirements {
   totalBalloons: number
 }
 
-const calculateClusters = (length: number) => {
-  // Base calculation: 1 base cluster per 1.5 ft
-  const baseClusters = Math.floor(length / 1.5)
-  // Extras calculation: 1 extra per 1.5 base clusters
-  const extraClusters = Math.ceil(baseClusters / 1.5)
-  
-  return {
-    baseClusters,
-    extraClusters,
-    totalClusters: baseClusters + extraClusters
-  }
-}
-
-const calculateBalloonQuantities = (totalClusters: number) => {
-  // Calculate balloon quantities based on total clusters
-  const littlesQuantity = totalClusters * 3 // 3 littles per cluster
-  const grapesQuantity = totalClusters * 2 // 2 grapes per cluster
-  const balloons11in = littlesQuantity // 11" balloons for littles
-  const balloons16in = grapesQuantity // 16" balloons for grapes
-  
-  return {
-    littlesQuantity,
-    grapesQuantity,
-    balloons11in,
-    balloons16in,
-    totalBalloons: littlesQuantity + grapesQuantity
-  }
-}
-
 export const calculateBalloonRequirements = async (length: number, style: string): Promise<BalloonRequirements> => {
-  console.log("Calculating requirements for length:", length, "and style:", style)
+  console.log("Fetching requirements for length:", length, "and style:", style)
   
-  // Calculate clusters using the new formula
-  const { baseClusters, extraClusters, totalClusters } = calculateClusters(length)
-  
-  // Calculate balloon quantities
-  const quantities = calculateBalloonQuantities(totalClusters)
-  
-  // Return combined calculations
+  // Fetch the balloon formula from the database
+  const { data: formulaData, error } = await supabase
+    .from("balloonformula")
+    .select("*")
+    .eq("size_ft", length)
+    .maybeSingle()
+
+  if (error) {
+    console.error("Error fetching balloon formula:", error)
+    throw new Error("Failed to fetch balloon requirements")
+  }
+
+  if (!formulaData) {
+    console.warn("No formula found for length:", length)
+    // Fallback to default calculation if no formula exists
+    const baseClusters = Math.floor(length / 1.5)
+    const extraClusters = Math.ceil(baseClusters / 1.5)
+    const totalClusters = baseClusters + extraClusters
+    
+    return {
+      baseClusters,
+      extraClusters,
+      totalClusters,
+      littlesQuantity: totalClusters * 3,
+      grapesQuantity: totalClusters * 2,
+      balloons11in: totalClusters * 3,
+      balloons16in: totalClusters * 2,
+      totalBalloons: totalClusters * 5
+    }
+  }
+
+  // Return the formula from the database
   return {
-    baseClusters,
-    extraClusters,
-    totalClusters,
-    ...quantities
+    baseClusters: formulaData.base_clusters,
+    extraClusters: formulaData.extra_clusters,
+    totalClusters: formulaData.total_clusters,
+    littlesQuantity: formulaData.littles_quantity,
+    grapesQuantity: formulaData.grapes_quantity,
+    balloons11in: formulaData.balloons_11in,
+    balloons16in: formulaData.balloons_16in,
+    totalBalloons: formulaData.total_balloons
   }
 }
