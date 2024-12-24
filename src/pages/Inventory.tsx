@@ -93,43 +93,46 @@ const Inventory = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 space-y-8">
       <h1 className="text-2xl font-bold text-center mb-8">
         Inventory Management
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[800px]">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Current Inventory</h2>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Balloon Type</TableHead>
-                  <TableHead>Size</TableHead>
-                  <TableHead className="text-right">In Stock</TableHead>
-                  <TableHead className="text-right">To Order</TableHead>
+      {/* Current Inventory Section */}
+      <section className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4">Current Inventory</h2>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Balloon Type</TableHead>
+                <TableHead>Size</TableHead>
+                <TableHead className="text-right">In Stock</TableHead>
+                <TableHead className="text-right">To Order</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {inventory.map((item, index) => (
+                <TableRow key={`${item.type}-${item.style}-${index}`}>
+                  <TableCell className="font-medium">{item.type}</TableCell>
+                  <TableCell>{item.style}</TableCell>
+                  <TableCell className="text-right">{item.inStock}</TableCell>
+                  <TableCell className="text-right">{item.toOrder}</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {inventory.map((item, index) => (
-                  <TableRow key={`${item.type}-${item.style}-${index}`}>
-                    <TableCell className="font-medium">{item.type}</TableCell>
-                    <TableCell>{item.style}</TableCell>
-                    <TableCell className="text-right">{item.inStock}</TableCell>
-                    <TableCell className="text-right">{item.toOrder}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+              ))}
+            </TableBody>
+          </Table>
         </div>
+      </section>
 
-        <div className="bg-white rounded-lg shadow-md h-full">
-          <h2 className="text-xl font-semibold p-6 pb-0">Stock Usage Analytics</h2>
-          <BalloonChart data={getUsageData()} />
-        </div>
-      </div>
+      {/* Stock Usage Analytics Section */}
+      <section className="bg-white rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold p-6 pb-0">Stock Usage Analytics</h2>
+        <p className="text-sm text-gray-600 px-6 pb-2">
+          Compare actual stock levels with effective usage across different balloon types
+        </p>
+        <BalloonChart data={getUsageData()} />
+      </section>
 
       <div className="flex justify-center gap-4 mt-8">
         <Button
