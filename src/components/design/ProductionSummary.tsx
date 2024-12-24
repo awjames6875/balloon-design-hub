@@ -16,12 +16,18 @@ interface Accessory {
   quantity: number
 }
 
+interface ColorCluster {
+  color: string
+  baseClusters: number
+  extraClusters: number
+}
+
 interface ProductionSummaryProps {
   clientName: string
   projectName: string
   dimensions: string
   style: string
-  colorClusters: never[] // Kept for backward compatibility but not used
+  colorClusters: ColorCluster[]
   accessories: Accessory[]
   onFinalize: () => void
   calculations?: DesignSpecsFormData['calculations']
@@ -32,6 +38,7 @@ export const ProductionSummary = ({
   projectName,
   dimensions,
   style,
+  colorClusters,
   accessories,
   onFinalize,
   calculations
@@ -47,7 +54,7 @@ export const ProductionSummary = ({
         clientName,
         projectName,
         dimensionsFt: parseInt(dimensions),
-        colors: [],
+        colors: colorClusters.map(cluster => cluster.color),
         baseClusters: calculations.baseClusters,
         extraClusters: calculations.extraClusters,
         totalClusters: calculations.totalClusters,
@@ -80,6 +87,32 @@ export const ProductionSummary = ({
         <p><span className="font-semibold">Dimensions:</span> {dimensions} ft</p>
         <p><span className="font-semibold">Style:</span> {style}</p>
       </div>
+
+      {colorClusters.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Color Clusters</h3>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Color</TableHead>
+                  <TableHead>Base Clusters</TableHead>
+                  <TableHead>Extra Clusters</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {colorClusters.map((cluster, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{cluster.color}</TableCell>
+                    <TableCell>{cluster.baseClusters}</TableCell>
+                    <TableCell>{cluster.extraClusters}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         <h3 className="text-lg font-semibold">Accessories</h3>
