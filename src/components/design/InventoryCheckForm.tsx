@@ -30,6 +30,19 @@ interface InventoryItem {
   quantity: number
 }
 
+const colorNameMap: { [key: string]: string } = {
+  "#FF0000": "Red",
+  "#FFA500": "Orange",
+  "#FFFF00": "Yellow",
+  "#008000": "Green",
+  "#0000FF": "Blue",
+  "#800080": "Purple",
+  "#FFC0CB": "Pink",
+  "#FFFFFF": "White",
+  "#000000": "Black",
+  // Add more mappings as needed
+}
+
 export const InventoryCheckForm = ({ 
   colorClusters, 
   calculations,
@@ -51,6 +64,10 @@ export const InventoryCheckForm = ({
     }))
   }
 
+  const getColorName = (hexColor: string) => {
+    return colorNameMap[hexColor.toUpperCase()] || hexColor
+  }
+
   const checkInventory = async () => {
     setIsLoading(true)
     const balloonsByColor = calculateBalloonsPerColor()
@@ -58,13 +75,15 @@ export const InventoryCheckForm = ({
 
     try {
       for (const colorData of balloonsByColor) {
+        const colorName = getColorName(colorData.color)
+        
         // Check 11" balloons
         const { data: data11, error: error11 } = await supabase
           .from('balloon_inventory')
           .select('quantity')
-          .eq('color', colorData.color)
+          .eq('color', colorName)
           .eq('size', '11in')
-          .single()
+          .maybeSingle()
 
         if (error11) {
           console.error('Error checking 11" inventory:', error11)
@@ -75,9 +94,9 @@ export const InventoryCheckForm = ({
         const { data: data16, error: error16 } = await supabase
           .from('balloon_inventory')
           .select('quantity')
-          .eq('color', colorData.color)
+          .eq('color', colorName)
           .eq('size', '16in')
-          .single()
+          .maybeSingle()
 
         if (error16) {
           console.error('Error checking 16" inventory:', error16)
@@ -88,6 +107,17 @@ export const InventoryCheckForm = ({
         const has16InchStock = data16 && data16.quantity >= colorData.balloons16
         
         status[colorData.color] = has11InchStock && has16InchStock
+
+        if (!has11InchStock || !has16InchStock) {
+          console.log(`Inventory check failed for ${colorName}:`, {
+            has11InchStock,
+            has16InchStock,
+            required11: colorData.balloons11,
+            available11: data11?.quantity,
+            required16: colorData.balloons16,
+            available16: data16?.quantity
+          })
+        }
       }
 
       setInventoryStatus(status)
@@ -129,7 +159,7 @@ export const InventoryCheckForm = ({
           <TableBody>
             {balloonsByColor.map((item, index) => (
               <TableRow key={index}>
-                <TableCell>{item.color}</TableCell>
+                <TableCell>{getColorName(item.color)}</TableCell>
                 <TableCell>{item.balloons11}</TableCell>
                 <TableCell>{item.balloons16}</TableCell>
                 <TableCell>
