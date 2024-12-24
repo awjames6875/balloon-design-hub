@@ -1,14 +1,13 @@
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
-export const fetchBalloonFormula = async (size: number, shape: string) => {
-  console.log("Fetching formula for size:", size, "and shape:", shape)
+export const fetchBalloonFormula = async (size: number) => {
+  console.log("Fetching formula for size:", size)
   
   const { data, error } = await supabase
     .from("balloonformula")
     .select()
     .eq("size_ft", size)
-    .eq("shape", shape)
     .order('id', { ascending: false })  // Get the most recent formula if multiple exist
     .limit(1)
     .maybeSingle()
@@ -20,7 +19,7 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
   }
 
   if (!data) {
-    const errorMessage = `No formula found for size ${size}ft and shape ${shape}`
+    const errorMessage = `No formula found for size ${size}ft`
     console.error(errorMessage)
     toast.error(errorMessage)
     throw new Error(errorMessage)
@@ -31,7 +30,8 @@ export const fetchBalloonFormula = async (size: number, shape: string) => {
 
 export const calculateBalloonRequirements = async (length: number, style: string) => {
   try {
-    const formula = await fetchBalloonFormula(length, style)
+    // We ignore the style parameter since all styles use the same formula
+    const formula = await fetchBalloonFormula(length)
     
     return {
       base_clusters: formula.base_clusters,

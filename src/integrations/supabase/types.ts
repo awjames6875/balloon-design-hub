@@ -70,7 +70,7 @@ export type Database = {
           grapes_quantity: number
           id: number
           littles_quantity: number
-          shape: string
+          shape: string | null
           shape_multiplier: number | null
           size_ft: number
           total_balloons: number
@@ -86,7 +86,7 @@ export type Database = {
           grapes_quantity: number
           id?: number
           littles_quantity: number
-          shape?: string
+          shape?: string | null
           shape_multiplier?: number | null
           size_ft: number
           total_balloons: number
@@ -102,7 +102,7 @@ export type Database = {
           grapes_quantity?: number
           id?: number
           littles_quantity?: number
-          shape?: string
+          shape?: string | null
           shape_multiplier?: number | null
           size_ft?: number
           total_balloons?: number
