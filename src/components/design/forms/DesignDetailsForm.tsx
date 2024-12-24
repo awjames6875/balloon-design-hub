@@ -10,6 +10,7 @@ interface DesignDetailsFormProps {
   onLengthChange: (value: string) => void
   onStyleChange: (value: string) => void
   onColorsSelected: (colors: string[]) => void
+  isCalculating: boolean
 }
 
 export const DesignDetailsForm = ({
@@ -19,6 +20,7 @@ export const DesignDetailsForm = ({
   onLengthChange,
   onStyleChange,
   onColorsSelected,
+  isCalculating,
 }: DesignDetailsFormProps) => {
   const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
 
@@ -27,6 +29,7 @@ export const DesignDetailsForm = ({
       <DimensionsInput
         length={length}
         onLengthChange={onLengthChange}
+        disabled={isCalculating}
       />
 
       <StyleSelect
@@ -34,11 +37,13 @@ export const DesignDetailsForm = ({
         onValueChange={onStyleChange}
         styles={balloonStyles}
         isLoading={isLoadingStyles}
+        disabled={isCalculating}
       />
 
       <ColorManager
         designImage={designImage}
         onColorsSelected={onColorsSelected}
+        disabled={isCalculating}
       />
     </div>
   )

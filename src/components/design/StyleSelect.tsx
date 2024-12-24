@@ -12,16 +12,27 @@ interface StyleSelectProps {
   onValueChange: (value: string) => void
   styles: { style_name: string }[] | undefined
   isLoading: boolean
+  disabled?: boolean
 }
 
-export const StyleSelect = ({ value, onValueChange, styles, isLoading }: StyleSelectProps) => {
+export const StyleSelect = ({ 
+  value, 
+  onValueChange, 
+  styles, 
+  isLoading,
+  disabled = false 
+}: StyleSelectProps) => {
   console.log("Available styles:", styles)
   console.log("Selected style:", value)
   
   return (
     <div className="space-y-2">
       <Label>Balloon Style</Label>
-      <Select value={value} onValueChange={onValueChange}>
+      <Select 
+        value={value} 
+        onValueChange={onValueChange}
+        disabled={disabled}
+      >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select balloon style" />
         </SelectTrigger>

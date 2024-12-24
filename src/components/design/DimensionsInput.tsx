@@ -4,11 +4,13 @@ import { Input } from "@/components/ui/input"
 interface DimensionsInputProps {
   length: string
   onLengthChange: (value: string) => void
+  disabled?: boolean
 }
 
 export const DimensionsInput = ({
   length,
   onLengthChange,
+  disabled = false,
 }: DimensionsInputProps) => {
   return (
     <div className="space-y-2">
@@ -21,6 +23,7 @@ export const DimensionsInput = ({
           value={length}
           onChange={(e) => onLengthChange(e.target.value)}
           placeholder="Enter length"
+          disabled={disabled}
         />
       </div>
     </div>

@@ -7,9 +7,14 @@ import { ColorGrid } from "./ColorGrid"
 interface ColorManagerProps {
   designImage: string | null
   onColorsSelected: (colors: string[]) => void
+  disabled?: boolean
 }
 
-export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProps) => {
+export const ColorManager = ({ 
+  designImage, 
+  onColorsSelected,
+  disabled = false 
+}: ColorManagerProps) => {
   const [availableColors, setAvailableColors] = useState<string[]>([
     "#FF0000", // Red
     "#FFA500", // Orange
@@ -47,6 +52,8 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
   }, [designImage])
 
   const handleColorSelect = (color: string) => {
+    if (disabled) return
+
     setSelectedColors(prevColors => {
       let newColors: string[]
       
@@ -69,7 +76,7 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
   }
 
   return (
-    <Card className="mt-4">
+    <Card className={`mt-4 ${disabled ? 'opacity-50' : ''}`}>
       <CardHeader>
         <CardTitle>Select Balloon Colors (up to 4)</CardTitle>
       </CardHeader>
@@ -78,6 +85,7 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
           availableColors={availableColors}
           selectedColors={selectedColors}
           onColorSelect={handleColorSelect}
+          disabled={disabled}
         />
         <p className="text-sm text-muted-foreground mt-2">
           Selected colors: {selectedColors.length} / {MAX_COLORS}

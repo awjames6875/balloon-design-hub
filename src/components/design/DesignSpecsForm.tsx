@@ -44,6 +44,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [calculations, setCalculations] = useState<DesignSpecsFormData["calculations"] | null>(null)
   const [colorClusters, setColorClusters] = useState<DesignSpecsFormData["colorClusters"]>([])
+  const [isCalculating, setIsCalculating] = useState(false)
 
   const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
     setClientName(project.client_name)
@@ -54,22 +55,30 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
   useEffect(() => {
     const updateCalculations = async () => {
       if (!length || !style) return
+      
+      setIsCalculating(true)
+      console.log("Updating calculations for length:", length, "and style:", style)
 
       try {
         const newCalculations = await calculateBalloonRequirements(parseInt(length), style)
+        console.log("New calculations:", newCalculations)
         setCalculations(newCalculations)
 
         // Update color clusters if we have colors selected
         if (selectedColors.length > 0 && newCalculations) {
+          console.log("Updating color clusters with colors:", selectedColors)
           const newColorClusters = generateColorPattern(
             selectedColors,
             newCalculations.totalClusters
           )
+          console.log("New color clusters:", newColorClusters)
           setColorClusters(newColorClusters)
         }
       } catch (error) {
         console.error("Error updating calculations:", error)
         toast.error("Failed to update balloon calculations")
+      } finally {
+        setIsCalculating(false)
       }
     }
 
@@ -79,10 +88,12 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
   // Effect to update color clusters when colors change
   useEffect(() => {
     if (calculations && selectedColors.length > 0) {
+      console.log("Updating color clusters due to color change:", selectedColors)
       const newColorClusters = generateColorPattern(
         selectedColors,
         calculations.totalClusters
       )
+      console.log("New color clusters after color change:", newColorClusters)
       setColorClusters(newColorClusters)
     }
   }, [selectedColors, calculations])
@@ -137,6 +148,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
   }
 
   const handleColorsSelected = (colors: string[]) => {
+    console.log("Colors selected:", colors)
     setSelectedColors(colors)
   }
 
@@ -145,7 +157,8 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     length && 
     style && 
     selectedColors.length > 0 && 
-    calculations !== null
+    calculations !== null && 
+    !isCalculating
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -164,7 +177,14 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
         onLengthChange={setLength}
         onStyleChange={setStyle}
         onColorsSelected={handleColorsSelected}
+        isCalculating={isCalculating}
       />
+
+      {isCalculating && (
+        <div className="text-center text-sm text-muted-foreground">
+          Updating calculations...
+        </div>
+      )}
 
       <Button 
         type="submit" 
