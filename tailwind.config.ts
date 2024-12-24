@@ -18,6 +18,19 @@ export default {
       }
     },
     extend: {
+      fontFamily: {
+        sans: ['Montserrat', 'sans-serif'],
+      },
+      fontSize: {
+        'h1': '32px',
+        'h2': '28px',
+        'body': '16px',
+      },
+      fontWeight: {
+        normal: '400',
+        semibold: '600',
+        bold: '700',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
