@@ -1,15 +1,11 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { ProjectSearch } from "./ProjectSearch"
-import { DimensionsInput } from "./DimensionsInput"
-import { StyleSelect } from "./StyleSelect"
-import { ClientInfoFields } from "./ClientInfoFields"
-import { ColorManager } from "./ColorManager"
-import { useBalloonStyles } from "@/hooks/use-balloon-styles"
 import { saveDesignForm } from "@/services/designFormService"
 import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
 import { generateColorPattern } from "@/utils/colorPatterns"
+import { ProjectInfoForm } from "./forms/ProjectInfoForm"
+import { DesignDetailsForm } from "./forms/DesignDetailsForm"
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -46,8 +42,11 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
   const [style, setStyle] = useState("")
   const [shape, setShape] = useState("Straight")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
-  
-  const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
+
+  const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
+    setClientName(project.client_name)
+    setProjectName(project.project_name)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,10 +72,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     }
 
     try {
-      // Calculate all balloon requirements
       const calculations = await calculateBalloonRequirements(parseInt(length), style)
-
-      // Generate color pattern and distribution
       const colorClusters = generateColorPattern(selectedColors, calculations.totalClusters)
 
       const formData: DesignSpecsFormData = {
@@ -90,7 +86,6 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
       }
 
       const success = await saveDesignForm(formData)
-
       if (success) {
         onSubmit(formData)
       }
@@ -100,36 +95,22 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     }
   }
 
-  const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
-    setClientName(project.client_name)
-    setProjectName(project.project_name)
-  }
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <ProjectSearch onProjectSelect={handleProjectSelect} />
-
-      <ClientInfoFields
+      <ProjectInfoForm
         clientName={clientName}
         projectName={projectName}
         onClientNameChange={setClientName}
         onProjectNameChange={setProjectName}
+        onProjectSelect={handleProjectSelect}
       />
 
-      <DimensionsInput
+      <DesignDetailsForm
         length={length}
-        onLengthChange={setLength}
-      />
-
-      <StyleSelect
-        value={style}
-        onValueChange={setStyle}
-        styles={balloonStyles}
-        isLoading={isLoadingStyles}
-      />
-
-      <ColorManager
+        style={style}
         designImage={designImage}
+        onLengthChange={setLength}
+        onStyleChange={setStyle}
         onColorsSelected={setSelectedColors}
       />
 
