@@ -44,9 +44,14 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
 
       if (data?.detected_colors) {
         console.log("Detected colors:", data.detected_colors)
+        // Ensure detected_colors is treated as a string array
+        const detectedColors = Array.isArray(data.detected_colors) 
+          ? data.detected_colors as string[]
+          : []
+        
         setAvailableColors(prevColors => {
           // Combine detected colors with standard colors, removing duplicates
-          const allColors = [...new Set([...data.detected_colors, ...prevColors])]
+          const allColors = [...new Set([...detectedColors, ...prevColors])]
           return allColors
         })
       }
