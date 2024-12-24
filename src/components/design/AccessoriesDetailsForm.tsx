@@ -37,16 +37,8 @@ export const AccessoriesDetailsForm = ({
     if (autoCalculate && calculations?.extraClusters > 0) {
       const calculatedAccessories = [
         {
-          type: "Starburst Large",
-          quantity: Math.ceil(calculations.extraClusters * 0.5),
-        },
-        {
           type: "Starburst Small",
-          quantity: Math.ceil(calculations.extraClusters * 0.75),
-        },
-        {
-          type: "Pearl Garland",
-          quantity: Math.ceil(calculations.extraClusters * 0.25),
+          quantity: 4,
         },
       ]
       setAccessories(calculatedAccessories)
@@ -87,16 +79,8 @@ export const AccessoriesDetailsForm = ({
     } else if (calculations?.extraClusters > 0) {
       const calculatedAccessories = [
         {
-          type: "Starburst Large",
-          quantity: Math.ceil(calculations.extraClusters * 0.5),
-        },
-        {
           type: "Starburst Small",
-          quantity: Math.ceil(calculations.extraClusters * 0.75),
-        },
-        {
-          type: "Pearl Garland",
-          quantity: Math.ceil(calculations.extraClusters * 0.25),
+          quantity: 4,
         },
       ]
       setAccessories(calculatedAccessories)
