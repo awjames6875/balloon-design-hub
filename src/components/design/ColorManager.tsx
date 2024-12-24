@@ -58,23 +58,24 @@ export const ColorManager = ({
   const handleColorSelect = (color: string) => {
     if (disabled) return
 
+    // Update local state first
     setSelectedColors(prevColors => {
-      let newColors: string[]
-      
+      // If color is already selected, remove it
       if (prevColors.includes(color)) {
-        // Remove color if already selected
-        newColors = prevColors.filter(c => c !== color)
-      } else {
-        // Add color if under limit
-        if (prevColors.length >= MAX_COLORS) {
-          toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
-          return prevColors
-        }
-        newColors = [...prevColors, color]
+        const newColors = prevColors.filter(c => c !== color)
+        onColorsSelected(newColors) // Notify parent after state update
+        return newColors
       }
       
-      // Notify parent of color changes
-      onColorsSelected(newColors)
+      // Check if we're at the maximum colors limit
+      if (prevColors.length >= MAX_COLORS) {
+        toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
+        return prevColors
+      }
+      
+      // Add the new color
+      const newColors = [...prevColors, color]
+      onColorsSelected(newColors) // Notify parent after state update
       return newColors
     })
   }
