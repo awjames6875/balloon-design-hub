@@ -43,6 +43,30 @@ export const ProductionSummary = ({
   onFinalize,
   calculations
 }: ProductionSummaryProps) => {
+  const calculateBalloonsPerColor = () => {
+    if (!calculations) return [];
+    
+    const balloonsPerCluster = {
+      '11inch': 11,
+      '16inch': 2
+    };
+
+    return colorClusters.map(cluster => ({
+      color: cluster.color,
+      balloons11: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['11inch']),
+      balloons16: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['16inch'])
+    }));
+  };
+
+  const calculateInflationTime = () => {
+    if (!calculations) return "N/A";
+    const minutesPerCluster = 5;
+    const totalMinutes = calculations.totalClusters * minutesPerCluster;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours}h ${minutes}m`;
+  };
+
   const handleFinalize = async () => {
     if (!calculations) {
       toast.error("Missing balloon calculations")
@@ -66,7 +90,7 @@ export const ProductionSummary = ({
           ...acc,
           [curr.type]: curr.quantity
         }), {}),
-        productionTime: `${Math.floor((calculations.totalClusters * 15) / 60)}h ${(calculations.totalClusters * 15) % 60}m`,
+        productionTime: calculateInflationTime(),
       })
       
       toast.success("Production details saved successfully!")
@@ -76,6 +100,9 @@ export const ProductionSummary = ({
       toast.error("Failed to save production details")
     }
   }
+
+  const balloonsByColor = calculateBalloonsPerColor();
+  const inflationTime = calculateInflationTime();
 
   return (
     <div className="space-y-6">
@@ -88,28 +115,46 @@ export const ProductionSummary = ({
         <p><span className="font-semibold">Style:</span> {style}</p>
       </div>
 
-      {colorClusters.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Color Clusters</h3>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Color</TableHead>
-                  <TableHead>Base Clusters</TableHead>
-                  <TableHead>Extra Clusters</TableHead>
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Balloon Requirements by Color</h3>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Color</TableHead>
+                <TableHead>11" Balloons</TableHead>
+                <TableHead>16" Balloons</TableHead>
+                <TableHead>Total Clusters</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {balloonsByColor.map((item, index) => (
+                <TableRow key={index}>
+                  <TableCell>{item.color}</TableCell>
+                  <TableCell>{item.balloons11}</TableCell>
+                  <TableCell>{item.balloons16}</TableCell>
+                  <TableCell>
+                    {colorClusters[index].baseClusters + colorClusters[index].extraClusters}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {colorClusters.map((cluster, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{cluster.color}</TableCell>
-                    <TableCell>{cluster.baseClusters}</TableCell>
-                    <TableCell>{cluster.extraClusters}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {calculations && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Production Details</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <p><span className="font-semibold">Base Clusters:</span> {calculations.baseClusters}</p>
+            <p><span className="font-semibold">Extra Clusters:</span> {calculations.extraClusters}</p>
+            <p><span className="font-semibold">Total Clusters:</span> {calculations.totalClusters}</p>
+            <p><span className="font-semibold">Littles Quantity:</span> {calculations.littlesQuantity}</p>
+            <p><span className="font-semibold">Grapes Quantity:</span> {calculations.grapesQuantity}</p>
+            <p><span className="font-semibold">Total 11" Balloons:</span> {calculations.balloons11in}</p>
+            <p><span className="font-semibold">Total 16" Balloons:</span> {calculations.balloons16in}</p>
+            <p><span className="font-semibold">Estimated Inflation Time:</span> {inflationTime}</p>
           </div>
         </div>
       )}
@@ -135,23 +180,6 @@ export const ProductionSummary = ({
           </Table>
         </div>
       </div>
-
-      {calculations && (
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Production Details</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <p><span className="font-semibold">Base Clusters:</span> {calculations.baseClusters}</p>
-            <p><span className="font-semibold">Extra Clusters:</span> {calculations.extraClusters}</p>
-            <p><span className="font-semibold">Total Clusters:</span> {calculations.totalClusters}</p>
-            <p><span className="font-semibold">Littles Quantity:</span> {calculations.littlesQuantity}</p>
-            <p><span className="font-semibold">Grapes Quantity:</span> {calculations.grapesQuantity}</p>
-            <p><span className="font-semibold">11" Balloons:</span> {calculations.balloons11in}</p>
-            <p><span className="font-semibold">16" Balloons:</span> {calculations.balloons16in}</p>
-            <p><span className="font-semibold">Total Balloons:</span> {calculations.totalBalloons}</p>
-            <p><span className="font-semibold">Production Time:</span> {`${Math.floor((calculations.totalClusters * 15) / 60)}h ${(calculations.totalClusters * 15) % 60}m`}</p>
-          </div>
-        </div>
-      )}
 
       <Button onClick={handleFinalize} className="w-full">
         Finalize Production
