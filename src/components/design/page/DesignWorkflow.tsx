@@ -17,6 +17,7 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
   const [accessories, setAccessories] = useState<Array<{ type: string; quantity: number }>>([])
 
   const handleSpecsSubmit = (data: DesignSpecsFormData) => {
+    console.log("Specs submitted with colors:", data.colorClusters.map(c => c.color))
     setFormData(data)
     setCurrentStep("inventory")
   }
