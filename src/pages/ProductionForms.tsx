@@ -1,36 +1,53 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
-import { toast } from "sonner";
-import { ProductionDetails } from "@/components/production/ProductionDetails";
-import { Tables } from "@/integrations/supabase/types";
-import { updateInventoryQuantities } from "@/utils/inventoryUtils";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { Home } from "lucide-react"
+import { toast } from "sonner"
+import { ProductionDetails } from "@/components/production/ProductionDetails"
+import { Tables } from "@/integrations/supabase/types"
+import { updateInventoryQuantities } from "@/utils/inventoryUtils"
+import { supabase } from "@/integrations/supabase/client"
+import { getFormulaForLength } from "@/utils/formulaUtils"
 
 interface DesignState {
-  clientName: string;
-  projectName: string;
-  length: string;
-  style: string;
-  shape: string;
+  clientName: string
+  projectName: string
+  length: string
+  style: string
+  shape: string
   calculations: {
-    baseClusters: number;
-    extraClusters: number;
-    totalClusters: number;
-    littlesQuantity: number;
-    grapesQuantity: number;
-    balloons11in: number;
-    balloons16in: number;
-    totalBalloons: number;
-  };
-  imagePreview: string;
-  clientReference: string | null;
+    baseClusters: number
+    extraClusters: number
+    totalClusters: number
+    littlesQuantity: number
+    grapesQuantity: number
+    balloons11in: number
+    balloons16in: number
+    totalBalloons: number
+  }
+  imagePreview: string
+  clientReference: string | null
 }
 
 const ProductionForms = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const designState = location.state as DesignState;
+  const location = useLocation()
+  const navigate = useNavigate()
+  const designState = location.state as DesignState
+  const [formula, setFormula] = useState<any>(null)
+
+  useEffect(() => {
+    const fetchFormula = async () => {
+      try {
+        const data = await getFormulaForLength(10) // Hardcoded to 10ft for this example
+        setFormula(data)
+        console.log("Formula for 10ft:", data)
+      } catch (error) {
+        toast.error("Error fetching formula")
+      }
+    }
+
+    fetchFormula()
+  }, [])
 
   if (!designState) {
     return (
@@ -38,7 +55,7 @@ const ProductionForms = () => {
         <h1 className="text-2xl font-bold mb-4">No Design Specifications</h1>
         <Button onClick={() => navigate("/new-design")}>Create New Design</Button>
       </div>
-    );
+    )
   }
 
   const productionDetails: Tables<"production_details"> = {
@@ -118,6 +135,15 @@ const ProductionForms = () => {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-2xl font-bold text-center mb-8">Production Form</h1>
 
+      {formula && (
+        <div className="mb-8 p-4 bg-gray-100 rounded-lg">
+          <h2 className="text-lg font-semibold mb-2">Formula for 10ft:</h2>
+          <p>Base Clusters: {formula.base_clusters}</p>
+          <p>Extra Clusters: {formula.extra_clusters}</p>
+          <p>Total Clusters: {formula.total_clusters}</p>
+        </div>
+      )}
+
       <ProductionDetails
         details={productionDetails}
         clientReference={designState.clientReference}
@@ -138,7 +164,7 @@ const ProductionForms = () => {
         </Button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProductionForms;
+export default ProductionForms
