@@ -18,17 +18,18 @@ interface ProductionDetailsProps {
 export const ProductionDetails = ({ details, clientReference, designPreview }: ProductionDetailsProps) => {
   // Calculate balloons per color
   const calculateBalloonsPerColor = () => {
-    if (!Array.isArray(details.colors)) return [];
+    const colors = Array.isArray(details.colors) ? details.colors : [];
+    if (colors.length === 0) return [];
     
     const balloonsPerCluster = {
       '11inch': 11,
       '16inch': 2
     };
 
-    return details.colors.map(color => ({
-      color,
-      balloons11: Math.round((details.total_clusters * balloonsPerCluster['11inch']) / details.colors.length),
-      balloons16: Math.round((details.total_clusters * balloonsPerCluster['16inch']) / details.colors.length)
+    return colors.map(color => ({
+      color: String(color),
+      balloons11: Math.round((details.total_clusters * balloonsPerCluster['11inch']) / colors.length),
+      balloons16: Math.round((details.total_clusters * balloonsPerCluster['16inch']) / colors.length)
     }));
   };
 
@@ -156,14 +157,14 @@ export const ProductionDetails = ({ details, clientReference, designPreview }: P
               </div>
             </div>
 
-            {details.accents && Object.keys(details.accents).length > 0 && (
+            {details.accents && typeof details.accents === 'object' && Object.keys(details.accents).length > 0 && (
               <div>
                 <h4 className="font-semibold mb-2">Accessories</h4>
                 <div className="grid gap-2">
                   {Object.entries(details.accents).map(([key, value]) => (
                     <div key={key} className="flex justify-between items-center py-1 px-2 bg-gray-50 rounded">
                       <span className="capitalize">{key}</span>
-                      <span>{JSON.stringify(value)}</span>
+                      <span>{typeof value === 'object' ? JSON.stringify(value) : String(value)}</span>
                     </div>
                   ))}
                 </div>
