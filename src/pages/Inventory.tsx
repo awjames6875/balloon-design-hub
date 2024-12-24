@@ -93,40 +93,45 @@ const Inventory = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto space-y-8 px-4 py-8">
       <h1 className="text-2xl font-bold text-center mb-8">
         Inventory Management
       </h1>
 
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Balloon Type</TableHead>
-              <TableHead>Size</TableHead>
-              <TableHead className="text-right">In Stock</TableHead>
-              <TableHead className="text-right">To Order</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {inventory.map((item, index) => (
-              <TableRow key={`${item.type}-${item.style}-${index}`}>
-                <TableCell className="font-medium">{item.type}</TableCell>
-                <TableCell>{item.style}</TableCell>
-                <TableCell className="text-right">{item.inStock}</TableCell>
-                <TableCell className="text-right">{item.toOrder}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="grid gap-8 md:grid-cols-2">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-4">Current Inventory</h2>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Balloon Type</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead className="text-right">In Stock</TableHead>
+                  <TableHead className="text-right">To Order</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {inventory.map((item, index) => (
+                  <TableRow key={`${item.type}-${item.style}-${index}`}>
+                    <TableCell className="font-medium">{item.type}</TableCell>
+                    <TableCell>{item.style}</TableCell>
+                    <TableCell className="text-right">{item.inStock}</TableCell>
+                    <TableCell className="text-right">{item.toOrder}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-4">Stock Usage Analytics</h2>
+          <BalloonChart data={getUsageData()} />
+        </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Stock Usage Analytics</h2>
-        <BalloonChart data={getUsageData()} />
-      </div>
-
-      <div className="flex justify-center gap-4">
+      <div className="flex justify-center gap-4 mt-8">
         <Button
           onClick={handleOrder}
           className="flex items-center gap-2"
