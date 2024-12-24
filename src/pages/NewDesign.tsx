@@ -5,6 +5,7 @@ import { DesignSpecsForm, type DesignSpecsFormData } from "@/components/design/D
 import { AccessoriesDetailsForm } from "@/components/design/AccessoriesDetailsForm"
 import { ProductionSummary } from "@/components/design/ProductionSummary"
 import { toast } from "sonner"
+import { supabase } from "@/integrations/supabase/client"
 
 interface Accessory {
   type: string
@@ -51,13 +52,13 @@ const NewDesign = () => {
         .from('design_images')
         .getPublicUrl(uploadData.path)
 
-      // Create analysis record
+      // Create analysis record with sample colors (replace with actual color detection)
       const { error: analysisError } = await supabase
         .from('design_image_analysis')
         .insert([
           { 
             image_path: publicUrl,
-            detected_colors: ['#FF0000', '#00FF00', '#0000FF'] // Example colors - replace with actual color detection
+            detected_colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF']
           }
         ])
 
@@ -161,5 +162,3 @@ const NewDesign = () => {
     </div>
   )
 }
-
-export default NewDesign

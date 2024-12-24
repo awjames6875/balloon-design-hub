@@ -1,15 +1,15 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { ProjectSearch } from "./ProjectSearch"
 import { DimensionsInput } from "./DimensionsInput"
 import { StyleSelect } from "./StyleSelect"
 import { ClientInfoFields } from "./ClientInfoFields"
+import { ColorSelection } from "./ColorSelection"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
 import { saveDesignForm } from "@/services/designFormService"
 import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
 import { supabase } from "@/integrations/supabase/client"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -62,7 +62,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
       if (error) throw error
 
       if (data?.detected_colors) {
-        setDetectedColors(data.detected_colors)
+        setDetectedColors(data.detected_colors as string[])
       }
     } catch (error) {
       console.error('Error fetching color analysis:', error)
@@ -71,7 +71,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
   }
 
   // Update colors when design image changes
-  useState(() => {
+  useEffect(() => {
     if (designImage) {
       analyzeImageColors(designImage)
     }
@@ -171,28 +171,11 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
         isLoading={isLoadingStyles}
       />
 
-      {detectedColors.length > 0 && (
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Select Colors</label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {detectedColors.map((color) => (
-              <Button
-                key={color}
-                type="button"
-                variant={selectedColors.includes(color) ? "default" : "outline"}
-                className="flex items-center gap-2"
-                onClick={() => handleColorSelect(color)}
-              >
-                <div
-                  className="w-4 h-4 rounded-full border border-gray-300"
-                  style={{ backgroundColor: color }}
-                />
-                <span>{color}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
+      <ColorSelection
+        detectedColors={detectedColors}
+        selectedColors={selectedColors}
+        onColorSelect={handleColorSelect}
+      />
 
       <Button type="submit" className="w-full">
         Generate Production Form
