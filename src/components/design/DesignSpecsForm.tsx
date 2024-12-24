@@ -8,6 +8,8 @@ import { ClientInfoFields } from "./ClientInfoFields"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
 import { saveDesignForm } from "@/services/designFormService"
 import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
+import { supabase } from "@/integrations/supabase/client"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -15,6 +17,11 @@ export interface DesignSpecsFormData {
   length: string
   style: string
   shape: string
+  colorClusters: Array<{
+    color: string
+    baseClusters: number
+    extraClusters: number
+  }>
   calculations: {
     baseClusters: number
     extraClusters: number
@@ -29,16 +36,46 @@ export interface DesignSpecsFormData {
 
 interface DesignSpecsFormProps {
   onSubmit: (data: DesignSpecsFormData) => void
+  designImage?: string | null
 }
 
-export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
+export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
   const [length, setLength] = useState("")
   const [style, setStyle] = useState("")
   const [shape, setShape] = useState("Straight")
+  const [detectedColors, setDetectedColors] = useState<string[]>([])
+  const [selectedColors, setSelectedColors] = useState<string[]>([])
   
   const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
+
+  // Analyze image colors when design image changes
+  const analyzeImageColors = async (imagePath: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('design_image_analysis')
+        .select('detected_colors')
+        .eq('image_path', imagePath)
+        .single()
+
+      if (error) throw error
+
+      if (data?.detected_colors) {
+        setDetectedColors(data.detected_colors)
+      }
+    } catch (error) {
+      console.error('Error fetching color analysis:', error)
+      toast.error("Failed to analyze image colors")
+    }
+  }
+
+  // Update colors when design image changes
+  useState(() => {
+    if (designImage) {
+      analyzeImageColors(designImage)
+    }
+  }, [designImage])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,11 +95,24 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
       return
     }
 
+    if (selectedColors.length === 0) {
+      toast.error("Please select at least one color")
+      return
+    }
+
     try {
       // Calculate all balloon requirements
       const calculations = await calculateBalloonRequirements(parseInt(length), style)
 
-      console.log("Calculated values:", calculations)
+      // Calculate clusters per color
+      const clustersPerColor = Math.floor(calculations.totalClusters / selectedColors.length)
+      const extraClustersPerColor = Math.floor(calculations.extraClusters / selectedColors.length)
+
+      const colorClusters = selectedColors.map(color => ({
+        color,
+        baseClusters: clustersPerColor,
+        extraClusters: extraClustersPerColor
+      }))
 
       const formData: DesignSpecsFormData = {
         clientName,
@@ -70,6 +120,7 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         length,
         style,
         shape,
+        colorClusters,
         calculations
       }
 
@@ -87,6 +138,14 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
   const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
     setClientName(project.client_name)
     setProjectName(project.project_name)
+  }
+
+  const handleColorSelect = (color: string) => {
+    if (selectedColors.includes(color)) {
+      setSelectedColors(selectedColors.filter(c => c !== color))
+    } else {
+      setSelectedColors([...selectedColors, color])
+    }
   }
 
   return (
@@ -111,6 +170,29 @@ export const DesignSpecsForm = ({ onSubmit }: DesignSpecsFormProps) => {
         styles={balloonStyles}
         isLoading={isLoadingStyles}
       />
+
+      {detectedColors.length > 0 && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Select Colors</label>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {detectedColors.map((color) => (
+              <Button
+                key={color}
+                type="button"
+                variant={selectedColors.includes(color) ? "default" : "outline"}
+                className="flex items-center gap-2"
+                onClick={() => handleColorSelect(color)}
+              >
+                <div
+                  className="w-4 h-4 rounded-full border border-gray-300"
+                  style={{ backgroundColor: color }}
+                />
+                <span>{color}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <Button type="submit" className="w-full">
         Generate Production Form

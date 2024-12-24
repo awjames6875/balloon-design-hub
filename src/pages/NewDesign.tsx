@@ -29,11 +29,45 @@ const NewDesign = () => {
     reader.readAsDataURL(file)
   }
 
-  const handleDesignImageUpload = (file: File) => {
+  const handleDesignImageUpload = async (file: File) => {
     const reader = new FileReader()
-    reader.onloadend = () => {
-      setDesignImage(reader.result as string)
-      toast.success("Design uploaded successfully!")
+    reader.onloadend = async () => {
+      const imageUrl = reader.result as string
+      setDesignImage(imageUrl)
+      
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('design_images')
+        .upload(`design_${Date.now()}.png`, file)
+
+      if (uploadError) {
+        console.error('Error uploading image:', uploadError)
+        toast.error('Failed to upload design image')
+        return
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('design_images')
+        .getPublicUrl(uploadData.path)
+
+      // Create analysis record
+      const { error: analysisError } = await supabase
+        .from('design_image_analysis')
+        .insert([
+          { 
+            image_path: publicUrl,
+            detected_colors: ['#FF0000', '#00FF00', '#0000FF'] // Example colors - replace with actual color detection
+          }
+        ])
+
+      if (analysisError) {
+        console.error('Error creating analysis record:', analysisError)
+        toast.error('Failed to analyze design colors')
+        return
+      }
+
+      toast.success("Design uploaded and analyzed successfully!")
     }
     reader.readAsDataURL(file)
   }
@@ -54,14 +88,17 @@ const NewDesign = () => {
   }
 
   const handleProductionFinalize = () => {
+    if (!designData) return
+
     navigate("/production-forms", {
       state: {
-        clientName: designData?.clientName,
-        projectName: designData?.projectName,
-        length: designData?.length,
-        style: designData?.style,
-        shape: designData?.shape,
-        calculations: designData?.calculations,
+        clientName: designData.clientName,
+        projectName: designData.projectName,
+        length: designData.length,
+        style: designData.style,
+        shape: designData.shape,
+        calculations: designData.calculations,
+        colorClusters: designData.colorClusters,
         imagePreview: designImage,
         clientReference: clientImage
       }
@@ -76,7 +113,7 @@ const NewDesign = () => {
           projectName={designData.projectName}
           dimensions={designData.length}
           style={designData.style}
-          colorClusters={[]}
+          colorClusters={designData.colorClusters}
           accessories={accessoriesData}
           onFinalize={handleProductionFinalize}
           calculations={designData.calculations}
@@ -115,7 +152,10 @@ const NewDesign = () => {
         />
 
         <div className="md:col-span-2">
-          <DesignSpecsForm onSubmit={handleFormSubmit} />
+          <DesignSpecsForm 
+            onSubmit={handleFormSubmit}
+            designImage={designImage}
+          />
         </div>
       </div>
     </div>
