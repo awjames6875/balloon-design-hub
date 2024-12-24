@@ -28,6 +28,45 @@ const Inventory = () => {
 
   useEffect(() => {
     fetchInventory()
+
+    // Subscribe to changes in balloon_inventory table
+    const inventoryChannel = supabase
+      .channel('inventory_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'balloon_inventory'
+        },
+        () => {
+          console.log('Inventory changed, refreshing data...')
+          fetchInventory()
+        }
+      )
+      .subscribe()
+
+    // Subscribe to changes in production_details table
+    const productionChannel = supabase
+      .channel('production_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'production_details'
+        },
+        () => {
+          console.log('New production added, refreshing inventory...')
+          fetchInventory()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(inventoryChannel)
+      supabase.removeChannel(productionChannel)
+    }
   }, [])
 
   const fetchInventory = async () => {
@@ -49,6 +88,10 @@ const Inventory = () => {
       }))
 
       setInventory(formattedInventory)
+      toast({
+        title: "Inventory Updated",
+        description: "The inventory data has been refreshed.",
+      })
     } catch (error) {
       console.error('Error fetching inventory:', error)
       toast({
