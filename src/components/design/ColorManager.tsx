@@ -33,13 +33,13 @@ export const ColorManager = ({
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const MAX_COLORS = 4
 
+  // Effect to handle image color analysis
   useEffect(() => {
     const fetchColors = async () => {
       if (designImage) {
         try {
           const detectedColors = await analyzeImageColors(designImage)
           if (detectedColors && detectedColors.length > 0) {
-            console.log("Detected colors:", detectedColors)
             setAvailableColors(prevColors => {
               const allColors = [...new Set([...detectedColors, ...prevColors])]
               return allColors
@@ -62,8 +62,10 @@ export const ColorManager = ({
       let newColors: string[]
       
       if (prevColors.includes(color)) {
+        // Remove color if already selected
         newColors = prevColors.filter(c => c !== color)
       } else {
+        // Add color if under limit
         if (prevColors.length >= MAX_COLORS) {
           toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
           return prevColors
@@ -71,16 +73,11 @@ export const ColorManager = ({
         newColors = [...prevColors, color]
       }
       
+      // Notify parent of color changes
       onColorsSelected(newColors)
-      console.log("Selected colors in ColorManager:", newColors)
       return newColors
     })
   }
-
-  useEffect(() => {
-    console.log("Syncing selected colors with parent:", selectedColors)
-    onColorsSelected(selectedColors)
-  }, [selectedColors, onColorsSelected])
 
   return (
     <Card className={`mt-4 ${disabled ? 'opacity-50' : ''}`}>
