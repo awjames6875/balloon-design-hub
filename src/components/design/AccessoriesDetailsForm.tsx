@@ -57,16 +57,9 @@ export const AccessoriesDetailsForm = ({
       return
     }
 
-    const existingIndex = accessories.findIndex((acc) => acc.type === accessoryType)
-    if (existingIndex !== -1) {
-      const updatedAccessories = [...accessories]
-      updatedAccessories[existingIndex].quantity = quantityNum
-      setAccessories(updatedAccessories)
-      toast.success("Accessory quantity updated")
-    } else {
-      setAccessories([...accessories, { type: accessoryType, quantity: quantityNum }])
-      toast.success("Accessory added successfully")
-    }
+    // Only allow one accessory
+    setAccessories([{ type: accessoryType, quantity: quantityNum }])
+    toast.success("Accessory added successfully")
 
     setAccessoryType("")
     setQuantity("")
@@ -88,7 +81,7 @@ export const AccessoriesDetailsForm = ({
   }
 
   const handleRemoveAccessory = (type: string) => {
-    setAccessories(accessories.filter((acc) => acc.type !== type))
+    setAccessories([])
     toast.success("Accessory removed")
   }
 
@@ -101,7 +94,7 @@ export const AccessoriesDetailsForm = ({
         onAutoCalculateChange={handleAutoCalculateChange}
       />
 
-      {!autoCalculate && (
+      {!autoCalculate && accessories.length === 0 && (
         <AccessoryInput
           accessoryType={accessoryType}
           quantity={quantity}
