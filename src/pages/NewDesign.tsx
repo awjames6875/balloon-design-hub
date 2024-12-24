@@ -31,6 +31,7 @@ const NewDesign = () => {
   }
 
   const handleDesignImageUpload = async (file: File) => {
+    console.log("Starting design image upload...")
     const reader = new FileReader()
     reader.onloadend = async () => {
       const imageUrl = reader.result as string
@@ -40,6 +41,8 @@ const NewDesign = () => {
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('design_images')
         .upload(`design_${Date.now()}.png`, file)
+
+      console.log("Storage upload response:", { uploadData, uploadError })
 
       if (uploadError) {
         console.error('Error uploading image:', uploadError)
@@ -52,8 +55,10 @@ const NewDesign = () => {
         .from('design_images')
         .getPublicUrl(uploadData.path)
 
+      console.log("Generated public URL:", publicUrl)
+
       // Create analysis record with sample colors
-      const { error: analysisError } = await supabase
+      const { data: analysisData, error: analysisError } = await supabase
         .from('design_image_analysis')
         .insert([
           { 
@@ -61,6 +66,9 @@ const NewDesign = () => {
             detected_colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF']
           }
         ])
+        .select()
+
+      console.log("Color analysis response:", { analysisData, analysisError })
 
       if (analysisError) {
         console.error('Error creating analysis record:', analysisError)
@@ -74,6 +82,8 @@ const NewDesign = () => {
   }
 
   const handleFormSubmit = async (data: DesignSpecsFormData) => {
+    console.log("Form submission data:", data)
+    
     if (!designImage) {
       toast.error("Please upload your balloon design")
       return
@@ -84,12 +94,20 @@ const NewDesign = () => {
   }
 
   const handleAccessoriesSubmit = (accessories: Accessory[]) => {
+    console.log("Accessories submission:", accessories)
     setAccessoriesData(accessories)
     setShowProductionSummary(true)
   }
 
   const handleProductionFinalize = () => {
     if (!designData) return
+
+    console.log("Finalizing production with data:", {
+      designData,
+      accessoriesData,
+      designImage,
+      clientImage
+    })
 
     navigate("/production-forms", {
       state: {
