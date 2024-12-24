@@ -23,7 +23,10 @@ interface ProjectSearchComboboxProps {
 export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchComboboxProps) => {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  const { data: projects = [], isError } = useProjectSearch()
+  const { projects, isLoading } = useProjectSearch()
+
+  // Ensure we always have an array to work with
+  const safeProjects = projects || []
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -35,7 +38,7 @@ export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchCombobox
           className="w-full justify-between"
         >
           {value
-            ? projects.find((project) => 
+            ? safeProjects.find((project) => 
                 `${project.client_name}-${project.project_name}` === value
               )?.project_name
             : "Search projects..."}
@@ -46,10 +49,10 @@ export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchCombobox
         <Command>
           <CommandInput placeholder="Search projects..." />
           <CommandEmpty>
-            {isError ? "Failed to load projects." : "No projects found."}
+            {isLoading ? "Loading..." : "No projects found."}
           </CommandEmpty>
           <CommandGroup>
-            {projects.map((project) => {
+            {safeProjects.map((project) => {
               const projectValue = `${project.client_name}-${project.project_name}`
               return (
                 <CommandItem
