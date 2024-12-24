@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 
@@ -28,6 +29,8 @@ interface InventoryItem {
   color: string
   size: string
   quantity: number
+  required: number
+  status: 'in-stock' | 'low' | 'out-of-stock'
 }
 
 const colorNameMap: { [key: string]: string } = {
@@ -40,7 +43,8 @@ const colorNameMap: { [key: string]: string } = {
   "#FFC0CB": "Pink",
   "#FFFFFF": "White",
   "#000000": "Black",
-  // Add more mappings as needed
+  "#C0C0C0": "Silver",
+  "#FFD700": "Gold"
 }
 
 export const InventoryCheckForm = ({ 
@@ -48,7 +52,7 @@ export const InventoryCheckForm = ({
   calculations,
   onInventoryChecked 
 }: InventoryCheckProps) => {
-  const [inventoryStatus, setInventoryStatus] = useState<{[key: string]: boolean}>({})
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   const calculateBalloonsPerColor = () => {
@@ -68,10 +72,17 @@ export const InventoryCheckForm = ({
     return colorNameMap[hexColor.toUpperCase()] || hexColor
   }
 
+  const getInventoryStatus = (available: number, required: number): 'in-stock' | 'low' | 'out-of-stock' => {
+    if (available >= required) {
+      return available >= required * 1.2 ? 'in-stock' : 'low'
+    }
+    return 'out-of-stock'
+  }
+
   const checkInventory = async () => {
     setIsLoading(true)
     const balloonsByColor = calculateBalloonsPerColor()
-    const status: {[key: string]: boolean} = {}
+    const inventoryList: InventoryItem[] = []
 
     try {
       for (const colorData of balloonsByColor) {
@@ -103,30 +114,34 @@ export const InventoryCheckForm = ({
           continue
         }
 
-        const has11InchStock = data11 && data11.quantity >= colorData.balloons11
-        const has16InchStock = data16 && data16.quantity >= colorData.balloons16
-        
-        status[colorData.color] = has11InchStock && has16InchStock
+        inventoryList.push({
+          color: colorName,
+          size: '11in',
+          quantity: data11?.quantity || 0,
+          required: colorData.balloons11,
+          status: getInventoryStatus(data11?.quantity || 0, colorData.balloons11)
+        })
 
-        if (!has11InchStock || !has16InchStock) {
-          console.log(`Inventory check failed for ${colorName}:`, {
-            has11InchStock,
-            has16InchStock,
-            required11: colorData.balloons11,
-            available11: data11?.quantity,
-            required16: colorData.balloons16,
-            available16: data16?.quantity
-          })
-        }
+        inventoryList.push({
+          color: colorName,
+          size: '16in',
+          quantity: data16?.quantity || 0,
+          required: colorData.balloons16,
+          status: getInventoryStatus(data16?.quantity || 0, colorData.balloons16)
+        })
       }
 
-      setInventoryStatus(status)
+      setInventoryItems(inventoryList)
       
-      const allInStock = Object.values(status).every(Boolean)
-      if (allInStock) {
-        toast.success("All required balloons are in stock!")
-      } else {
+      const hasLowStock = inventoryList.some(item => item.status === 'low')
+      const hasOutOfStock = inventoryList.some(item => item.status === 'out-of-stock')
+
+      if (hasOutOfStock) {
         toast.error("Some balloons are out of stock")
+      } else if (hasLowStock) {
+        toast.warning("Some balloon colors are running low")
+      } else {
+        toast.success("All required balloons are in stock!")
       }
     } catch (error) {
       console.error('Error checking inventory:', error)
@@ -140,59 +155,92 @@ export const InventoryCheckForm = ({
     checkInventory()
   }, [])
 
-  const balloonsByColor = calculateBalloonsPerColor()
+  const getStatusColor = (status: 'in-stock' | 'low' | 'out-of-stock') => {
+    switch (status) {
+      case 'in-stock':
+        return 'text-green-500'
+      case 'low':
+        return 'text-yellow-500'
+      case 'out-of-stock':
+        return 'text-red-500'
+    }
+  }
+
+  const getStatusText = (status: 'in-stock' | 'low' | 'out-of-stock') => {
+    switch (status) {
+      case 'in-stock':
+        return 'In Stock'
+      case 'low':
+        return 'Low Stock'
+      case 'out-of-stock':
+        return 'Out of Stock'
+    }
+  }
+
+  const canProceed = !inventoryItems.some(item => item.status === 'out-of-stock')
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Pre-Inflation Inventory Check</h2>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Pre-Inflation Inventory Check</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Color</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead className="text-right">Required</TableHead>
+                  <TableHead className="text-right">Available</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center">
+                      Checking inventory...
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  inventoryItems.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{item.color}</TableCell>
+                      <TableCell>{item.size}</TableCell>
+                      <TableCell className="text-right">{item.required}</TableCell>
+                      <TableCell className="text-right">{item.quantity}</TableCell>
+                      <TableCell>
+                        <span className={getStatusColor(item.status)}>
+                          {getStatusText(item.status)}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Color</TableHead>
-              <TableHead>11" Balloons</TableHead>
-              <TableHead>16" Balloons</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {balloonsByColor.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell>{getColorName(item.color)}</TableCell>
-                <TableCell>{item.balloons11}</TableCell>
-                <TableCell>{item.balloons16}</TableCell>
-                <TableCell>
-                  {isLoading ? (
-                    <span className="text-gray-500">Checking...</span>
-                  ) : (
-                    <span className={inventoryStatus[item.color] ? "text-green-500" : "text-red-500"}>
-                      {inventoryStatus[item.color] ? "In Stock" : "Out of Stock"}
-                    </span>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div className="flex gap-4">
-        <Button 
-          onClick={checkInventory} 
-          variant="outline"
-          disabled={isLoading}
-        >
-          Refresh Inventory
-        </Button>
-        <Button
-          onClick={onInventoryChecked}
-          disabled={isLoading || !Object.values(inventoryStatus).every(Boolean)}
-          className="flex-1"
-        >
-          Continue
-        </Button>
-      </div>
-    </div>
+          <div className="flex gap-4">
+            <Button 
+              onClick={checkInventory} 
+              variant="outline"
+              disabled={isLoading}
+            >
+              Refresh Inventory
+            </Button>
+            <Button
+              onClick={onInventoryChecked}
+              disabled={isLoading || !canProceed}
+              className="flex-1"
+            >
+              {canProceed ? "Continue" : "Cannot Proceed - Check Inventory"}
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
