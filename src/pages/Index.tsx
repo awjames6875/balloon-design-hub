@@ -1,4 +1,4 @@
-import { Balloon, PackageSearch, ClipboardList, LogOut } from 'lucide-react';
+import { PackageSearch, ClipboardList, LogOut } from 'lucide-react';
 import NavigationCard from '../components/NavigationCard';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,7 +46,7 @@ const Index = () => {
           <NavigationCard
             title="New Design"
             description="Create and customize new balloon arrangements"
-            icon={Balloon}
+            icon={PackageSearch}
             to="/new-design"
             accentColor="pink"
             imageSrc="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=400&auto=format&fit=crop"
