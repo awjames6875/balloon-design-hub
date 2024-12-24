@@ -18,7 +18,7 @@ interface BalloonChartProps {
 export function BalloonChart({ data }: BalloonChartProps) {
   return (
     <div className="w-full space-y-6 rounded-lg bg-white p-6">
-      <div className="h-[400px]"> {/* Increased height for better visibility */}
+      <div className="h-[400px]">
         <ChartContainer
           config={{
             actual: {
@@ -64,6 +64,7 @@ export function BalloonChart({ data }: BalloonChartProps) {
                       label={label}
                     />
                   )
+                }
                 return null
               }}
             />
