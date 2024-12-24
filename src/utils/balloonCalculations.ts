@@ -19,6 +19,9 @@ export const calculateBalloonRequirements = async (length: number, style: string
     .from("balloonformula")
     .select("*")
     .eq("size_ft", length)
+    .eq("shape", style)
+    .order('id', { ascending: false })  // Get the most recent formula if multiple exist
+    .limit(1)
     .maybeSingle()
 
   if (error) {
@@ -27,22 +30,8 @@ export const calculateBalloonRequirements = async (length: number, style: string
   }
 
   if (!formulaData) {
-    console.warn("No formula found for length:", length)
-    // Fallback to default calculation if no formula exists
-    const baseClusters = Math.floor(length / 1.5)
-    const extraClusters = Math.ceil(baseClusters / 1.5)
-    const totalClusters = baseClusters + extraClusters
-    
-    return {
-      baseClusters,
-      extraClusters,
-      totalClusters,
-      littlesQuantity: totalClusters * 3,
-      grapesQuantity: totalClusters * 2,
-      balloons11in: totalClusters * 3,
-      balloons16in: totalClusters * 2,
-      totalBalloons: totalClusters * 5
-    }
+    console.warn("No formula found for length:", length, "and style:", style)
+    throw new Error(`No formula found for ${length}ft ${style} style`)
   }
 
   // Return the formula from the database

@@ -53,6 +53,7 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
         balloons_16in: calculations.balloons16in,
         total_balloons: calculations.totalBalloons,
         shape: formData.shape,
+        production_time: `${Math.floor((calculations.totalClusters * 15) / 60)}h ${(calculations.totalClusters * 15) % 60}m`
       }])
 
     if (productionError) {
