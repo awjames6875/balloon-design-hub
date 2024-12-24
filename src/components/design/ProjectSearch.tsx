@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -12,8 +14,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { useProjectSearch } from "./search/use-project-search"
 
 interface ProjectSearchProps {
@@ -23,22 +23,10 @@ interface ProjectSearchProps {
 export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  const { data: projects = [], isLoading } = useProjectSearch()
+  const { data: projects, isLoading } = useProjectSearch()
 
-  const handleSelect = (currentValue: string) => {
-    setValue(currentValue)
-    setOpen(false)
-    const selectedProject = projects.find(
-      (project) =>
-        `${project.client_name} - ${project.project_name}` === currentValue
-    )
-    if (selectedProject) {
-      onProjectSelect({
-        client_name: selectedProject.client_name,
-        project_name: selectedProject.project_name,
-      })
-    }
-  }
+  // Ensure we have a valid array of projects
+  const safeProjects = projects || []
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -48,13 +36,12 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between"
-          disabled={isLoading}
         >
           {value
-            ? value
-            : isLoading
-            ? "Loading..."
-            : "Search existing projects..."}
+            ? safeProjects.find((project) => 
+                `${project.client_name} - ${project.project_name}` === value
+              )?.project_name
+            : "Select project..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -63,21 +50,25 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
           <CommandInput placeholder="Search projects..." />
           <CommandEmpty>No projects found.</CommandEmpty>
           <CommandGroup>
-            {(projects || []).map((project) => {
-              const projectValue = `${project.client_name} - ${project.project_name}`
+            {safeProjects.map((project) => {
+              const displayValue = `${project.client_name} - ${project.project_name}`
               return (
                 <CommandItem
-                  key={projectValue}
-                  value={projectValue}
-                  onSelect={handleSelect}
+                  key={displayValue}
+                  value={displayValue}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue)
+                    onProjectSelect(project)
+                    setOpen(false)
+                  }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === projectValue ? "opacity-100" : "opacity-0"
+                      value === displayValue ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {projectValue}
+                  {displayValue}
                 </CommandItem>
               )
             })}
