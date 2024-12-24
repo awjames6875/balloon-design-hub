@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { ImageUpload } from "@/components/design/ImageUpload"
 import { DesignSpecsForm, type DesignSpecsFormData } from "@/components/design/DesignSpecsForm"
 import { AccessoriesDetailsForm } from "@/components/design/AccessoriesDetailsForm"
+import { InventoryCheckForm } from "@/components/design/InventoryCheckForm"
 import { ProductionSummary } from "@/components/design/ProductionSummary"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
@@ -18,6 +19,7 @@ const NewDesign = () => {
   const [clientImage, setClientImage] = useState<string | null>(null)
   const [designImage, setDesignImage] = useState<string | null>(null)
   const [showAccessoriesDetails, setShowAccessoriesDetails] = useState(false)
+  const [showInventoryCheck, setShowInventoryCheck] = useState(false)
   const [showProductionSummary, setShowProductionSummary] = useState(false)
   const [designData, setDesignData] = useState<DesignSpecsFormData | null>(null)
   const [accessoriesData, setAccessoriesData] = useState<Accessory[] | null>(null)
@@ -80,6 +82,10 @@ const NewDesign = () => {
   const handleAccessoriesSubmit = (accessories: Accessory[]) => {
     console.log("Accessories submission:", accessories)
     setAccessoriesData(accessories)
+    setShowInventoryCheck(true)
+  }
+
+  const handleInventoryChecked = () => {
     setShowProductionSummary(true)
   }
 
@@ -120,6 +126,18 @@ const NewDesign = () => {
           accessories={accessoriesData}
           onFinalize={handleProductionFinalize}
           calculations={designData.calculations}
+        />
+      </div>
+    )
+  }
+
+  if (showInventoryCheck && designData) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <InventoryCheckForm
+          colorClusters={designData.colorClusters}
+          calculations={designData.calculations}
+          onInventoryChecked={handleInventoryChecked}
         />
       </div>
     )
