@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { toast } from "sonner"
 
 interface Accessory {
   type: string
@@ -29,6 +30,14 @@ interface AccessoriesDetailsFormProps {
   extraClusters?: number
 }
 
+const ACCESSORY_TYPES = [
+  { value: "Starburst Large", label: "Starburst Large" },
+  { value: "Starburst Small", label: "Starburst Small" },
+  { value: "Pearl Garland", label: "Pearl Garland" },
+  { value: "Balloon Tassels", label: "Balloon Tassels" },
+  { value: "LED Lights", label: "LED Lights" },
+]
+
 export const AccessoriesDetailsForm = ({ onNext, extraClusters = 0 }: AccessoriesDetailsFormProps) => {
   const [accessories, setAccessories] = useState<Accessory[]>([])
   const [accessoryType, setAccessoryType] = useState("")
@@ -37,15 +46,18 @@ export const AccessoriesDetailsForm = ({ onNext, extraClusters = 0 }: Accessorie
 
   useEffect(() => {
     if (autoCalculate && extraClusters > 0) {
-      // Auto-calculate accessories based on extra clusters
       const calculatedAccessories = [
         {
           type: "Starburst Large",
-          quantity: Math.ceil(extraClusters * 0.5) // One large starburst for every two extra clusters
+          quantity: Math.ceil(extraClusters * 0.5)
         },
         {
           type: "Starburst Small",
-          quantity: Math.ceil(extraClusters * 0.75) // Three small starbursts for every four extra clusters
+          quantity: Math.ceil(extraClusters * 0.75)
+        },
+        {
+          type: "Pearl Garland",
+          quantity: Math.ceil(extraClusters * 0.25)
         }
       ]
       setAccessories(calculatedAccessories)
@@ -54,15 +66,31 @@ export const AccessoriesDetailsForm = ({ onNext, extraClusters = 0 }: Accessorie
 
   const handleAddAccessory = () => {
     if (!accessoryType || !quantity) {
+      toast.error("Please select both accessory type and quantity")
       return
     }
 
-    const newAccessory: Accessory = {
-      type: accessoryType,
-      quantity: parseInt(quantity),
+    const quantityNum = parseInt(quantity)
+    if (isNaN(quantityNum) || quantityNum <= 0) {
+      toast.error("Please enter a valid quantity")
+      return
     }
 
-    setAccessories([...accessories, newAccessory])
+    // Check if accessory type already exists
+    const existingIndex = accessories.findIndex(acc => acc.type === accessoryType)
+    if (existingIndex !== -1) {
+      const updatedAccessories = [...accessories]
+      updatedAccessories[existingIndex].quantity = quantityNum
+      setAccessories(updatedAccessories)
+      toast.success("Accessory quantity updated")
+    } else {
+      setAccessories([...accessories, {
+        type: accessoryType,
+        quantity: quantityNum
+      }])
+      toast.success("Accessory added successfully")
+    }
+
     setAccessoryType("")
     setQuantity("")
   }
@@ -70,8 +98,29 @@ export const AccessoriesDetailsForm = ({ onNext, extraClusters = 0 }: Accessorie
   const handleAutoCalculateChange = (checked: boolean) => {
     setAutoCalculate(checked)
     if (!checked) {
-      setAccessories([]) // Clear accessories when switching to manual mode
+      setAccessories([])
+    } else if (extraClusters > 0) {
+      const calculatedAccessories = [
+        {
+          type: "Starburst Large",
+          quantity: Math.ceil(extraClusters * 0.5)
+        },
+        {
+          type: "Starburst Small",
+          quantity: Math.ceil(extraClusters * 0.75)
+        },
+        {
+          type: "Pearl Garland",
+          quantity: Math.ceil(extraClusters * 0.25)
+        }
+      ]
+      setAccessories(calculatedAccessories)
     }
+  }
+
+  const handleRemoveAccessory = (type: string) => {
+    setAccessories(accessories.filter(acc => acc.type !== type))
+    toast.success("Accessory removed")
   }
 
   return (
@@ -100,9 +149,11 @@ export const AccessoriesDetailsForm = ({ onNext, extraClusters = 0 }: Accessorie
                   <SelectValue placeholder="Select accessory type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Starburst Large">Starburst Large</SelectItem>
-                  <SelectItem value="Starburst Small">Starburst Small</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  {ACCESSORY_TYPES.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -113,7 +164,8 @@ export const AccessoriesDetailsForm = ({ onNext, extraClusters = 0 }: Accessorie
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                min="0"
+                min="1"
+                placeholder="Enter quantity"
               />
             </div>
           </div>
@@ -131,6 +183,7 @@ export const AccessoriesDetailsForm = ({ onNext, extraClusters = 0 }: Accessorie
               <TableRow>
                 <TableHead>Type</TableHead>
                 <TableHead>Quantity</TableHead>
+                {!autoCalculate && <TableHead className="w-[100px]">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -138,6 +191,17 @@ export const AccessoriesDetailsForm = ({ onNext, extraClusters = 0 }: Accessorie
                 <TableRow key={index}>
                   <TableCell>{accessory.type}</TableCell>
                   <TableCell>{accessory.quantity}</TableCell>
+                  {!autoCalculate && (
+                    <TableCell>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleRemoveAccessory(accessory.type)}
+                      >
+                        Remove
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
