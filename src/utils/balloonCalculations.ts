@@ -20,19 +20,21 @@ export const calculateBalloonRequirements = async (length: number, style: string
     .select("*")
     .eq("size_ft", length)
     .eq("shape", style)
-    .order('id', { ascending: false })  // Get the most recent formula if multiple exist
+    .order('id', { ascending: false })
     .limit(1)
     .maybeSingle()
 
   if (error) {
     console.error("Error fetching balloon formula:", error)
-    throw new Error("Failed to fetch balloon requirements")
+    throw new Error(`Failed to fetch balloon requirements: ${error.message}`)
   }
 
   if (!formulaData) {
-    console.warn("No formula found for length:", length, "and style:", style)
+    console.error("No formula found for:", { length, style })
     throw new Error(`No formula found for ${length}ft ${style} style`)
   }
+
+  console.log("Found formula:", formulaData)
 
   // Return the formula from the database
   return {

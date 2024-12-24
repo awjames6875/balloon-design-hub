@@ -5,6 +5,8 @@ import { DesignSpecsFormData } from "@/components/design/DesignSpecsForm"
 
 export const saveDesignForm = async (formData: DesignSpecsFormData) => {
   try {
+    console.log("Saving design form with data:", formData)
+    
     const calculations = await calculateBalloonRequirements(parseInt(formData.length), formData.style)
     
     if (!calculations) {
@@ -52,7 +54,7 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
         balloons_11in: calculations.balloons11in,
         balloons_16in: calculations.balloons16in,
         total_balloons: calculations.totalBalloons,
-        shape: formData.shape,
+        shape: formData.style,
         production_time: `${Math.floor((calculations.totalClusters * 15) / 60)}h ${(calculations.totalClusters * 15) % 60}m`
       }])
 
@@ -62,11 +64,12 @@ export const saveDesignForm = async (formData: DesignSpecsFormData) => {
       return false
     }
 
+    console.log("Design form saved successfully")
     toast.success("Design form saved successfully!")
     return true
   } catch (error) {
     console.error("Error saving design form:", error)
-    toast.error("Failed to save design form")
+    toast.error(`Failed to save design form: ${error instanceof Error ? error.message : 'Unknown error'}`)
     return false
   }
 }
