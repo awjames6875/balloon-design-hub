@@ -15,6 +15,9 @@ interface StyleSelectProps {
 }
 
 export const StyleSelect = ({ value, onValueChange, styles, isLoading }: StyleSelectProps) => {
+  console.log("Available styles:", styles)
+  console.log("Selected style:", value)
+  
   return (
     <div className="space-y-2">
       <Label>Balloon Style</Label>
@@ -25,8 +28,8 @@ export const StyleSelect = ({ value, onValueChange, styles, isLoading }: StyleSe
         <SelectContent className="bg-white dark:bg-gray-800 border shadow-lg max-h-[200px] overflow-y-auto">
           {isLoading ? (
             <SelectItem value="loading">Loading styles...</SelectItem>
-          ) : (
-            styles?.map((item) => (
+          ) : styles && styles.length > 0 ? (
+            styles.map((item) => (
               <SelectItem 
                 key={item.style_name} 
                 value={item.style_name}
@@ -35,6 +38,8 @@ export const StyleSelect = ({ value, onValueChange, styles, isLoading }: StyleSe
                 {item.style_name}
               </SelectItem>
             ))
+          ) : (
+            <SelectItem value="no-styles">No styles available</SelectItem>
           )}
         </SelectContent>
       </Select>

@@ -12,14 +12,14 @@ interface BalloonRequirements {
 }
 
 export const calculateBalloonRequirements = async (length: number, style: string): Promise<BalloonRequirements> => {
-  console.log("Fetching requirements for length:", length, "and style:", style)
+  console.log("Calculating requirements for length:", length, "and style:", style)
   
-  // Fetch the balloon formula from the database
+  // Always use 'Straight' calculations as per requirement
   const { data: formulaData, error } = await supabase
     .from("balloonformula")
     .select("*")
     .eq("size_ft", length)
-    .eq("shape", "Straight") // We use Straight calculations for all styles as per requirement
+    .eq("shape", "Straight")
     .order('id', { ascending: false })
     .limit(1)
     .maybeSingle()
@@ -34,9 +34,8 @@ export const calculateBalloonRequirements = async (length: number, style: string
     throw new Error(`No formula found for ${length}ft ${style} style`)
   }
 
-  console.log("Found formula:", formulaData)
+  console.log("Using formula:", formulaData)
 
-  // Return the formula from the database
   return {
     baseClusters: formulaData.base_clusters,
     extraClusters: formulaData.extra_clusters,
