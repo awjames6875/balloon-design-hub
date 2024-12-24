@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { analyzeImageColors } from "@/utils/imageAnalysis"
+import { toast } from "sonner"
 
 interface ColorManagerProps {
   designImage: string | null
@@ -23,6 +24,7 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
     "#FFD700", // Gold
   ])
   const [selectedColors, setSelectedColors] = useState<string[]>([])
+  const MAX_COLORS = 4
 
   useEffect(() => {
     const fetchColors = async () => {
@@ -40,19 +42,28 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
 
   const handleColorSelect = (color: string) => {
     setSelectedColors(prev => {
-      const newColors = prev.includes(color)
-        ? prev.filter(c => c !== color)
-        : [...prev, color]
-      
-      onColorsSelected(newColors)
-      return newColors
+      if (prev.includes(color)) {
+        // Remove color if already selected
+        const newColors = prev.filter(c => c !== color)
+        onColorsSelected(newColors)
+        return newColors
+      } else {
+        // Add color if under limit
+        if (prev.length >= MAX_COLORS) {
+          toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
+          return prev
+        }
+        const newColors = [...prev, color]
+        onColorsSelected(newColors)
+        return newColors
+      }
     })
   }
 
   return (
     <Card className="mt-4">
       <CardHeader>
-        <CardTitle>Select Balloon Colors</CardTitle>
+        <CardTitle>Select Balloon Colors (up to 4)</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -84,6 +95,9 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
             </Button>
           ))}
         </div>
+        <p className="text-sm text-muted-foreground mt-2">
+          Selected colors: {selectedColors.length} / {MAX_COLORS}
+        </p>
       </CardContent>
     </Card>
   )
