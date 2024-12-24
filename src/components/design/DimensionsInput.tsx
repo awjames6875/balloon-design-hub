@@ -8,7 +8,7 @@ interface DimensionsInputProps {
   disabled?: boolean
 }
 
-export const DimensionsInput = memo(({
+const DimensionsInputComponent = ({
   length,
   onLengthChange,
   disabled = false,
@@ -29,6 +29,6 @@ export const DimensionsInput = memo(({
       </div>
     </div>
   )
-})
+}
 
-DimensionsInput.displayName = "DimensionsInput"
+export const DimensionsInput = memo(DimensionsInputComponent)

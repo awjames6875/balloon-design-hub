@@ -16,7 +16,7 @@ interface StyleSelectProps {
   disabled?: boolean
 }
 
-export const StyleSelect = memo(({ 
+const StyleSelectComponent = ({ 
   value, 
   onValueChange, 
   styles, 
@@ -57,6 +57,6 @@ export const StyleSelect = memo(({
       </Select>
     </div>
   )
-})
+}
 
-StyleSelect.displayName = "StyleSelect"
+export const StyleSelect = memo(StyleSelectComponent)

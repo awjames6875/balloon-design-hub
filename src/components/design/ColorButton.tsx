@@ -8,7 +8,7 @@ interface ColorButtonProps {
   disabled?: boolean
 }
 
-export const ColorButton = memo(({ 
+const ColorButtonComponent = ({ 
   color, 
   isSelected, 
   onSelect,
@@ -47,6 +47,6 @@ export const ColorButton = memo(({
       <span className="text-sm">{getColorName(color)}</span>
     </Button>
   )
-})
+}
 
-ColorButton.displayName = "ColorButton"
+export const ColorButton = memo(ColorButtonComponent)
