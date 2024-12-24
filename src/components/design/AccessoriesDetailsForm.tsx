@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { AutoCalculateSwitch } from "./accessories/AutoCalculateSwitch"
-import { AccessoryInput, ACCESSORY_TYPES } from "./accessories/AccessoryInput"
+import { AccessoryInput } from "./accessories/AccessoryInput"
 import { AccessoriesTable } from "./accessories/AccessoriesTable"
 
 interface Accessory {
@@ -11,13 +11,22 @@ interface Accessory {
 }
 
 interface AccessoriesDetailsFormProps {
-  onNext: (accessories: Accessory[]) => void
-  extraClusters?: number
+  onSubmit: (accessories: Accessory[]) => void
+  calculations?: {
+    baseClusters: number
+    extraClusters: number
+    totalClusters: number
+    littlesQuantity: number
+    grapesQuantity: number
+    balloons11in: number
+    balloons16in: number
+    totalBalloons: number
+  }
 }
 
 export const AccessoriesDetailsForm = ({
-  onNext,
-  extraClusters = 0,
+  onSubmit,
+  calculations,
 }: AccessoriesDetailsFormProps) => {
   const [accessories, setAccessories] = useState<Accessory[]>([])
   const [accessoryType, setAccessoryType] = useState("")
@@ -25,24 +34,24 @@ export const AccessoriesDetailsForm = ({
   const [autoCalculate, setAutoCalculate] = useState(true)
 
   useEffect(() => {
-    if (autoCalculate && extraClusters > 0) {
+    if (autoCalculate && calculations?.extraClusters > 0) {
       const calculatedAccessories = [
         {
           type: "Starburst Large",
-          quantity: Math.ceil(extraClusters * 0.5),
+          quantity: Math.ceil(calculations.extraClusters * 0.5),
         },
         {
           type: "Starburst Small",
-          quantity: Math.ceil(extraClusters * 0.75),
+          quantity: Math.ceil(calculations.extraClusters * 0.75),
         },
         {
           type: "Pearl Garland",
-          quantity: Math.ceil(extraClusters * 0.25),
+          quantity: Math.ceil(calculations.extraClusters * 0.25),
         },
       ]
       setAccessories(calculatedAccessories)
     }
-  }, [extraClusters, autoCalculate])
+  }, [calculations, autoCalculate])
 
   const handleAddAccessory = () => {
     if (!accessoryType || !quantity) {
@@ -75,19 +84,19 @@ export const AccessoriesDetailsForm = ({
     setAutoCalculate(checked)
     if (!checked) {
       setAccessories([])
-    } else if (extraClusters > 0) {
+    } else if (calculations?.extraClusters > 0) {
       const calculatedAccessories = [
         {
           type: "Starburst Large",
-          quantity: Math.ceil(extraClusters * 0.5),
+          quantity: Math.ceil(calculations.extraClusters * 0.5),
         },
         {
           type: "Starburst Small",
-          quantity: Math.ceil(extraClusters * 0.75),
+          quantity: Math.ceil(calculations.extraClusters * 0.75),
         },
         {
           type: "Pearl Garland",
-          quantity: Math.ceil(extraClusters * 0.25),
+          quantity: Math.ceil(calculations.extraClusters * 0.25),
         },
       ]
       setAccessories(calculatedAccessories)
@@ -127,7 +136,7 @@ export const AccessoriesDetailsForm = ({
       )}
 
       <Button
-        onClick={() => onNext(accessories)}
+        onClick={() => onSubmit(accessories)}
         className="w-full"
         disabled={!autoCalculate && accessories.length === 0}
       >

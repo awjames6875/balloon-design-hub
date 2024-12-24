@@ -50,15 +50,21 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
 
       {currentStep === "accessories" && formData && (
         <AccessoriesDetailsForm
-          calculations={formData.calculations}
           onSubmit={handleAccessoriesSubmit}
+          calculations={formData.calculations}
         />
       )}
 
       {currentStep === "summary" && formData && (
         <ProductionSummary
-          designSpecs={formData}
+          clientName={formData.clientName}
+          projectName={formData.projectName}
+          dimensions={formData.length}
+          style={formData.style}
+          colorClusters={formData.colorClusters}
           accessories={accessories}
+          onFinalize={() => {}}
+          calculations={formData.calculations}
         />
       )}
     </Card>

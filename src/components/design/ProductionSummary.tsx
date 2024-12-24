@@ -30,7 +30,16 @@ interface ProductionSummaryProps {
   colorClusters: ColorCluster[]
   accessories: Accessory[]
   onFinalize: () => void
-  calculations?: DesignSpecsFormData['calculations']
+  calculations?: {
+    baseClusters: number
+    extraClusters: number
+    totalClusters: number
+    littlesQuantity: number
+    grapesQuantity: number
+    balloons11in: number
+    balloons16in: number
+    totalBalloons: number
+  }
 }
 
 export const ProductionSummary = ({
