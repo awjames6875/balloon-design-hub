@@ -18,29 +18,31 @@ const Auth = () => {
   }, [navigate])
 
   return (
-    <div className="container mx-auto max-w-md py-12">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">Welcome</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SupabaseAuth 
-            supabaseClient={supabase}
-            appearance={{ 
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#000000',
-                    brandAccent: '#333333',
+    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 flex items-center justify-center">
+      <div className="w-full max-w-md px-4">
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="text-center">Welcome to Balloon Design Manager</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SupabaseAuth 
+              supabaseClient={supabase}
+              appearance={{ 
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#8B5CF6',
+                      brandAccent: '#7C3AED',
+                    },
                   },
                 },
-              },
-            }}
-            providers={[]}
-          />
-        </CardContent>
-      </Card>
+              }}
+              providers={[]}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
