@@ -71,9 +71,9 @@ export const ColorManager = ({
         newColors = [...prevColors, color]
       }
       
-      // Call the callback with the new colors
-      console.log("Selected colors updated:", newColors)
+      // Call the callback with the new colors immediately
       onColorsSelected(newColors)
+      console.log("Selected colors in ColorManager:", newColors)
       return newColors
     })
   }
