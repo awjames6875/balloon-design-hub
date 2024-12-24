@@ -11,15 +11,13 @@ export const InventoryActions = ({ onRefresh, inventory }: InventoryActionsProps
   const handleOrder = () => {
     const itemsToOrder = inventory.filter((item) => item.toOrder > 0)
     if (itemsToOrder.length === 0) {
-      toast({
-        title: "No items to order",
+      toast("No items to order", {
         description: "There are no balloons that need to be ordered at this time.",
       })
       return
     }
 
-    toast({
-      title: "Order placed successfully",
+    toast("Order placed successfully", {
       description: "Your balloon order has been submitted for processing.",
     })
   }
