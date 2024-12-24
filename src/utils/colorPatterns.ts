@@ -12,14 +12,16 @@ export const generateColorPattern = (
 
   console.log("Generating color pattern for colors:", colors, "total clusters:", totalClusters)
 
-  // Ensure even distribution of clusters among colors
+  // Calculate base clusters per color (rounded down)
   const basePerColor = Math.floor(totalClusters / colors.length)
-  const remainder = totalClusters % colors.length
+  
+  // Calculate remaining clusters to distribute
+  const remainingClusters = totalClusters % colors.length
 
   // Create color clusters with proper distribution
   const colorClusters: ColorCluster[] = colors.map((color, index) => {
-    // Distribute remaining clusters evenly
-    const extraFromRemainder = index < remainder ? 1 : 0
+    // Add one extra cluster to some colors if there are remaining clusters
+    const extraFromRemainder = index < remainingClusters ? 1 : 0
     const totalForColor = basePerColor + extraFromRemainder
 
     // Split between base and extra clusters (70/30 split)
@@ -34,6 +36,5 @@ export const generateColorPattern = (
   })
 
   console.log("Generated color clusters:", colorClusters)
-
   return colorClusters
 }

@@ -51,7 +51,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     setProjectName(project.project_name)
   }
 
-  // Effect to update calculations when length or style changes
+  // Effect to update calculations when length, style, or selectedColors changes
   useEffect(() => {
     const updateCalculations = async () => {
       if (!length || !style) return
