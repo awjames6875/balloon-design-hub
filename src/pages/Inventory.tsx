@@ -93,12 +93,12 @@ const Inventory = () => {
   }
 
   return (
-    <div className="container mx-auto space-y-8 px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-center mb-8">
         Inventory Management
       </h1>
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[800px]">
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Current Inventory</h2>
           <div className="overflow-x-auto">
@@ -125,8 +125,8 @@ const Inventory = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Stock Usage Analytics</h2>
+        <div className="bg-white rounded-lg shadow-md h-full">
+          <h2 className="text-xl font-semibold p-6 pb-0">Stock Usage Analytics</h2>
           <BalloonChart data={getUsageData()} />
         </div>
       </div>
