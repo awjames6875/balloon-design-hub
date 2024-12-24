@@ -162,3 +162,5 @@ const NewDesign = () => {
     </div>
   )
 }
+
+export default NewDesign
