@@ -5,9 +5,11 @@ import { DesignSpecsForm, type DesignSpecsFormData } from "@/components/design/D
 import { AccessoriesDetailsForm } from "@/components/design/AccessoriesDetailsForm"
 import { InventoryCheckForm } from "@/components/design/InventoryCheckForm"
 import { ProductionSummary } from "@/components/design/ProductionSummary"
+import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { uploadDesignImage } from "@/utils/imageAnalysis"
+import { runDesignTests } from "@/utils/designTesting"
 
 interface Accessory {
   type: string
@@ -114,6 +116,17 @@ const NewDesign = () => {
     })
   }
 
+  const handleRunTests = async () => {
+    toast.info("Running design tests...")
+    const results = await runDesignTests()
+    
+    const passedTests = results.filter(r => r.passed).length
+    const totalTests = results.length
+    
+    toast.success(`Tests completed: ${passedTests}/${totalTests} passed`)
+    console.log("Detailed test results:", results)
+  }
+
   if (showProductionSummary && designData && accessoriesData) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -153,9 +166,20 @@ const NewDesign = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-2xl font-bold text-center mb-8">
-        Create New Balloon Design
-      </h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold">
+          Create New Balloon Design
+        </h1>
+        {process.env.NODE_ENV === 'development' && (
+          <Button 
+            variant="outline" 
+            onClick={handleRunTests}
+            className="ml-4"
+          >
+            Run Tests
+          </Button>
+        )}
+      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         <ImageUpload
