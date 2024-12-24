@@ -1,34 +1,59 @@
 import { supabase } from "@/integrations/supabase/client"
 
-export const calculateBalloonRequirements = async (length: number, style: string) => {
+interface BalloonRequirements {
+  baseClusters: number
+  extraClusters: number
+  totalClusters: number
+  littlesQuantity: number
+  grapesQuantity: number
+  balloons11in: number
+  balloons16in: number
+  totalBalloons: number
+}
+
+const calculateClusters = (length: number) => {
+  // Base calculation: 1 base cluster per 1.5 ft
+  const baseClusters = Math.floor(length / 1.5)
+  // Extras calculation: 1 extra per 1.5 base clusters
+  const extraClusters = Math.ceil(baseClusters / 1.5)
+  
+  return {
+    baseClusters,
+    extraClusters,
+    totalClusters: baseClusters + extraClusters
+  }
+}
+
+const calculateBalloonQuantities = (totalClusters: number) => {
+  // Calculate balloon quantities based on total clusters
+  const littlesQuantity = totalClusters * 3 // 3 littles per cluster
+  const grapesQuantity = totalClusters * 2 // 2 grapes per cluster
+  const balloons11in = littlesQuantity // 11" balloons for littles
+  const balloons16in = grapesQuantity // 16" balloons for grapes
+  
+  return {
+    littlesQuantity,
+    grapesQuantity,
+    balloons11in,
+    balloons16in,
+    totalBalloons: littlesQuantity + grapesQuantity
+  }
+}
+
+export const calculateBalloonRequirements = async (length: number, style: string): Promise<BalloonRequirements> => {
   console.log("Calculating requirements for length:", length, "and style:", style)
   
-  const { data: formula, error } = await supabase
-    .from("balloonformula")
-    .select()
-    .eq("size_ft", length)
-    .eq("shape", style)
-    .maybeSingle()
-
-  if (error) {
-    console.error("Error fetching balloon formula:", error)
-    throw new Error("Failed to fetch balloon formula")
-  }
-
-  if (!formula) {
-    console.error("No formula found for size:", length, "and style:", style)
-    throw new Error(`No formula found for ${length}ft ${style} style`)
-  }
-
-  // Map the database fields to camelCase for frontend consistency
+  // Calculate clusters using the new formula
+  const { baseClusters, extraClusters, totalClusters } = calculateClusters(length)
+  
+  // Calculate balloon quantities
+  const quantities = calculateBalloonQuantities(totalClusters)
+  
+  // Return combined calculations
   return {
-    baseClusters: formula.base_clusters,
-    extraClusters: formula.extra_clusters,
-    totalClusters: formula.total_clusters,
-    littlesQuantity: formula.littles_quantity,
-    grapesQuantity: formula.grapes_quantity,
-    balloons11in: formula.balloons_11in,
-    balloons16in: formula.balloons_16in,
-    totalBalloons: formula.total_balloons
+    baseClusters,
+    extraClusters,
+    totalClusters,
+    ...quantities
   }
 }
