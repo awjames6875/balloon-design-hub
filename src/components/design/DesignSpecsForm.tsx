@@ -9,6 +9,7 @@ import { ColorManager } from "./ColorManager"
 import { useBalloonStyles } from "@/hooks/use-balloon-styles"
 import { saveDesignForm } from "@/services/designFormService"
 import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
+import { generateColorPattern } from "@/utils/colorPatterns"
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -75,15 +76,8 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
       // Calculate all balloon requirements
       const calculations = await calculateBalloonRequirements(parseInt(length), style)
 
-      // Calculate clusters per color
-      const clustersPerColor = Math.floor(calculations.totalClusters / selectedColors.length)
-      const extraClustersPerColor = Math.floor(calculations.extraClusters / selectedColors.length)
-
-      const colorClusters = selectedColors.map(color => ({
-        color,
-        baseClusters: clustersPerColor,
-        extraClusters: extraClustersPerColor
-      }))
+      // Generate color pattern and distribution
+      const colorClusters = generateColorPattern(selectedColors, calculations.totalClusters)
 
       const formData: DesignSpecsFormData = {
         clientName,
