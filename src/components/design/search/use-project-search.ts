@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 
 export const useProjectSearch = () => {
-  return useQuery({
+  const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("client_projects")
-        .select("client_name, project_name")
+        .select("*")
         .order("created_at", { ascending: false })
 
       if (error) {
@@ -18,4 +18,9 @@ export const useProjectSearch = () => {
       return data || []
     },
   })
+
+  return {
+    projects,
+    isLoading,
+  }
 }

@@ -23,9 +23,9 @@ interface ProjectSearchProps {
 export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  const { data: projects, isLoading } = useProjectSearch()
+  const { projects, isLoading } = useProjectSearch()
 
-  // Ensure we have a valid array of projects
+  // Ensure projects is always an array
   const safeProjects = projects || []
 
   return (
@@ -51,11 +51,11 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
           <CommandEmpty>No projects found.</CommandEmpty>
           <CommandGroup>
             {safeProjects.map((project) => {
-              const displayValue = `${project.client_name} - ${project.project_name}`
+              const projectValue = `${project.client_name} - ${project.project_name}`
               return (
                 <CommandItem
-                  key={displayValue}
-                  value={displayValue}
+                  key={projectValue}
+                  value={projectValue}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue)
                     onProjectSelect(project)
@@ -65,10 +65,10 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === displayValue ? "opacity-100" : "opacity-0"
+                      value === projectValue ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {displayValue}
+                  {projectValue}
                 </CommandItem>
               )
             })}
