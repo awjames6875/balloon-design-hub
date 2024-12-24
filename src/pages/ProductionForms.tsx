@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ProductionDetails } from "@/components/production/ProductionDetails";
 import { Tables } from "@/integrations/supabase/types";
 import { updateInventoryQuantities } from "@/utils/inventoryUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DesignState {
   clientName: string;
