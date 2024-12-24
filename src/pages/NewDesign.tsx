@@ -54,7 +54,18 @@ const NewDesign = () => {
   }
 
   const handleProductionFinalize = () => {
-    navigate("/production-forms")
+    navigate("/production-forms", {
+      state: {
+        clientName: designData?.clientName,
+        projectName: designData?.projectName,
+        length: designData?.length,
+        style: designData?.style,
+        shape: designData?.shape,
+        calculations: designData?.calculations,
+        imagePreview: designImage,
+        clientReference: clientImage
+      }
+    })
   }
 
   if (showProductionSummary && designData && accessoriesData) {
@@ -65,9 +76,10 @@ const NewDesign = () => {
           projectName={designData.projectName}
           dimensions={designData.length}
           style={designData.style}
-          colorClusters={[]} // Empty array since we removed color clusters
+          colorClusters={[]}
           accessories={accessoriesData}
           onFinalize={handleProductionFinalize}
+          calculations={designData.calculations}
         />
       </div>
     )
