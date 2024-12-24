@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { analyzeImageColors } from "@/utils/imageAnalysis"
 import { toast } from "sonner"
+import { ColorGrid } from "./ColorGrid"
 
 interface ColorManagerProps {
   designImage: string | null
@@ -48,12 +48,10 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
 
   const handleColorSelect = (color: string) => {
     if (selectedColors.includes(color)) {
-      // Remove color if already selected
       const newColors = selectedColors.filter(c => c !== color)
       setSelectedColors(newColors)
       onColorsSelected(newColors)
     } else {
-      // Add color if under limit
       if (selectedColors.length >= MAX_COLORS) {
         toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
         return
@@ -70,35 +68,11 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
         <CardTitle>Select Balloon Colors (up to 4)</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {availableColors.map((color) => (
-            <Button
-              key={color}
-              variant={selectedColors.includes(color) ? "default" : "outline"}
-              className="w-full flex items-center justify-start gap-2 p-4"
-              onClick={() => handleColorSelect(color)}
-            >
-              <div
-                className="w-6 h-6 rounded-full border border-gray-300"
-                style={{ backgroundColor: color }}
-              />
-              <span className="text-sm">
-                {color === "#FFFFFF" ? "White" :
-                 color === "#000000" ? "Black" :
-                 color === "#FF0000" ? "Red" :
-                 color === "#FFA500" ? "Orange" :
-                 color === "#FFFF00" ? "Yellow" :
-                 color === "#008000" ? "Green" :
-                 color === "#0000FF" ? "Blue" :
-                 color === "#800080" ? "Purple" :
-                 color === "#FFC0CB" ? "Pink" :
-                 color === "#C0C0C0" ? "Silver" :
-                 color === "#FFD700" ? "Gold" :
-                 color}
-              </span>
-            </Button>
-          ))}
-        </div>
+        <ColorGrid
+          availableColors={availableColors}
+          selectedColors={selectedColors}
+          onColorSelect={handleColorSelect}
+        />
         <p className="text-sm text-muted-foreground mt-2">
           Selected colors: {selectedColors.length} / {MAX_COLORS}
         </p>
