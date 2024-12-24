@@ -30,8 +30,9 @@ export const uploadDesignImage = async (file: File): Promise<string | null> => {
 
 export const analyzeImageColors = async (imagePath: string): Promise<string[]> => {
   try {
-    // If the image is a data URL, return default colors
-    if (imagePath.startsWith('data:')) {
+    // If the image is a blob URL or data URL, return default colors
+    if (imagePath.startsWith('blob:') || imagePath.startsWith('data:')) {
+      console.log('Using default colors for blob/data URL')
       return [
         "#FF0000", // Red
         "#FFA500", // Orange
@@ -45,14 +46,19 @@ export const analyzeImageColors = async (imagePath: string): Promise<string[]> =
       ]
     }
 
+    // Clean up the image path - remove any blob: prefix
+    const cleanImagePath = imagePath.replace('blob:', '')
+    console.log('Analyzing colors for image path:', cleanImagePath)
+
     const { data, error } = await supabase
       .from('design_image_analysis')
       .select('detected_colors')
-      .eq('image_path', imagePath)
-      .single()
+      .eq('image_path', cleanImagePath)
+      .maybeSingle()
 
     if (error) {
       console.error('Error fetching color analysis:', error)
+      toast.error('Failed to analyze image colors')
       // Return default colors instead of throwing error
       return [
         "#FF0000", // Red
@@ -74,9 +80,21 @@ export const analyzeImageColors = async (imagePath: string): Promise<string[]> =
         .filter((color): color is string => typeof color === 'string')
     }
 
-    return []
+    console.log("No colors detected, using defaults")
+    return [
+      "#FF0000", // Red
+      "#FFA500", // Orange
+      "#FFFF00", // Yellow
+      "#008000", // Green
+      "#0000FF", // Blue
+      "#800080", // Purple
+      "#FFC0CB", // Pink
+      "#FFFFFF", // White
+      "#000000", // Black
+    ]
   } catch (error) {
     console.error('Error in analyzeImageColors:', error)
+    toast.error('Failed to analyze image colors')
     // Return default colors instead of throwing error
     return [
       "#FF0000", // Red
