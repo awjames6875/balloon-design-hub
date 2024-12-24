@@ -95,6 +95,10 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     }
   }
 
+  const handleColorsSelected = (colors: string[]) => {
+    setSelectedColors(colors)
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <ProjectInfoForm
@@ -111,7 +115,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
         designImage={designImage}
         onLengthChange={setLength}
         onStyleChange={setStyle}
-        onColorsSelected={setSelectedColors}
+        onColorsSelected={handleColorsSelected}
       />
 
       <Button type="submit" className="w-full">

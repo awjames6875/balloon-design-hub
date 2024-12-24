@@ -22,10 +22,6 @@ export const DesignDetailsForm = ({
 }: DesignDetailsFormProps) => {
   const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
 
-  const handleColorsSelected = (colors: string[]) => {
-    onColorsSelected(colors) // This will just update the colors without triggering form submission
-  }
-
   return (
     <div className="space-y-4">
       <DimensionsInput
@@ -42,7 +38,7 @@ export const DesignDetailsForm = ({
 
       <ColorManager
         designImage={designImage}
-        onColorsSelected={handleColorsSelected}
+        onColorsSelected={onColorsSelected}
       />
     </div>
   )
