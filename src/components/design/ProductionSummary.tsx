@@ -6,6 +6,7 @@ import { ProjectDetails } from "./production/ProjectDetails"
 import { BalloonColorTable } from "./production/BalloonColorTable"
 import { ProductionMetrics } from "./production/ProductionMetrics"
 import { AccessoriesTable } from "./production/AccessoriesTable"
+import { useNavigate } from "react-router-dom"
 
 interface ColorCluster {
   color: string
@@ -43,6 +44,8 @@ export const ProductionSummary = ({
   onFinalize,
   calculations
 }: ProductionSummaryProps) => {
+  const navigate = useNavigate()
+
   const calculateBalloonsPerColor = () => {
     if (!calculations) return [];
     
@@ -87,6 +90,7 @@ export const ProductionSummary = ({
       
       toast.success("Production details saved successfully!")
       onFinalize()
+      navigate("/new-design") // Add navigation back to design page
     } catch (error) {
       console.error("Error saving production:", error)
       toast.error("Failed to save production details")
