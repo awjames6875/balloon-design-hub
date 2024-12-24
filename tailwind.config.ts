@@ -25,12 +25,16 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#8B5CF6',
-          hover: '#7C3AED',
+          DEFAULT: '#FFC1CC', // Light Pink
+          hover: '#FFB1BE', // Slightly darker pink for hover states
+        },
+        secondary: {
+          DEFAULT: '#FFFFFF', // White
+          hover: '#F5F5F5', // Slightly darker white for hover states
         },
         accent: {
-          pink: '#EC4899',
-          blue: '#3B82F6',
+          DEFAULT: '#FF6F61', // Coral
+          hover: '#FF5C4D', // Slightly darker coral for hover states
         },
       },
       animation: {
