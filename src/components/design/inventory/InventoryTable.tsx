@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/table"
 import { InventoryStatus } from "./InventoryStatus"
 import { InventoryItem } from "./types"
+import { getInventoryStatus } from "./inventoryService"  // Add this import
 
 interface InventoryTableProps {
   items: InventoryItem[]
