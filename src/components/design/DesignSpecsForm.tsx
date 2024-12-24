@@ -85,18 +85,10 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     updateCalculations()
   }, [length, style, selectedColors])
 
-  // Effect to update color clusters when colors change
-  useEffect(() => {
-    if (calculations && selectedColors.length > 0) {
-      console.log("Updating color clusters due to color change:", selectedColors)
-      const newColorClusters = generateColorPattern(
-        selectedColors,
-        calculations.totalClusters
-      )
-      console.log("New color clusters after color change:", newColorClusters)
-      setColorClusters(newColorClusters)
-    }
-  }, [selectedColors, calculations])
+  const handleColorsSelected = (colors: string[]) => {
+    console.log("Colors selected in DesignSpecsForm:", colors)
+    setSelectedColors(colors)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -145,11 +137,6 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
       console.error("Error in form submission:", error)
       toast.error("Error calculating balloon requirements")
     }
-  }
-
-  const handleColorsSelected = (colors: string[]) => {
-    console.log("Colors selected:", colors)
-    setSelectedColors(colors)
   }
 
   const isFormValid = clientName && 
