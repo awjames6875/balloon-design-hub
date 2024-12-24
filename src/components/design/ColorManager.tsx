@@ -29,7 +29,7 @@ export const ColorManager = ({
     "#FFD700", // Gold
   ])
   const [selectedColors, setSelectedColors] = useState<string[]>([])
-  const MAX_COLORS = 4 // Maximum colors allowed for all styles
+  const MAX_COLORS = 4
 
   useEffect(() => {
     const fetchColors = async () => {
@@ -37,6 +37,7 @@ export const ColorManager = ({
         try {
           const detectedColors = await analyzeImageColors(designImage)
           if (detectedColors && detectedColors.length > 0) {
+            console.log("Detected colors:", detectedColors)
             setAvailableColors(prevColors => {
               const allColors = [...new Set([...detectedColors, ...prevColors])]
               return allColors
@@ -71,6 +72,7 @@ export const ColorManager = ({
       }
       
       // Call the callback with the new colors
+      console.log("Selected colors updated:", newColors)
       onColorsSelected(newColors)
       return newColors
     })

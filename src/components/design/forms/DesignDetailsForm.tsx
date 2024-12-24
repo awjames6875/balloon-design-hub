@@ -24,6 +24,11 @@ export const DesignDetailsForm = ({
 }: DesignDetailsFormProps) => {
   const { data: balloonStyles, isLoading: isLoadingStyles } = useBalloonStyles()
 
+  const handleColorsSelected = (colors: string[]) => {
+    console.log("Colors selected in DesignDetailsForm:", colors)
+    onColorsSelected(colors)
+  }
+
   return (
     <div className="space-y-4">
       <DimensionsInput
@@ -42,7 +47,7 @@ export const DesignDetailsForm = ({
 
       <ColorManager
         designImage={designImage}
-        onColorsSelected={onColorsSelected}
+        onColorsSelected={handleColorsSelected}
         disabled={isCalculating}
       />
     </div>
