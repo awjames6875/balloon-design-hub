@@ -6,6 +6,7 @@ import { AccessoriesDetailsForm } from "@/components/design/AccessoriesDetailsFo
 import { ProductionSummary } from "@/components/design/ProductionSummary"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
+import { uploadDesignImage } from "@/utils/imageAnalysis"
 
 interface Accessory {
   type: string
@@ -37,28 +38,14 @@ const NewDesign = () => {
       const imageUrl = reader.result as string
       setDesignImage(imageUrl)
       
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('design_images')
-        .upload(`design_${Date.now()}.png`, file)
-
-      console.log("Storage upload response:", { uploadData, uploadError })
-
-      if (uploadError) {
-        console.error('Error uploading image:', uploadError)
-        toast.error('Failed to upload design image')
+      const publicUrl = await uploadDesignImage(file)
+      if (!publicUrl) {
+        toast.error('Failed to process design image')
         return
       }
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('design_images')
-        .getPublicUrl(uploadData.path)
-
-      console.log("Generated public URL:", publicUrl)
-
-      // Create analysis record with sample colors
-      const { data: analysisData, error: analysisError } = await supabase
+      // Create analysis record
+      const { error: analysisError } = await supabase
         .from('design_image_analysis')
         .insert([
           { 
@@ -66,9 +53,6 @@ const NewDesign = () => {
             detected_colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF']
           }
         ])
-        .select()
-
-      console.log("Color analysis response:", { analysisData, analysisError })
 
       if (analysisError) {
         console.error('Error creating analysis record:', analysisError)

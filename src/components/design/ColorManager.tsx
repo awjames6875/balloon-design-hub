@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react"
-import { toast } from "sonner"
-import { supabase } from "@/integrations/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { analyzeImageColors } from "@/utils/imageAnalysis"
 
 interface ColorManagerProps {
   designImage: string | null
@@ -26,40 +25,18 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
   const [selectedColors, setSelectedColors] = useState<string[]>([])
 
   useEffect(() => {
-    if (designImage) {
-      analyzeImageColors(designImage)
-    }
-  }, [designImage])
-
-  const analyzeImageColors = async (imagePath: string) => {
-    try {
-      console.log("Analyzing colors for image:", imagePath)
-      const { data, error } = await supabase
-        .from('design_image_analysis')
-        .select('detected_colors')
-        .eq('image_path', imagePath)
-        .single()
-
-      if (error) throw error
-
-      if (data?.detected_colors) {
-        console.log("Detected colors:", data.detected_colors)
-        // Ensure detected_colors is treated as a string array
-        const detectedColors = Array.isArray(data.detected_colors) 
-          ? data.detected_colors as string[]
-          : []
-        
+    const fetchColors = async () => {
+      if (designImage) {
+        const detectedColors = await analyzeImageColors(designImage)
         setAvailableColors(prevColors => {
-          // Combine detected colors with standard colors, removing duplicates
           const allColors = [...new Set([...detectedColors, ...prevColors])]
           return allColors
         })
       }
-    } catch (error) {
-      console.error('Error fetching color analysis:', error)
-      toast.error("Failed to analyze image colors")
     }
-  }
+
+    fetchColors()
+  }, [designImage])
 
   const handleColorSelect = (color: string) => {
     setSelectedColors(prev => {
