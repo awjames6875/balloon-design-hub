@@ -25,8 +25,13 @@ export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchCombobox
   const [value, setValue] = useState("")
   const { projects, isLoading } = useProjectSearch()
 
-  // Ensure we always have an array to work with
+  // Ensure we always have an array to work with and log for debugging
   const safeProjects = projects || []
+  console.log("Projects in combobox:", safeProjects)
+
+  const selectedProject = safeProjects.find(
+    (project) => `${project.client_name}-${project.project_name}` === value
+  )
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -37,11 +42,7 @@ export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchCombobox
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? safeProjects.find((project) => 
-                `${project.client_name}-${project.project_name}` === value
-              )?.project_name
-            : "Search projects..."}
+          {selectedProject ? selectedProject.project_name : "Search projects..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
