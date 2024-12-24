@@ -47,19 +47,23 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
   }, [designImage])
 
   const handleColorSelect = (color: string) => {
-    if (selectedColors.includes(color)) {
-      const newColors = selectedColors.filter(c => c !== color)
-      setSelectedColors(newColors)
-      onColorsSelected(newColors)
-    } else {
-      if (selectedColors.length >= MAX_COLORS) {
-        toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
-        return
+    setSelectedColors(prevColors => {
+      if (prevColors.includes(color)) {
+        // Remove color if already selected
+        const newColors = prevColors.filter(c => c !== color)
+        onColorsSelected(newColors)
+        return newColors
+      } else {
+        // Add color if under limit
+        if (prevColors.length >= MAX_COLORS) {
+          toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
+          return prevColors
+        }
+        const newColors = [...prevColors, color]
+        onColorsSelected(newColors)
+        return newColors
       }
-      const newColors = [...selectedColors, color]
-      setSelectedColors(newColors)
-      onColorsSelected(newColors)
-    }
+    })
   }
 
   return (
