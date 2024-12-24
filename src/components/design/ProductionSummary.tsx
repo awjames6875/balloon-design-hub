@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/table"
 import { toast } from "sonner"
 import { saveDesignToProduction } from "@/services/productionService"
-import { DesignSpecsFormData } from "./DesignSpecsForm"
 
 interface Accessory {
   type: string
@@ -63,7 +62,8 @@ export const ProductionSummary = ({
     return colorClusters.map(cluster => ({
       color: cluster.color,
       balloons11: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['11inch']),
-      balloons16: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['16inch'])
+      balloons16: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['16inch']),
+      totalClusters: cluster.baseClusters + cluster.extraClusters
     }));
   };
 
@@ -131,22 +131,32 @@ export const ProductionSummary = ({
             <TableHeader>
               <TableRow>
                 <TableHead>Color</TableHead>
-                <TableHead>11" Balloons</TableHead>
-                <TableHead>16" Balloons</TableHead>
-                <TableHead>Total Clusters</TableHead>
+                <TableHead className="text-right">11" Balloons</TableHead>
+                <TableHead className="text-right">16" Balloons</TableHead>
+                <TableHead className="text-right">Total Clusters</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {balloonsByColor.map((item, index) => (
                 <TableRow key={index}>
-                  <TableCell>{item.color}</TableCell>
-                  <TableCell>{item.balloons11}</TableCell>
-                  <TableCell>{item.balloons16}</TableCell>
-                  <TableCell>
-                    {colorClusters[index].baseClusters + colorClusters[index].extraClusters}
+                  <TableCell className="flex items-center gap-2">
+                    <div
+                      className="w-4 h-4 rounded-full border border-gray-300"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    {item.color}
                   </TableCell>
+                  <TableCell className="text-right">{item.balloons11}</TableCell>
+                  <TableCell className="text-right">{item.balloons16}</TableCell>
+                  <TableCell className="text-right">{item.totalClusters}</TableCell>
                 </TableRow>
               ))}
+              <TableRow className="font-medium">
+                <TableCell>Total</TableCell>
+                <TableCell className="text-right">{calculations?.balloons11in || 0}</TableCell>
+                <TableCell className="text-right">{calculations?.balloons16in || 0}</TableCell>
+                <TableCell className="text-right">{calculations?.totalClusters || 0}</TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </div>
