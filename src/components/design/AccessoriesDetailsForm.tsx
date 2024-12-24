@@ -148,7 +148,7 @@ export const AccessoriesDetailsForm = ({ onNext, extraClusters = 0 }: Accessorie
       <Button
         onClick={() => onNext(accessories)}
         className="w-full"
-        disabled={accessories.length === 0}
+        disabled={!autoCalculate && accessories.length === 0}
       >
         Next
       </Button>
