@@ -29,11 +29,17 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
   useEffect(() => {
     const fetchColors = async () => {
       if (designImage) {
-        const detectedColors = await analyzeImageColors(designImage)
-        setAvailableColors(prevColors => {
-          const allColors = [...new Set([...detectedColors, ...prevColors])]
-          return allColors
-        })
+        try {
+          const detectedColors = await analyzeImageColors(designImage)
+          if (detectedColors && detectedColors.length > 0) {
+            setAvailableColors(prevColors => {
+              const allColors = [...new Set([...detectedColors, ...prevColors])]
+              return allColors
+            })
+          }
+        } catch (error) {
+          console.error("Error analyzing colors:", error)
+        }
       }
     }
 
@@ -41,23 +47,21 @@ export const ColorManager = ({ designImage, onColorsSelected }: ColorManagerProp
   }, [designImage])
 
   const handleColorSelect = (color: string) => {
-    setSelectedColors(prev => {
-      if (prev.includes(color)) {
-        // Remove color if already selected
-        const newColors = prev.filter(c => c !== color)
-        onColorsSelected(newColors)
-        return newColors
-      } else {
-        // Add color if under limit
-        if (prev.length >= MAX_COLORS) {
-          toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
-          return prev
-        }
-        const newColors = [...prev, color]
-        onColorsSelected(newColors)
-        return newColors
+    if (selectedColors.includes(color)) {
+      // Remove color if already selected
+      const newColors = selectedColors.filter(c => c !== color)
+      setSelectedColors(newColors)
+      onColorsSelected(newColors)
+    } else {
+      // Add color if under limit
+      if (selectedColors.length >= MAX_COLORS) {
+        toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
+        return
       }
-    })
+      const newColors = [...selectedColors, color]
+      setSelectedColors(newColors)
+      onColorsSelected(newColors)
+    }
   }
 
   return (
