@@ -10,6 +10,8 @@ export const generateColorPattern = (
 ): ColorCluster[] => {
   if (colors.length === 0) return []
 
+  console.log("Generating color pattern for colors:", colors, "total clusters:", totalClusters)
+
   // Ensure even distribution of clusters among colors
   const basePerColor = Math.floor(totalClusters / colors.length)
   const remainder = totalClusters % colors.length
@@ -31,47 +33,7 @@ export const generateColorPattern = (
     }
   })
 
-  // Validate total clusters match
-  const totalCalculated = colorClusters.reduce(
-    (sum, cluster) => sum + cluster.baseClusters + cluster.extraClusters,
-    0
-  )
-
-  // Adjust if there's any discrepancy
-  if (totalCalculated !== totalClusters && colorClusters.length > 0) {
-    const diff = totalClusters - totalCalculated
-    if (diff > 0) {
-      colorClusters[0].extraClusters += diff
-    } else {
-      // Remove from extra clusters first, then base if necessary
-      let remaining = -diff
-      for (let i = 0; i < colorClusters.length && remaining > 0; i++) {
-        if (colorClusters[i].extraClusters > 0) {
-          const toRemove = Math.min(colorClusters[i].extraClusters, remaining)
-          colorClusters[i].extraClusters -= toRemove
-          remaining -= toRemove
-        }
-      }
-    }
-  }
+  console.log("Generated color clusters:", colorClusters)
 
   return colorClusters
-}
-
-export const getColorName = (hexColor: string): string => {
-  const colorMap: { [key: string]: string } = {
-    '#FFFFFF': 'White',
-    '#000000': 'Black',
-    '#FF0000': 'Red',
-    '#FFA500': 'Orange',
-    '#FFFF00': 'Yellow',
-    '#008000': 'Green',
-    '#0000FF': 'Blue',
-    '#800080': 'Purple',
-    '#FFC0CB': 'Pink',
-    '#C0C0C0': 'Silver',
-    '#FFD700': 'Gold'
-  }
-
-  return colorMap[hexColor.toUpperCase()] || hexColor
 }

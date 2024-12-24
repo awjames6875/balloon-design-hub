@@ -27,6 +27,7 @@ export const getInventoryStatus = (available: number, required: number): 'in-sto
 }
 
 export const calculateBalloonsPerColor = (colorClusters: ColorCluster[]) => {
+  console.log("Calculating balloons per color for clusters:", colorClusters)
   // Calculate balloons needed per cluster
   const balloonsPerCluster = {
     '11inch': 11,
