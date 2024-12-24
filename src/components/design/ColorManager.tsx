@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { analyzeImageColors } from "@/utils/imageAnalysis"
 import { toast } from "sonner"
@@ -15,7 +15,7 @@ export const ColorManager = ({
   onColorsSelected,
   disabled = false 
 }: ColorManagerProps) => {
-  const [availableColors, setAvailableColors] = useState<string[]>([
+  const defaultColors = useMemo(() => [
     "#FF0000", // Red
     "#FFA500", // Orange
     "#FFFF00", // Yellow
@@ -27,7 +27,9 @@ export const ColorManager = ({
     "#000000", // Black
     "#C0C0C0", // Silver
     "#FFD700", // Gold
-  ])
+  ], []);
+
+  const [availableColors, setAvailableColors] = useState<string[]>(defaultColors)
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const MAX_COLORS = 4
 
@@ -60,10 +62,8 @@ export const ColorManager = ({
       let newColors: string[]
       
       if (prevColors.includes(color)) {
-        // Remove color if already selected
         newColors = prevColors.filter(c => c !== color)
       } else {
-        // Add color if under limit
         if (prevColors.length >= MAX_COLORS) {
           toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
           return prevColors
@@ -71,14 +71,12 @@ export const ColorManager = ({
         newColors = [...prevColors, color]
       }
       
-      // Call the callback with the new colors immediately
       onColorsSelected(newColors)
       console.log("Selected colors in ColorManager:", newColors)
       return newColors
     })
   }
 
-  // Add effect to ensure parent component always has latest colors
   useEffect(() => {
     console.log("Syncing selected colors with parent:", selectedColors)
     onColorsSelected(selectedColors)

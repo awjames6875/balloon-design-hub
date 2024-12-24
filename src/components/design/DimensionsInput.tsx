@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 
@@ -7,7 +8,7 @@ interface DimensionsInputProps {
   disabled?: boolean
 }
 
-export const DimensionsInput = ({
+export const DimensionsInput = memo(({
   length,
   onLengthChange,
   disabled = false,
@@ -28,4 +29,6 @@ export const DimensionsInput = ({
       </div>
     </div>
   )
-}
+})
+
+DimensionsInput.displayName = "DimensionsInput"

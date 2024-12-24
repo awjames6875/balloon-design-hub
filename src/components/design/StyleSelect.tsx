@@ -1,3 +1,4 @@
+import { memo } from "react"
 import {
   Select,
   SelectContent,
@@ -15,7 +16,7 @@ interface StyleSelectProps {
   disabled?: boolean
 }
 
-export const StyleSelect = ({ 
+export const StyleSelect = memo(({ 
   value, 
   onValueChange, 
   styles, 
@@ -56,4 +57,6 @@ export const StyleSelect = ({
       </Select>
     </div>
   )
-}
+})
+
+StyleSelect.displayName = "StyleSelect"

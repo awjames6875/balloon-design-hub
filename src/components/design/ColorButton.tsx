@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { Button } from "@/components/ui/button"
 
 interface ColorButtonProps {
@@ -7,7 +8,7 @@ interface ColorButtonProps {
   disabled?: boolean
 }
 
-export const ColorButton = ({ 
+export const ColorButton = memo(({ 
   color, 
   isSelected, 
   onSelect,
@@ -46,4 +47,6 @@ export const ColorButton = ({
       <span className="text-sm">{getColorName(color)}</span>
     </Button>
   )
-}
+})
+
+ColorButton.displayName = "ColorButton"
