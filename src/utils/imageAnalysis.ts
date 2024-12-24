@@ -69,9 +69,9 @@ export const analyzeImageColors = async (imagePath: string): Promise<string[]> =
 
     if (data?.detected_colors) {
       console.log("Detected colors:", data.detected_colors)
-      return Array.isArray(data.detected_colors) 
-        ? data.detected_colors
-        : []
+      // Explicitly cast the detected_colors to string array and filter out non-string values
+      return (data.detected_colors as any[])
+        .filter((color): color is string => typeof color === 'string')
     }
 
     return []
