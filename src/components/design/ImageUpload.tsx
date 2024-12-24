@@ -1,5 +1,6 @@
 import { ImageIcon, Upload } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
 
 interface ImageUploadProps {
   title: string
@@ -14,6 +15,8 @@ export const ImageUpload = ({
   image,
   onImageUpload,
 }: ImageUploadProps) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(image)
+
   const handleClick = () => {
     const input = document.createElement("input")
     input.type = "file"
@@ -21,6 +24,9 @@ export const ImageUpload = ({
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (file) {
+        // Create a preview URL for immediate display
+        const objectUrl = URL.createObjectURL(file)
+        setPreviewUrl(objectUrl)
         onImageUpload(file)
       }
     }
@@ -38,11 +44,11 @@ export const ImageUpload = ({
           className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 transition-colors"
           onClick={handleClick}
         >
-          {image ? (
+          {previewUrl ? (
             <img
-              src={image}
+              src={previewUrl}
               alt={title}
-              className="max-h-64 mx-auto rounded-lg"
+              className="max-h-64 mx-auto rounded-lg object-contain"
             />
           ) : (
             <div className="space-y-2">
