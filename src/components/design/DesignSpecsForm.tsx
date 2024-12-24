@@ -166,20 +166,6 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
         onColorsSelected={handleColorsSelected}
       />
 
-      {calculations && (
-        <div className="space-y-2 p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-semibold">Current Calculations</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <p>Base Clusters: {calculations.baseClusters}</p>
-            <p>Extra Clusters: {calculations.extraClusters}</p>
-            <p>Total Clusters: {calculations.totalClusters}</p>
-            <p>11" Balloons: {calculations.balloons11in}</p>
-            <p>16" Balloons: {calculations.balloons16in}</p>
-            <p>Total Balloons: {calculations.totalBalloons}</p>
-          </div>
-        </div>
-      )}
-
       <Button 
         type="submit" 
         className="w-full"
