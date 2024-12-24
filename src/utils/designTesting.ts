@@ -96,15 +96,3 @@ export const runDesignTests = async () => {
   console.log("Test results:", results)
   return results
 }
-
-// Helper function to run a single test case
-export const testDesign = async (
-  length: number,
-  colors: string[],
-  style: string,
-  includeAccessories: boolean
-) => {
-  const testCase = { length, colors, style, includeAccessories }
-  const results = await runDesignTests([testCase])
-  return results[0]
-}
