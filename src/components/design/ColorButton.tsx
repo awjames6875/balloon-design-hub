@@ -21,7 +21,7 @@ export const ColorButton = ({ color, isSelected, onSelect }: ColorButtonProps) =
       "#C0C0C0": "Silver",
       "#FFD700": "Gold",
     }
-    return colorMap[hexColor] || hexColor
+    return colorMap[hexColor.toUpperCase()] || hexColor
   }
 
   return (
