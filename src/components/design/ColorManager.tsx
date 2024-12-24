@@ -78,6 +78,12 @@ export const ColorManager = ({
     })
   }
 
+  // Add effect to ensure parent component always has latest colors
+  useEffect(() => {
+    console.log("Syncing selected colors with parent:", selectedColors)
+    onColorsSelected(selectedColors)
+  }, [selectedColors, onColorsSelected])
+
   return (
     <Card className={`mt-4 ${disabled ? 'opacity-50' : ''}`}>
       <CardHeader>
