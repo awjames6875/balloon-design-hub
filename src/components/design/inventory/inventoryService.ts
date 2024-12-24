@@ -27,11 +27,13 @@ export const getInventoryStatus = (available: number, required: number): 'in-sto
 }
 
 export const calculateBalloonsPerColor = (colorClusters: ColorCluster[]) => {
+  // Calculate balloons needed per cluster
   const balloonsPerCluster = {
     '11inch': 11,
     '16inch': 2
   }
 
+  // Calculate balloons needed for each color
   return colorClusters.map(cluster => ({
     color: cluster.color,
     balloons11: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['11inch']),
@@ -40,11 +42,14 @@ export const calculateBalloonsPerColor = (colorClusters: ColorCluster[]) => {
 }
 
 export const checkInventory = async (colorClusters: ColorCluster[]): Promise<InventoryItem[]> => {
+  console.log("Checking inventory for color clusters:", colorClusters)
   const balloonsByColor = calculateBalloonsPerColor(colorClusters)
+  console.log("Calculated balloons by color:", balloonsByColor)
   const inventoryList: InventoryItem[] = []
 
   for (const colorData of balloonsByColor) {
     const colorName = getColorName(colorData.color)
+    console.log(`Checking inventory for color: ${colorName}`)
     
     // Check 11" balloons
     const { data: data11, error: error11 } = await supabase
@@ -72,6 +77,7 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
       continue
     }
 
+    // Add 11" balloon inventory item
     inventoryList.push({
       color: colorName,
       size: '11in',
@@ -80,6 +86,7 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
       status: getInventoryStatus(data11?.quantity || 0, colorData.balloons11)
     })
 
+    // Add 16" balloon inventory item
     inventoryList.push({
       color: colorName,
       size: '16in',
@@ -89,5 +96,6 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
     })
   }
 
+  console.log("Final inventory list:", inventoryList)
   return inventoryList
 }
