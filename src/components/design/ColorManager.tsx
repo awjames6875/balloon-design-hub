@@ -72,6 +72,12 @@ export const ColorManager = ({
     fetchColors()
   }, [designImage])
 
+  // Fixed: Separated state update from parent callback
+  useEffect(() => {
+    // Only notify parent when selectedColors changes
+    onColorsSelected(selectedColors)
+  }, [selectedColors, onColorsSelected])
+
   const handleColorSelect = (color: string) => {
     if (disabled) return
 
@@ -90,7 +96,6 @@ export const ColorManager = ({
         return prevColors
       }
       
-      onColorsSelected(newColors)
       return newColors
     })
   }
