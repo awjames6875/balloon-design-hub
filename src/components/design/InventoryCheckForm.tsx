@@ -45,10 +45,8 @@ export const InventoryCheckForm = ({
         toast.error("Some balloons are out of stock. Please check inventory and try again.")
       } else if (hasLowStock) {
         toast.warning("Some balloon colors are running low, but you can proceed.")
-        await generateProductionForm()
       } else {
         toast.success("All required balloons are in stock!")
-        await generateProductionForm()
       }
     } catch (error) {
       console.error('Error checking inventory:', error)
@@ -61,11 +59,15 @@ export const InventoryCheckForm = ({
   const generateProductionForm = async () => {
     setIsGeneratingForm(true)
     try {
+      console.log("Starting production form generation with color clusters:", colorClusters)
+      
       // First update the inventory
       const balloonsPerColor = calculateBalloonsPerColor(colorClusters, calculations)
-      const success = await updateInventory(balloonsPerColor)
+      console.log("Calculated balloons per color:", balloonsPerColor)
       
-      if (!success) {
+      const inventoryUpdated = await updateInventory(balloonsPerColor)
+      
+      if (!inventoryUpdated) {
         toast.error("Failed to update inventory")
         return
       }

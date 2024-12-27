@@ -1,40 +1,28 @@
-interface ColorCluster {
-  color: string
-  baseClusters: number
-  extraClusters: number
-}
-
-interface BalloonCalculations {
-  color: string
-  balloons11: number
-  balloons16: number
-  totalClusters: number
-}
+import { ColorCluster, Calculations } from "@/components/design/inventory/types"
 
 export const calculateBalloonsPerColor = (
   colorClusters: ColorCluster[],
-  calculations?: {
-    baseClusters: number
-    extraClusters: number
-    totalClusters: number
-    littlesQuantity: number
-    grapesQuantity: number
-    balloons11in: number
-    balloons16in: number
-    totalBalloons: number
-  }
-): BalloonCalculations[] => {
-  if (!calculations) return []
-  
-  const balloonsPerCluster = {
-    '11inch': 11,
-    '16inch': 2
+  calculations?: Calculations
+) => {
+  if (!calculations) {
+    console.error("No calculations provided for balloon calculation")
+    return []
   }
 
-  return colorClusters.map(cluster => ({
-    color: cluster.color,
-    balloons11: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['11inch']),
-    balloons16: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['16inch']),
-    totalClusters: cluster.baseClusters + cluster.extraClusters
-  }))
+  console.log("Calculating balloons per color with clusters:", colorClusters)
+  
+  // Calculate the total number of clusters for each color
+  return colorClusters.map(cluster => {
+    const totalClusters = cluster.baseClusters + cluster.extraClusters
+    const balloons11 = Math.round(totalClusters * 11) // Each cluster uses 11 11-inch balloons
+    const balloons16 = Math.round(totalClusters * 2)  // Each cluster uses 2 16-inch balloons
+
+    console.log(`Color ${cluster.color}: ${balloons11} 11" balloons and ${balloons16} 16" balloons`)
+
+    return {
+      color: cluster.color,
+      balloons11,
+      balloons16
+    }
+  })
 }
