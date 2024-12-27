@@ -25,7 +25,12 @@ interface DesignState {
     balloons16in: number
     totalBalloons: number
   }
-  imagePreview: string
+  colorClusters: Array<{
+    color: string
+    baseClusters: number
+    extraClusters: number
+  }>
+  imagePreview: string | null
   clientReference: string | null
 }
 
@@ -36,18 +41,25 @@ const ProductionForms = () => {
   const [formula, setFormula] = useState<any>(null)
 
   useEffect(() => {
+    console.log("Design state received:", designState)
+    if (!designState) {
+      toast.error("No design data found")
+      return
+    }
+
     const fetchFormula = async () => {
       try {
-        const data = await getFormulaForLength(10) // Hardcoded to 10ft for this example
+        const data = await getFormulaForLength(parseInt(designState.length))
         setFormula(data)
-        console.log("Formula for 10ft:", data)
+        console.log("Formula fetched:", data)
       } catch (error) {
+        console.error("Error fetching formula:", error)
         toast.error("Error fetching formula")
       }
     }
 
     fetchFormula()
-  }, [])
+  }, [designState])
 
   if (!designState) {
     return (
@@ -64,7 +76,7 @@ const ProductionForms = () => {
     project_name: designState.projectName,
     dimensions_ft: parseInt(designState.length),
     shape: designState.shape,
-    colors: [],
+    colors: designState.colorClusters.map(cluster => cluster.color),
     base_clusters: designState.calculations.baseClusters,
     extra_clusters: designState.calculations.extraClusters,
     total_clusters: designState.calculations.totalClusters,
@@ -86,50 +98,38 @@ const ProductionForms = () => {
     production_time: `${Math.floor((designState.calculations.totalClusters * 15) / 60)}h ${(designState.calculations.totalClusters * 15) % 60}m`,
     creation_date: null,
     width_ft: null
-  };
+  }
 
   const handleFinalizeProduction = async () => {
     try {
+      console.log("Saving production details:", productionDetails)
       const { error: productionError } = await supabase
         .from("production_details")
-        .insert([productionDetails]);
+        .insert([productionDetails])
 
       if (productionError) {
-        console.error("Error saving production details:", productionError);
-        toast.error("Failed to save production details");
-        return;
+        console.error("Error saving production details:", productionError)
+        toast.error("Failed to save production details")
+        return
       }
 
-      // Update inventory quantities
-      const updates = [
-        {
-          color: "Orange",
-          size: "11in",
-          quantity: productionDetails.balloons_11in,
-        },
-        {
-          color: "Wildberry",
-          size: "11in",
-          quantity: productionDetails.extra_clusters,
-        },
-        {
-          color: "Goldenrod",
-          size: "16in",
-          quantity: productionDetails.balloons_16in,
-        },
-      ];
+      // Update inventory quantities based on the color clusters
+      const updates = designState.colorClusters.map(cluster => ({
+        color: cluster.color,
+        size: "11in",
+        quantity: cluster.baseClusters * 3 + cluster.extraClusters * 2, // Example calculation
+      }))
 
-      const success = await updateInventoryQuantities(updates);
+      const success = await updateInventoryQuantities(updates)
       
       if (success) {
-        toast.success("Production finalized and saved successfully!");
-        // Optionally navigate to another page or refresh the data
+        toast.success("Production finalized and saved successfully!")
       }
     } catch (error) {
-      console.error("Error finalizing production:", error);
-      toast.error("Failed to finalize production");
+      console.error("Error finalizing production:", error)
+      toast.error("Failed to finalize production")
     }
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -137,7 +137,7 @@ const ProductionForms = () => {
 
       {formula && (
         <div className="mb-8 p-4 bg-gray-100 rounded-lg">
-          <h2 className="text-lg font-semibold mb-2">Formula for 10ft:</h2>
+          <h2 className="text-lg font-semibold mb-2">Formula Details:</h2>
           <p>Base Clusters: {formula.base_clusters}</p>
           <p>Extra Clusters: {formula.extra_clusters}</p>
           <p>Total Clusters: {formula.total_clusters}</p>
