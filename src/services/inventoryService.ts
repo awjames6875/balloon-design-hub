@@ -7,12 +7,26 @@ interface ColorBalloonData {
   balloons16: number
 }
 
+const colorMap: { [key: string]: string } = {
+  "#FF0000": "Red",
+  "#FFA500": "Orange",
+  "#FFFF00": "Yellow",
+  "#008000": "Green",
+  "#0000FF": "Blue",
+  "#800080": "Purple",
+  "#FFC0CB": "Pink",
+  "#FFFFFF": "White",
+  "#000000": "Black",
+  "#C0C0C0": "Silver",
+  "#FFD700": "Gold",
+  "#7E69AB": "Purple"
+}
+
 export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Promise<boolean> => {
-  console.log("Updating inventory with:", balloonsPerColor)
+  console.log("Starting inventory update with:", balloonsPerColor)
   
   for (const colorData of balloonsPerColor) {
-    // Get the color name from the hex code if needed
-    const colorName = getColorName(colorData.color)
+    const colorName = colorMap[colorData.color.toUpperCase()] || colorData.color
     console.log(`Processing ${colorName}: ${colorData.balloons11} 11" and ${colorData.balloons16} 16" balloons`)
 
     // Update 11" balloons
@@ -21,9 +35,9 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
       .select('quantity')
       .eq('color', colorName)
       .eq('size', '11in')
-      .single()
+      .maybeSingle()
 
-    if (error11) {
+    if (error11 || !data11) {
       console.error('Error checking 11" balloon inventory:', error11)
       toast.error(`Error checking inventory for ${colorName} 11" balloons`)
       return false
@@ -53,9 +67,9 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
       .select('quantity')
       .eq('color', colorName)
       .eq('size', '16in')
-      .single()
+      .maybeSingle()
 
-    if (error16) {
+    if (error16 || !data16) {
       console.error('Error checking 16" balloon inventory:', error16)
       toast.error(`Error checking inventory for ${colorName} 16" balloons`)
       return false
@@ -84,24 +98,4 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 
   toast.success("Inventory updated successfully")
   return true
-}
-
-// Helper function to convert hex colors to color names
-const getColorName = (hexColor: string): string => {
-  const colorMap: { [key: string]: string } = {
-    "#FF0000": "Red",
-    "#FFA500": "Orange",
-    "#FFFF00": "Yellow",
-    "#008000": "Green",
-    "#0000FF": "Blue",
-    "#800080": "Purple",
-    "#FFC0CB": "Pink",
-    "#FFFFFF": "White",
-    "#000000": "Black",
-    "#C0C0C0": "Silver",
-    "#FFD700": "Gold",
-    "#7E69AB": "Purple" // Adding support for the additional purple shade
-  }
-
-  return colorMap[hexColor.toUpperCase()] || hexColor
 }

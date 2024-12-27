@@ -55,11 +55,14 @@ export const ProductionSummary = ({
     }
 
     try {
+      // Calculate balloons needed per color
       const balloonsPerColor = calculateBalloonsPerColor(colorClusters, calculations)
+      console.log("Calculated balloons per color:", balloonsPerColor)
       
       // First update inventory
       const inventoryUpdated = await updateInventory(balloonsPerColor)
       if (!inventoryUpdated) {
+        toast.error("Failed to update inventory")
         return
       }
 
@@ -85,7 +88,7 @@ export const ProductionSummary = ({
       
       toast.success("Production details saved and inventory updated successfully!")
       onFinalize()
-      navigate("/new-design")
+      navigate("/inventory")
     } catch (error) {
       console.error("Error finalizing production:", error)
       toast.error("Failed to save production details")

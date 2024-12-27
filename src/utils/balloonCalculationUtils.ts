@@ -11,7 +11,7 @@ export const calculateBalloonsPerColor = (
 
   console.log("Calculating balloons per color with clusters:", colorClusters)
   
-  // Calculate the total number of clusters for each color
+  // Calculate balloons needed for each color
   return colorClusters.map(cluster => {
     const totalClusters = cluster.baseClusters + cluster.extraClusters
     const balloons11 = Math.round(totalClusters * 11) // Each cluster uses 11 11-inch balloons
@@ -23,7 +23,7 @@ export const calculateBalloonsPerColor = (
       color: cluster.color,
       balloons11,
       balloons16,
-      totalClusters // Add this property to match the expected type
+      totalClusters
     }
   })
 }
