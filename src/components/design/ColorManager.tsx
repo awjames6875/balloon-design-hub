@@ -36,7 +36,6 @@ export const ColorManager = ({
     "Soft Green",
     "Soft Yellow",
     "Soft Orange",
-    "Soft Purple",
     "Soft Pink",
     "Soft Peach",
     "Soft Blue",
