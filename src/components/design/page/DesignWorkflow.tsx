@@ -24,8 +24,13 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
   }
 
   const handleInventoryChecked = () => {
+    if (!formData) return
+    
+    // Generate production form after successful inventory check
+    toast.success("Inventory check passed. Generating production form...")
+    
+    // Save to production details and proceed to accessories
     setCurrentStep("accessories")
-    toast.success("Inventory check passed. Proceeding to accessories.")
   }
 
   const handleAccessoriesSubmit = (accessoryData: Array<{ type: string; quantity: number }>) => {
