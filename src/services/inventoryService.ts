@@ -7,43 +7,11 @@ interface ColorBalloonData {
   balloons16: number
 }
 
-const colorMap: { [key: string]: string } = {
-  "#FF0000": "Red",
-  "#FFA500": "Orange",
-  "#FFFF00": "Yellow",
-  "#008000": "Green",
-  "#0000FF": "Blue",
-  "#800080": "Purple",
-  "#FFC0CB": "Pink",
-  "#FFFFFF": "White",
-  "#000000": "Black",
-  "#C0C0C0": "Silver",
-  "#FFD700": "Gold",
-  "#8E9196": "Gray",
-  "#9b87f5": "Purple",
-  "#7E69AB": "Purple",
-  "#6E59A5": "Purple",
-  "#1A1F2C": "Navy",
-  "#D6BCFA": "Lavender",
-  "#F2FCE2": "Mint",
-  "#FEF7CD": "Soft Yellow",
-  "#FEC6A1": "Peach",
-  "#E5DEFF": "Lavender",
-  "#FFDEE2": "Light Pink",
-  "#FDE1D3": "Peach",
-  "#D3E4FD": "Light Blue",
-  "#F1F0FB": "White",
-  "#8B5CF6": "Purple",
-  "#D946EF": "Pink",
-  "#F97316": "Orange",
-  "#0EA5E9": "Blue"
-}
-
 export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Promise<boolean> => {
   console.log("Starting inventory update with:", balloonsPerColor)
   
   for (const colorData of balloonsPerColor) {
-    const colorName = colorMap[colorData.color.toUpperCase()] || colorData.color
+    const colorName = colorData.color
     console.log(`Processing ${colorName}: ${colorData.balloons11} 11" and ${colorData.balloons16} 16" balloons`)
 
     try {

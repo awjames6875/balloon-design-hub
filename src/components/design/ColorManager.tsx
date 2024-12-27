@@ -16,35 +16,35 @@ export const ColorManager = ({
   disabled = false 
 }: ColorManagerProps) => {
   const defaultColors = useMemo(() => [
-    "#FF0000", // Red
-    "#FFA500", // Orange
-    "#FFFF00", // Yellow
-    "#008000", // Green
-    "#0000FF", // Blue
-    "#800080", // Purple
-    "#FFC0CB", // Pink
-    "#FFFFFF", // White
-    "#000000", // Black
-    "#C0C0C0", // Silver
-    "#FFD700", // Gold
-    "#8E9196", // Neutral Gray
-    "#9b87f5", // Primary Purple
-    "#7E69AB", // Secondary Purple
-    "#6E59A5", // Tertiary Purple
-    "#1A1F2C", // Dark Purple
-    "#D6BCFA", // Light Purple
-    "#F2FCE2", // Soft Green
-    "#FEF7CD", // Soft Yellow
-    "#FEC6A1", // Soft Orange
-    "#E5DEFF", // Soft Purple
-    "#FFDEE2", // Soft Pink
-    "#FDE1D3", // Soft Peach
-    "#D3E4FD", // Soft Blue
-    "#F1F0FB", // Soft Gray
-    "#8B5CF6", // Vivid Purple
-    "#D946EF", // Magenta Pink
-    "#F97316", // Bright Orange
-    "#0EA5E9", // Ocean Blue
+    "Red",
+    "Orange",
+    "Yellow",
+    "Green",
+    "Blue",
+    "Purple",
+    "Pink",
+    "White",
+    "Black",
+    "Silver",
+    "Gold",
+    "Neutral Gray",
+    "Primary Purple",
+    "Secondary Purple",
+    "Tertiary Purple",
+    "Dark Purple",
+    "Light Purple",
+    "Soft Green",
+    "Soft Yellow",
+    "Soft Orange",
+    "Soft Purple",
+    "Soft Pink",
+    "Soft Peach",
+    "Soft Blue",
+    "Soft Gray",
+    "Vivid Purple",
+    "Magenta Pink",
+    "Bright Orange",
+    "Ocean Blue",
   ], [])
 
   const [availableColors, setAvailableColors] = useState<string[]>(defaultColors)
@@ -72,9 +72,7 @@ export const ColorManager = ({
     fetchColors()
   }, [designImage])
 
-  // Fixed: Separated state update from parent callback
   useEffect(() => {
-    // Only notify parent when selectedColors changes
     onColorsSelected(selectedColors)
   }, [selectedColors, onColorsSelected])
 
@@ -85,13 +83,10 @@ export const ColorManager = ({
       let newColors: string[]
       
       if (prevColors.includes(color)) {
-        // If color is already selected, remove it
         newColors = prevColors.filter(c => c !== color)
       } else if (prevColors.length < REQUIRED_COLORS) {
-        // If we haven't reached the limit, add the color
         newColors = [...prevColors, color]
       } else {
-        // If we're at the limit, show an error message
         toast.error(`Please select exactly ${REQUIRED_COLORS} colors`)
         return prevColors
       }

@@ -14,39 +14,39 @@ const ColorButtonComponent = ({
   onSelect,
   disabled = false 
 }: ColorButtonProps) => {
-  const getColorName = (hexColor: string) => {
+  const getBackgroundColor = (colorName: string) => {
     const colorMap: Record<string, string> = {
-      "#FFFFFF": "White",
-      "#000000": "Black",
-      "#FF0000": "Red",
-      "#FFA500": "Orange",
-      "#FFFF00": "Yellow",
-      "#008000": "Green",
-      "#0000FF": "Blue",
-      "#800080": "Purple",
-      "#FFC0CB": "Pink",
-      "#C0C0C0": "Silver",
-      "#FFD700": "Gold",
-      "#8E9196": "Neutral Gray",
-      "#9b87f5": "Primary Purple",
-      "#7E69AB": "Secondary Purple",
-      "#6E59A5": "Tertiary Purple",
-      "#1A1F2C": "Dark Purple",
-      "#D6BCFA": "Light Purple",
-      "#F2FCE2": "Soft Green",
-      "#FEF7CD": "Soft Yellow",
-      "#FEC6A1": "Soft Orange",
-      "#E5DEFF": "Soft Purple",
-      "#FFDEE2": "Soft Pink",
-      "#FDE1D3": "Soft Peach",
-      "#D3E4FD": "Soft Blue",
-      "#F1F0FB": "Soft Gray",
-      "#8B5CF6": "Vivid Purple",
-      "#D946EF": "Magenta Pink",
-      "#F97316": "Bright Orange",
-      "#0EA5E9": "Ocean Blue",
+      "Red": "#FF0000",
+      "Orange": "#FFA500",
+      "Yellow": "#FFFF00",
+      "Green": "#008000",
+      "Blue": "#0000FF",
+      "Purple": "#800080",
+      "Pink": "#FFC0CB",
+      "White": "#FFFFFF",
+      "Black": "#000000",
+      "Silver": "#C0C0C0",
+      "Gold": "#FFD700",
+      "Neutral Gray": "#8E9196",
+      "Primary Purple": "#9b87f5",
+      "Secondary Purple": "#7E69AB",
+      "Tertiary Purple": "#6E59A5",
+      "Dark Purple": "#1A1F2C",
+      "Light Purple": "#D6BCFA",
+      "Soft Green": "#F2FCE2",
+      "Soft Yellow": "#FEF7CD",
+      "Soft Orange": "#FEC6A1",
+      "Soft Purple": "#E5DEFF",
+      "Soft Pink": "#FFDEE2",
+      "Soft Peach": "#FDE1D3",
+      "Soft Blue": "#D3E4FD",
+      "Soft Gray": "#F1F0FB",
+      "Vivid Purple": "#8B5CF6",
+      "Magenta Pink": "#D946EF",
+      "Bright Orange": "#F97316",
+      "Ocean Blue": "#0EA5E9",
     }
-    return colorMap[hexColor.toUpperCase()] || "Custom Color"
+    return colorMap[colorName] || colorName
   }
 
   return (
@@ -60,9 +60,9 @@ const ColorButtonComponent = ({
     >
       <div
         className="w-6 h-6 rounded-full border border-gray-300"
-        style={{ backgroundColor: color }}
+        style={{ backgroundColor: getBackgroundColor(color) }}
       />
-      <span className="text-sm">{getColorName(color)}</span>
+      <span className="text-sm">{color}</span>
     </Button>
   )
 }
