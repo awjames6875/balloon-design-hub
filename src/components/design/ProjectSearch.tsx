@@ -18,25 +18,25 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
   const validProjects = projects ?? []
 
   return (
-    <Command shouldFilter={true} className="rounded-lg border shadow-md">
+    <Command className="rounded-lg border shadow-md">
       <CommandInput placeholder="Search previous projects..." />
       <CommandEmpty>{isLoading ? "Loading..." : "No projects found."}</CommandEmpty>
-      <CommandGroup>
-        {validProjects.map((project) => (
-          <CommandItem
-            key={`${project.client_name}-${project.project_name}`}
-            value={`${project.client_name}-${project.project_name}`}
-            onSelect={() => {
-              onProjectSelect(project)
-            }}
-          >
-            <span>{project.client_name}</span>
-            <span className="ml-2 text-muted-foreground">
-              - {project.project_name}
-            </span>
-          </CommandItem>
-        ))}
-      </CommandGroup>
+      {validProjects.length > 0 && (
+        <CommandGroup>
+          {validProjects.map((project) => (
+            <CommandItem
+              key={`${project.client_name}-${project.project_name}`}
+              value={`${project.client_name}-${project.project_name}`}
+              onSelect={() => onProjectSelect(project)}
+            >
+              <span>{project.client_name}</span>
+              <span className="ml-2 text-muted-foreground">
+                - {project.project_name}
+              </span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      )}
     </Command>
   )
 }
