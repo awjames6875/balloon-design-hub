@@ -31,19 +31,24 @@ export const InventoryUpdateForm = ({
     setIsUpdating(true)
 
     try {
+      // Validate input
       const newQuantity = parseInt(quantity)
       
       if (isNaN(newQuantity)) {
-        toast.error('Please enter a valid number')
+        toast.error('Please enter a valid number', {
+          description: 'The quantity must be a numeric value.'
+        })
         return
       }
 
       if (newQuantity < 0) {
-        toast.error('Quantity cannot be negative')
+        toast.error('Invalid Quantity', {
+          description: 'Quantity cannot be a negative number.'
+        })
         return
       }
 
-      // First verify if the record exists
+      // Check if record exists
       const { data: existingRecord, error: checkError } = await supabase
         .from('balloon_inventory')
         .select('id, quantity')
@@ -53,14 +58,15 @@ export const InventoryUpdateForm = ({
 
       if (checkError) {
         console.error('Error checking inventory record:', checkError)
-        toast.error(`Failed to check inventory for ${color} ${size} balloons`)
+        toast.error('Inventory Check Failed', {
+          description: `Unable to verify ${color} ${size} balloon inventory.`
+        })
         return
       }
 
-      let updateError
-
+      // Determine if we're creating a new record or updating an existing one
       if (!existingRecord) {
-        // Create new record if it doesn't exist
+        // Create new record
         const { error: insertError } = await supabase
           .from('balloon_inventory')
           .insert([
@@ -75,14 +81,18 @@ export const InventoryUpdateForm = ({
         
         if (insertError) {
           console.error('Error creating inventory record:', insertError)
-          toast.error(`Failed to create inventory record for ${color} ${size} balloons`)
+          toast.error('Record Creation Failed', {
+            description: `Could not create inventory record for ${color} ${size} balloons.`
+          })
           return
         }
 
-        toast.success(`Created new inventory record for ${color} ${size} balloons with quantity ${newQuantity}`)
+        toast.success('New Inventory Record Created', {
+          description: `Added ${newQuantity} ${color} ${size} balloons to inventory.`
+        })
       } else {
         // Update existing record
-        const { error: updateRecordError } = await supabase
+        const { error: updateError } = await supabase
           .from('balloon_inventory')
           .update({ 
             quantity: newQuantity,
@@ -91,25 +101,30 @@ export const InventoryUpdateForm = ({
           .eq('color', color)
           .eq('size', size)
 
-        if (updateRecordError) {
-          console.error('Error updating inventory:', updateRecordError)
-          toast.error(`Failed to update ${color} ${size} balloons quantity`)
+        if (updateError) {
+          console.error('Error updating inventory:', updateError)
+          toast.error('Inventory Update Failed', {
+            description: `Could not update ${color} ${size} balloon quantity.`
+          })
           return
         }
 
         const changeAmount = newQuantity - existingRecord.quantity
-        const changeText = changeAmount > 0 ? `increased by ${changeAmount}` : `decreased by ${Math.abs(changeAmount)}`
+        const changeType = changeAmount > 0 ? 'increased' : 'decreased'
         
-        toast.success(
-          `Updated ${color} ${size} balloons quantity to ${newQuantity} (${changeText})`
-        )
+        toast.success('Inventory Updated', {
+          description: `${color} ${size} balloons ${changeType} by ${Math.abs(changeAmount)}. New quantity: ${newQuantity}.`
+        })
       }
 
+      // Trigger parent component update and reset form state
       onUpdate()
       setHasChanged(false)
     } catch (error) {
-      console.error('Unexpected error updating inventory:', error)
-      toast.error('An unexpected error occurred while updating inventory')
+      console.error('Unexpected inventory update error:', error)
+      toast.error('Unexpected Error', {
+        description: 'An unexpected problem occurred while updating inventory.'
+      })
     } finally {
       setIsUpdating(false)
     }
@@ -126,11 +141,12 @@ export const InventoryUpdateForm = ({
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           className="w-32"
+          disabled={isUpdating}
         />
       </div>
       <Button 
         type="submit" 
-        disabled={isUpdating}
+        disabled={isUpdating || !hasChanged}
         variant={hasChanged ? "destructive" : "default"}
       >
         {isUpdating ? "Updating..." : "Update"}
