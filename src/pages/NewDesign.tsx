@@ -25,28 +25,33 @@ export default function NewDesign() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background">
       <div className="container mx-auto px-4 py-8">
         <Button 
           variant="ghost" 
-          className="mb-6 hover:bg-gray-100"
+          className="mb-6 hover:bg-white/60"
           onClick={() => navigate("/")}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Home
         </Button>
 
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold">Create New Design</h1>
-            <p className="text-gray-600">
-              Upload your design image and specify the requirements
+        <div className="max-w-3xl mx-auto space-y-12">
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl font-bold text-gray-800">Create New Design</h1>
+            <p className="text-gray-600 max-w-xl mx-auto">
+              Start by uploading your design image, then specify the requirements below
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2">
-            <ImageUploadSection onImageUploaded={handleImageUploaded} />
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="space-y-8">
+            {/* Image Upload Section */}
+            <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+              <ImageUploadSection onImageUploaded={handleImageUploaded} />
+            </div>
+
+            {/* Design Specs Form */}
+            <div className="bg-white rounded-xl shadow-sm p-8">
               <DesignSpecsForm
                 onSubmit={handleFormSubmit}
                 designImage={designImage}
