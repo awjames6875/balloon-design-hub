@@ -1,6 +1,7 @@
-import { Package, TrendingUp } from "lucide-react"
+import { Package, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { supabase } from "@/integrations/supabase/client"
 
 interface InventoryActionsProps {
   onRefresh: () => void
@@ -22,6 +23,27 @@ export const InventoryActions = ({ onRefresh, inventory }: InventoryActionsProps
     })
   }
 
+  const handleRefresh = async () => {
+    try {
+      // Verify database connection
+      const { error } = await supabase
+        .from('balloon_inventory')
+        .select('count')
+        .limit(1)
+
+      if (error) {
+        throw error
+      }
+
+      // If successful, trigger the refresh
+      onRefresh()
+      toast.success("Inventory refreshed successfully")
+    } catch (error) {
+      console.error('Error refreshing inventory:', error)
+      toast.error("Failed to refresh inventory")
+    }
+  }
+
   return (
     <div className="flex justify-center gap-4 mt-8">
       <Button
@@ -33,11 +55,11 @@ export const InventoryActions = ({ onRefresh, inventory }: InventoryActionsProps
         Order More Balloons
       </Button>
       <Button
-        onClick={onRefresh}
+        onClick={handleRefresh}
         className="flex items-center gap-2"
         variant="outline"
       >
-        <TrendingUp className="h-4 w-4" />
+        <RefreshCw className="h-4 w-4" />
         Refresh Inventory
       </Button>
     </div>
