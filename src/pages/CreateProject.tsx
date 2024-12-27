@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
+import { BackToHome } from "@/components/BackToHome"
 
 export const CreateProject = () => {
   const navigate = useNavigate()
@@ -66,6 +67,8 @@ export const CreateProject = () => {
 
   return (
     <div className="container mx-auto max-w-2xl py-8">
+      <BackToHome />
+      
       <Card>
         <CardHeader>
           <CardTitle>Create New Project</CardTitle>

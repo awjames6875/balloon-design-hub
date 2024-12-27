@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { CurrentInventorySection } from "@/components/inventory/CurrentInventorySection"
 import { StockAnalyticsSection } from "@/components/inventory/StockAnalyticsSection"
 import { InventoryActions } from "@/components/inventory/InventoryActions"
+import { BackToHome } from "@/components/BackToHome"
 import type { BalloonInventory } from "@/components/inventory/types"
 
 const Inventory = () => {
@@ -91,6 +92,8 @@ const Inventory = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
+      <BackToHome />
+      
       <h1 className="text-2xl font-bold text-center mb-8">
         Inventory Management
       </h1>

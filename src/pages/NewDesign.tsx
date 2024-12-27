@@ -3,8 +3,7 @@ import { ImageUploadSection } from "@/components/design/page/ImageUploadSection"
 import { DesignSpecsForm } from "@/components/design/DesignSpecsForm"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { BackToHome } from "@/components/BackToHome"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -40,14 +39,7 @@ export default function NewDesign() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background">
       <div className="container mx-auto px-4 py-8">
-        <Button 
-          variant="ghost" 
-          className="mb-6 hover:bg-white/60"
-          onClick={() => navigate("/")}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
+        <BackToHome />
 
         <div className="max-w-3xl mx-auto space-y-12">
           <div className="text-center space-y-2">

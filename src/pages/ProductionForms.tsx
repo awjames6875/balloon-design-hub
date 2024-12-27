@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Home } from "lucide-react"
 import { toast } from "sonner"
 import { ProductionDetails } from "@/components/production/ProductionDetails"
+import { BackToHome } from "@/components/BackToHome"
 import { Tables } from "@/integrations/supabase/types"
 import { updateInventoryQuantities } from "@/utils/inventoryUtils"
 import { supabase } from "@/integrations/supabase/client"
@@ -133,6 +134,8 @@ const ProductionForms = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <BackToHome />
+      
       <h1 className="text-2xl font-bold text-center mb-8">Production Form</h1>
 
       {formula && (
