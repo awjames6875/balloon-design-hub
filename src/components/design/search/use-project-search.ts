@@ -20,7 +20,7 @@ export const useProjectSearch = () => {
   })
 
   return {
-    projects,
+    projects: projects || [],
     isLoading,
   }
 }

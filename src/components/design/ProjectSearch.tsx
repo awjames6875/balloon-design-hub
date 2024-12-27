@@ -19,12 +19,12 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
   return (
     <Command className="rounded-lg border shadow-md">
       <CommandInput placeholder="Search previous projects..." />
-      <CommandEmpty>No projects found.</CommandEmpty>
-      {!isLoading && projects && projects.length > 0 && (
+      <CommandEmpty>{isLoading ? "Loading..." : "No projects found."}</CommandEmpty>
+      {!isLoading && projects && (
         <CommandGroup>
           {projects.map((project, index) => (
             <CommandItem
-              key={index}
+              key={`${project.client_name}-${project.project_name}-${index}`}
               value={`${project.client_name}-${project.project_name}`}
               onSelect={() => {
                 onProjectSelect(project)
