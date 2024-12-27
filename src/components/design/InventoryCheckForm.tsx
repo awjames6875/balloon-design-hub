@@ -30,11 +30,9 @@ export const InventoryCheckForm = ({
       const hasOutOfStock = items.some(item => item.status === 'out-of-stock')
 
       if (hasOutOfStock) {
-        toast.error("Some balloons are out of stock")
+        toast.error("Some balloons are out of stock. Please check inventory and try again.")
       } else if (hasLowStock) {
-        toast.warning("Some balloon colors are running low")
-      } else {
-        toast.success("All required balloons are in stock!")
+        toast.warning("Some balloon colors are running low, but you can proceed.")
       }
     } catch (error) {
       console.error('Error checking inventory:', error)

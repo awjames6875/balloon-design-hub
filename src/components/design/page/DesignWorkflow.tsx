@@ -18,10 +18,9 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
   const [accessories, setAccessories] = useState<Array<{ type: string; quantity: number }>>([])
 
   const handleSpecsSubmit = (data: DesignSpecsFormData) => {
-    console.log("Form submitted with data:", data)
+    console.log("Design specs submitted:", data)
     setFormData(data)
     setCurrentStep("inventory")
-    toast.info("Checking inventory availability...")
   }
 
   const handleInventoryChecked = () => {
