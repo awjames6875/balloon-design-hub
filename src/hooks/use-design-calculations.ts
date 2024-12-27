@@ -46,7 +46,9 @@ export const useDesignCalculations = (length: string, style: string) => {
   }, [length, style])
 
   const updateColorClusters = (selectedColors: string[]) => {
-    if (selectedColors.length === 4 && calculations) {
+    if (!calculations) return
+
+    if (selectedColors.length === 4) {
       console.log("Updating color clusters with colors:", selectedColors)
       const newColorClusters = generateColorPattern(
         selectedColors,
@@ -54,6 +56,8 @@ export const useDesignCalculations = (length: string, style: string) => {
       )
       console.log("New color clusters:", newColorClusters)
       setColorClusters(newColorClusters)
+    } else {
+      setColorClusters([])
     }
   }
 

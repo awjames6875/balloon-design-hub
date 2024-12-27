@@ -48,6 +48,7 @@ export const DesignSpecsForm = ({
   const [style, setStyle] = useState("")
   const [shape, setShape] = useState("Straight")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const {
     calculations,
@@ -70,6 +71,8 @@ export const DesignSpecsForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    if (isSubmitting) return
+
     const isValid = validateDesignForm({
       clientName,
       projectName,
@@ -80,6 +83,8 @@ export const DesignSpecsForm = ({
     })
 
     if (!isValid) return
+
+    setIsSubmitting(true)
 
     try {
       const formData: DesignSpecsFormData = {
@@ -100,6 +105,8 @@ export const DesignSpecsForm = ({
     } catch (error) {
       console.error("Error in form submission:", error)
       toast.error("Error calculating balloon requirements")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -143,7 +150,7 @@ export const DesignSpecsForm = ({
 
       <FormSubmitButton
         isValid={isFormValid}
-        isCalculating={isCalculating}
+        isCalculating={isCalculating || isSubmitting}
         buttonText={buttonText}
       />
     </form>

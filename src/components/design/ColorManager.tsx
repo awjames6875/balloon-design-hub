@@ -90,7 +90,6 @@ export const ColorManager = ({
         return prevColors
       }
       
-      // Simply update the selected colors without any additional actions
       onColorsSelected(newColors)
       return newColors
     })
