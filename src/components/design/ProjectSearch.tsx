@@ -23,10 +23,7 @@ interface ProjectSearchProps {
 export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  const { data: projects, isLoading } = useProjectSearch()
-
-  // Ensure projects is always an array
-  const safeProjects = projects || []
+  const { data: projects = [], isLoading } = useProjectSearch()
 
   return (
     <div className="flex items-center space-x-4">
@@ -39,7 +36,7 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
             className="w-full justify-between"
           >
             {value
-              ? safeProjects.find(
+              ? projects.find(
                   (project) =>
                     `${project.client_name} - ${project.project_name}` === value
                 )?.project_name
@@ -50,9 +47,9 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
         <PopoverContent className="w-full p-0">
           <Command>
             <CommandInput placeholder="Search projects..." />
-            <CommandEmpty>No projects found.</CommandEmpty>
+            <CommandEmpty>{isLoading ? "Loading..." : "No projects found."}</CommandEmpty>
             <CommandGroup>
-              {safeProjects.map((project) => {
+              {projects.map((project) => {
                 const projectValue = `${project.client_name} - ${project.project_name}`
                 return (
                   <CommandItem
