@@ -27,6 +27,6 @@ export const DEFAULT_COLORS = [
   "Magenta Pink",
   "Bright Orange",
   "Ocean Blue"
-] as const
+]
 
 export const REQUIRED_COLORS = 4
