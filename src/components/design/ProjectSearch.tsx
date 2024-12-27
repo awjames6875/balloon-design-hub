@@ -13,9 +13,9 @@ interface ProjectSearchProps {
 
 export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
   const { projects, isLoading } = useProjectSearch()
-
-  // Ensure we have a valid array of projects and handle undefined/null cases
-  const validProjects = projects ?? []
+  
+  // Ensure we have a valid array of projects
+  const validProjects = Array.isArray(projects) ? projects : []
 
   return (
     <Command className="rounded-lg border shadow-md">
