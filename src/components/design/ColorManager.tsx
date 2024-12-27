@@ -51,7 +51,6 @@ export const ColorManager = ({
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const REQUIRED_COLORS = 4
 
-  // Effect to handle image color analysis
   useEffect(() => {
     const fetchColors = async () => {
       if (designImage) {
@@ -77,23 +76,26 @@ export const ColorManager = ({
     if (disabled) return
 
     setSelectedColors(prevColors => {
+      let newColors: string[]
+      
       // If color is already selected, remove it
       if (prevColors.includes(color)) {
-        const newColors = prevColors.filter(c => c !== color)
-        onColorsSelected(newColors)
-        return newColors
+        newColors = prevColors.filter(c => c !== color)
+      } else if (prevColors.length < REQUIRED_COLORS) {
+        // If we haven't reached the limit, add the color
+        newColors = [...prevColors, color]
+      } else {
+        // If we're at the limit, show an error message
+        toast.error(`Please select exactly ${REQUIRED_COLORS} colors`)
+        return prevColors
       }
       
-      // If we haven't reached the required colors limit, add the new color
-      if (prevColors.length < REQUIRED_COLORS) {
-        const newColors = [...prevColors, color]
+      // Only notify parent component when we have exactly REQUIRED_COLORS colors
+      if (newColors.length === REQUIRED_COLORS) {
         onColorsSelected(newColors)
-        return newColors
       }
       
-      // If we're at the limit, show an error message
-      toast.error(`Please select exactly ${REQUIRED_COLORS} colors`)
-      return prevColors
+      return newColors
     })
   }
 
