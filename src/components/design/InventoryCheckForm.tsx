@@ -61,10 +61,11 @@ export const InventoryCheckForm = ({
     try {
       console.log("Starting production form generation with color clusters:", colorClusters)
       
-      // First update the inventory
+      // Calculate balloons needed per color
       const balloonsPerColor = calculateBalloonsPerColor(colorClusters, calculations)
       console.log("Calculated balloons per color:", balloonsPerColor)
       
+      // Update inventory first
       const inventoryUpdated = await updateInventory(balloonsPerColor)
       
       if (!inventoryUpdated) {
@@ -90,6 +91,10 @@ export const InventoryCheckForm = ({
       })
 
       toast.success("Production form generated and inventory updated successfully!")
+      
+      // Refresh the inventory display
+      await handleInventoryCheck()
+      
       onInventoryChecked()
     } catch (error) {
       console.error('Error generating production form:', error)
