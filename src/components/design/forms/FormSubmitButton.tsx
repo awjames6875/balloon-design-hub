@@ -16,7 +16,7 @@ export const FormSubmitButton = ({
       type="submit" 
       className={`w-full font-semibold transition-all duration-300 ${
         isValid && !isCalculating
-          ? "bg-accent hover:bg-accent-hover text-white animate-pulse"
+          ? "bg-accent hover:bg-accent-hover text-white"
           : "bg-primary hover:bg-primary-hover text-white opacity-50"
       }`}
       disabled={!isValid || isCalculating}
