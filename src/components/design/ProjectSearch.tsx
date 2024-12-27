@@ -19,7 +19,7 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
       <CommandInput placeholder="Search previous projects..." />
       <CommandEmpty>{isLoading ? "Loading..." : "No projects found."}</CommandEmpty>
       <CommandGroup>
-        {(projects ?? []).map((project) => (
+        {Array.isArray(projects) && projects.map((project) => (
           <CommandItem
             key={`${project.client_name}-${project.project_name}`}
             value={`${project.client_name}-${project.project_name}`}
