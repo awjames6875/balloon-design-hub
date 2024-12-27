@@ -90,7 +90,7 @@ export const ColorManager = ({
         return prevColors
       }
       
-      // Notify parent component of the color change, regardless of count
+      // Just update the parent with the new colors, don't trigger form submission
       onColorsSelected(newColors)
       return newColors
     })
