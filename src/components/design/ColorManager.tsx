@@ -90,11 +90,8 @@ export const ColorManager = ({
         return prevColors
       }
       
-      // Only notify parent component when we have exactly REQUIRED_COLORS colors
-      if (newColors.length === REQUIRED_COLORS) {
-        onColorsSelected(newColors)
-      }
-      
+      // Notify parent component of the color change, regardless of count
+      onColorsSelected(newColors)
       return newColors
     })
   }
