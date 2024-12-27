@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,6 +20,11 @@ export const InventoryUpdateForm = ({
 }: InventoryUpdateFormProps) => {
   const [quantity, setQuantity] = useState(currentQuantity.toString())
   const [isUpdating, setIsUpdating] = useState(false)
+  const [hasChanged, setHasChanged] = useState(false)
+
+  useEffect(() => {
+    setHasChanged(quantity !== currentQuantity.toString())
+  }, [quantity, currentQuantity])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,6 +48,7 @@ export const InventoryUpdateForm = ({
 
       toast.success(`Updated ${color} ${size} balloons quantity to ${newQuantity}`)
       onUpdate()
+      setHasChanged(false)
     } catch (error) {
       console.error('Error updating inventory:', error)
       toast.error('Failed to update inventory')
@@ -64,7 +70,11 @@ export const InventoryUpdateForm = ({
           className="w-32"
         />
       </div>
-      <Button type="submit" disabled={isUpdating}>
+      <Button 
+        type="submit" 
+        disabled={isUpdating}
+        variant={hasChanged ? "destructive" : "default"}
+      >
         Update
       </Button>
     </form>
