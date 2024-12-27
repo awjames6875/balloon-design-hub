@@ -27,11 +27,29 @@ export const ColorManager = ({
     "#000000", // Black
     "#C0C0C0", // Silver
     "#FFD700", // Gold
+    "#8E9196", // Neutral Gray
+    "#9b87f5", // Primary Purple
+    "#7E69AB", // Secondary Purple
+    "#6E59A5", // Tertiary Purple
+    "#1A1F2C", // Dark Purple
+    "#D6BCFA", // Light Purple
+    "#F2FCE2", // Soft Green
+    "#FEF7CD", // Soft Yellow
+    "#FEC6A1", // Soft Orange
+    "#E5DEFF", // Soft Purple
+    "#FFDEE2", // Soft Pink
+    "#FDE1D3", // Soft Peach
+    "#D3E4FD", // Soft Blue
+    "#F1F0FB", // Soft Gray
+    "#8B5CF6", // Vivid Purple
+    "#D946EF", // Magenta Pink
+    "#F97316", // Bright Orange
+    "#0EA5E9", // Ocean Blue
   ], []);
 
   const [availableColors, setAvailableColors] = useState<string[]>(defaultColors)
   const [selectedColors, setSelectedColors] = useState<string[]>([])
-  const MAX_COLORS = 4
+  const REQUIRED_COLORS = 4
 
   // Effect to handle image color analysis
   useEffect(() => {
@@ -66,15 +84,15 @@ export const ColorManager = ({
         return newColors
       }
       
-      // If we haven't reached the maximum colors limit, add the new color
-      if (prevColors.length < MAX_COLORS) {
+      // If we haven't reached the required colors limit, add the new color
+      if (prevColors.length < REQUIRED_COLORS) {
         const newColors = [...prevColors, color]
         onColorsSelected(newColors)
         return newColors
       }
       
       // If we're at the limit, show an error message
-      toast.error(`Maximum ${MAX_COLORS} colors can be selected`)
+      toast.error(`Please select exactly ${REQUIRED_COLORS} colors`)
       return prevColors
     })
   }
@@ -82,7 +100,7 @@ export const ColorManager = ({
   return (
     <Card className={`mt-4 ${disabled ? 'opacity-50' : ''}`}>
       <CardHeader>
-        <CardTitle>Select Balloon Colors (up to {MAX_COLORS})</CardTitle>
+        <CardTitle>Select Balloon Colors (exactly {REQUIRED_COLORS})</CardTitle>
       </CardHeader>
       <CardContent>
         <ColorGrid
@@ -92,7 +110,12 @@ export const ColorManager = ({
           disabled={disabled}
         />
         <p className="text-sm text-muted-foreground mt-2">
-          Selected colors: {selectedColors.length} / {MAX_COLORS}
+          Selected colors: {selectedColors.length} / {REQUIRED_COLORS}
+          {selectedColors.length < REQUIRED_COLORS && (
+            <span className="text-red-500 ml-2">
+              Please select {REQUIRED_COLORS - selectedColors.length} more color{REQUIRED_COLORS - selectedColors.length !== 1 ? 's' : ''}
+            </span>
+          )}
         </p>
       </CardContent>
     </Card>
