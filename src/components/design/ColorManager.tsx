@@ -1,8 +1,10 @@
-import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { analyzeImageColors } from "@/utils/imageAnalysis"
 import { toast } from "sonner"
 import { ColorGrid } from "./ColorGrid"
+import { ColorSelectionStatus } from "./ColorSelectionStatus"
+import { DEFAULT_COLORS, REQUIRED_COLORS } from "@/constants/colors"
 
 interface ColorManagerProps {
   designImage: string | null
@@ -15,40 +17,8 @@ export const ColorManager = ({
   onColorsSelected,
   disabled = false 
 }: ColorManagerProps) => {
-  const defaultColors = useMemo(() => [
-    "Red",
-    "Orange",
-    "Yellow",
-    "Green",
-    "Blue",
-    "Purple",
-    "Pink",
-    "White",
-    "Black",
-    "Silver",
-    "Gold",
-    "Neutral Gray",
-    "Primary Purple",
-    "Secondary Purple",
-    "Tertiary Purple",
-    "Dark Purple",
-    "Light Purple",
-    "Soft Green",
-    "Soft Yellow",
-    "Soft Orange",
-    "Soft Pink",
-    "Soft Peach",
-    "Soft Blue",
-    "Soft Gray",
-    "Vivid Purple",
-    "Magenta Pink",
-    "Bright Orange",
-    "Ocean Blue"
-  ], [])
-
-  const [availableColors, setAvailableColors] = useState<string[]>(defaultColors)
+  const [availableColors, setAvailableColors] = useState<string[]>(DEFAULT_COLORS)
   const [selectedColors, setSelectedColors] = useState<string[]>([])
-  const REQUIRED_COLORS = 4
 
   useEffect(() => {
     const fetchColors = async () => {
@@ -79,18 +49,16 @@ export const ColorManager = ({
     if (disabled) return
 
     setSelectedColors(prevColors => {
-      let newColors: string[]
-      
       if (prevColors.includes(color)) {
-        newColors = prevColors.filter(c => c !== color)
-      } else if (prevColors.length < REQUIRED_COLORS) {
-        newColors = [...prevColors, color]
-      } else {
-        toast.error(`Please select exactly ${REQUIRED_COLORS} colors`)
-        return prevColors
+        return prevColors.filter(c => c !== color)
       }
       
-      return newColors
+      if (prevColors.length < REQUIRED_COLORS) {
+        return [...prevColors, color]
+      }
+      
+      toast.error(`Please select exactly ${REQUIRED_COLORS} colors`)
+      return prevColors
     })
   }
 
@@ -106,14 +74,10 @@ export const ColorManager = ({
           onColorSelect={handleColorSelect}
           disabled={disabled}
         />
-        <p className="text-sm text-muted-foreground mt-2">
-          Selected colors: {selectedColors.length} / {REQUIRED_COLORS}
-          {selectedColors.length < REQUIRED_COLORS && (
-            <span className="text-red-500 ml-2">
-              Please select {REQUIRED_COLORS - selectedColors.length} more color{REQUIRED_COLORS - selectedColors.length !== 1 ? 's' : ''}
-            </span>
-          )}
-        </p>
+        <ColorSelectionStatus
+          selectedCount={selectedColors.length}
+          requiredColors={REQUIRED_COLORS}
+        />
       </CardContent>
     </>
   )
