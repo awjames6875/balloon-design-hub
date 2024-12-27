@@ -12,7 +12,8 @@ const colorNameMap: { [key: string]: string } = {
   "#FFFFFF": "White",
   "#000000": "Black",
   "#C0C0C0": "Silver",
-  "#FFD700": "Gold"
+  "#FFD700": "Gold",
+  "#7E69AB": "Purple" // Adding support for the additional purple shade
 }
 
 export const getColorName = (hexColor: string) => {

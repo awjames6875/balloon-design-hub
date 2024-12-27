@@ -93,6 +93,7 @@ export const DesignSpecsForm = ({
 
       const success = await saveDesignForm(formData)
       if (success) {
+        toast.success("Design form saved successfully!")
         onSubmit(formData)
       }
     } catch (error) {

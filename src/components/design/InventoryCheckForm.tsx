@@ -33,7 +33,6 @@ export const InventoryCheckForm = ({
         toast.error("Some balloons are out of stock. Please check inventory and try again.")
       } else if (hasLowStock) {
         toast.warning("Some balloon colors are running low, but you can proceed.")
-        // Even with low stock, we can proceed
         onInventoryChecked()
       } else {
         toast.success("All required balloons are in stock!")
