@@ -16,8 +16,21 @@ export default function NewDesign() {
 
   const handleFormSubmit = async (formData: any) => {
     try {
+      // Navigate to production forms with all the necessary data
+      navigate("/production-forms", {
+        state: {
+          clientName: formData.clientName,
+          projectName: formData.projectName,
+          length: formData.length,
+          style: formData.style,
+          shape: formData.shape,
+          colorClusters: formData.colorClusters,
+          calculations: formData.calculations,
+          imagePreview: designImage,
+          clientReference: null // Optional reference that can be added later
+        }
+      })
       toast.success("Design saved successfully")
-      navigate("/production-forms")
     } catch (error) {
       console.error("Error saving design:", error)
       toast.error("Failed to save design")
