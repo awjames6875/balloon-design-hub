@@ -4,6 +4,7 @@ import { DesignSpecsForm, DesignSpecsFormData } from "@/components/design/Design
 import { InventoryCheckForm } from "@/components/design/InventoryCheckForm"
 import { AccessoriesDetailsForm } from "@/components/design/AccessoriesDetailsForm"
 import { ProductionSummary } from "@/components/design/ProductionSummary"
+import { toast } from "sonner"
 
 type Step = "specs" | "inventory" | "accessories" | "summary"
 
@@ -20,6 +21,7 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
     console.log("Specs submitted with colors:", data.colorClusters.map(c => c.color))
     setFormData(data)
     setCurrentStep("inventory")
+    toast.info("Checking inventory availability...")
   }
 
   const handleInventoryChecked = () => {
