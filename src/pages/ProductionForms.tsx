@@ -65,6 +65,7 @@ const ProductionForms = () => {
   if (!designState) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
+        <BackToHome />
         <h1 className="text-2xl font-bold mb-4">No Design Specifications</h1>
         <Button onClick={() => navigate("/new-design")}>Create New Design</Button>
       </div>
@@ -134,7 +135,9 @@ const ProductionForms = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <BackToHome />
+      <div className="mb-8">
+        <BackToHome />
+      </div>
       
       <h1 className="text-2xl font-bold text-center mb-8">Production Form</h1>
 
