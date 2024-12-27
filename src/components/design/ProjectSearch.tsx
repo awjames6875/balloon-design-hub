@@ -23,58 +23,60 @@ interface ProjectSearchProps {
 export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  const { projects, isLoading } = useProjectSearch()
+  const { data: projects, isLoading } = useProjectSearch()
 
   // Ensure projects is always an array
   const safeProjects = projects || []
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          {value
-            ? safeProjects.find((project) => 
-                `${project.client_name} - ${project.project_name}` === value
-              )?.project_name
-            : "Select project..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
-        <Command>
-          <CommandInput placeholder="Search projects..." />
-          <CommandEmpty>No projects found.</CommandEmpty>
-          <CommandGroup>
-            {safeProjects.map((project) => {
-              const projectValue = `${project.client_name} - ${project.project_name}`
-              return (
-                <CommandItem
-                  key={projectValue}
-                  value={projectValue}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
-                    onProjectSelect(project)
-                    setOpen(false)
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === projectValue ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {projectValue}
-                </CommandItem>
-              )
-            })}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <div className="flex items-center space-x-4">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          >
+            {value
+              ? safeProjects.find(
+                  (project) =>
+                    `${project.client_name} - ${project.project_name}` === value
+                )?.project_name
+              : "Search projects..."}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0">
+          <Command>
+            <CommandInput placeholder="Search projects..." />
+            <CommandEmpty>No projects found.</CommandEmpty>
+            <CommandGroup>
+              {safeProjects.map((project) => {
+                const projectValue = `${project.client_name} - ${project.project_name}`
+                return (
+                  <CommandItem
+                    key={projectValue}
+                    value={projectValue}
+                    onSelect={(currentValue) => {
+                      setValue(currentValue === value ? "" : currentValue)
+                      onProjectSelect(project)
+                      setOpen(false)
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === projectValue ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {projectValue}
+                  </CommandItem>
+                )})}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
   )
 }
