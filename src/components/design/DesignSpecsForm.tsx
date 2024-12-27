@@ -59,11 +59,6 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     console.log("Colors selected in DesignSpecsForm:", colors)
     setSelectedColors(colors)
     updateColorClusters(colors)
-    
-    // If exactly 4 colors are selected, automatically submit the form
-    if (colors.length === 4) {
-      handleSubmit(new Event('submit') as any)
-    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,6 +129,14 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
           Updating calculations...
         </div>
       )}
+
+      <Button 
+        type="submit" 
+        className="w-full"
+        disabled={!isFormValid}
+      >
+        Generate Production Form
+      </Button>
     </form>
   )
 }

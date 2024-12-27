@@ -70,13 +70,15 @@ export const InventoryCheckForm = ({
             >
               Refresh Inventory
             </Button>
-            <Button
-              onClick={onInventoryChecked}
-              disabled={isLoading || !canProceed}
-              className="flex-1"
-            >
-              {canProceed ? "Continue" : "Cannot Proceed - Check Inventory"}
-            </Button>
+            {canProceed && (
+              <Button
+                onClick={onInventoryChecked}
+                disabled={isLoading}
+                className="flex-1"
+              >
+                Continue to Accessories
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
