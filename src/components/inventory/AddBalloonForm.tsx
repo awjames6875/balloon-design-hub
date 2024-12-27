@@ -37,12 +37,20 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       }
 
       // Check if balloon type already exists
-      const { data: existingBalloon } = await supabase
+      const { data: existingBalloon, error: checkError } = await supabase
         .from("balloon_inventory")
         .select("id")
         .eq("color", color.trim())
         .eq("size", size.trim())
-        .single()
+        .maybeSingle()
+
+      if (checkError) {
+        console.error("Error checking for existing balloon:", checkError)
+        toast.error("Database error", {
+          description: "Failed to check for existing balloon type."
+        })
+        return
+      }
 
       if (existingBalloon) {
         toast.error("Balloon type exists", {
@@ -65,7 +73,11 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         ])
 
       if (insertError) {
-        throw insertError
+        console.error("Error adding balloon type:", insertError)
+        toast.error("Failed to add balloon type", {
+          description: "An unexpected error occurred while adding the balloon type."
+        })
+        return
       }
 
       toast.success("New balloon type added", {
