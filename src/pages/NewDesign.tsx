@@ -1,9 +1,10 @@
 import { useState } from "react"
-import { Header } from "@/components/Header"
 import { ImageUploadSection } from "@/components/design/page/ImageUploadSection"
 import { DesignSpecsForm } from "@/components/design/DesignSpecsForm"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -25,8 +26,16 @@ export default function NewDesign() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8">
+        <Button 
+          variant="ghost" 
+          className="mb-6 hover:bg-gray-100"
+          onClick={() => navigate("/")}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Button>
+
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold">Create New Design</h1>
@@ -45,7 +54,7 @@ export default function NewDesign() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }
