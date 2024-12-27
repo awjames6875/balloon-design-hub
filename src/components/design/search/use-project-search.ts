@@ -7,12 +7,12 @@ interface Project {
 }
 
 export const useProjectSearch = () => {
-  const { data: projects = [], isLoading } = useQuery({
+  const { data: projects, isLoading } = useQuery<Project[]>({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("client_projects")
-        .select("*")
+        .select("client_name, project_name")
         .order("created_at", { ascending: false })
 
       if (error) {
@@ -20,8 +20,9 @@ export const useProjectSearch = () => {
         return []
       }
 
-      return (data || []) as Project[]
+      return data || []
     },
+    initialData: [], // Provide initial empty array
   })
 
   return {
