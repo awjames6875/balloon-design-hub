@@ -77,6 +77,12 @@ export default function Inventory() {
           )}
         </div>
 
+        <CurrentInventorySection 
+          inventory={inventory}
+          isLoading={isLoading}
+          onInventoryUpdate={handleInventoryUpdate}
+        />
+
         {fromDesign && designData && (
           <InventoryCheckForm
             colorClusters={designData.colorClusters}
@@ -89,14 +95,7 @@ export default function Inventory() {
           />
         )}
 
-        <div className="grid gap-8 md:grid-cols-2">
-          <CurrentInventorySection 
-            inventory={inventory}
-            isLoading={isLoading}
-            onInventoryUpdate={handleInventoryUpdate}
-          />
-          <StockAnalyticsSection inventory={inventory} />
-        </div>
+        <StockAnalyticsSection inventory={inventory} />
       </div>
     </div>
   )
