@@ -39,7 +39,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       // Check if balloon type already exists
       const { data: existingBalloon, error: checkError } = await supabase
         .from("balloon_inventory")
-        .select("id")
+        .select("id, quantity")
         .eq("color", color.trim())
         .eq("size", size.trim())
         .maybeSingle()
@@ -53,36 +53,53 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       }
 
       if (existingBalloon) {
-        toast.error("Balloon type exists", {
-          description: "This balloon type is already in the inventory. Please use the update function instead."
-        })
-        return
-      }
-
-      // Add new balloon type
-      const { error: insertError } = await supabase
-        .from("balloon_inventory")
-        .insert([
-          {
-            color: color.trim(),
-            size: size.trim(),
-            quantity: parsedQuantity,
-            created_at: new Date().toISOString(),
+        // Update existing balloon quantity
+        const newQuantity = existingBalloon.quantity + parsedQuantity
+        const { error: updateError } = await supabase
+          .from("balloon_inventory")
+          .update({ 
+            quantity: newQuantity,
             updated_at: new Date().toISOString()
-          }
-        ])
+          })
+          .eq("id", existingBalloon.id)
 
-      if (insertError) {
-        console.error("Error adding balloon type:", insertError)
-        toast.error("Failed to add balloon type", {
-          description: "An unexpected error occurred while adding the balloon type."
+        if (updateError) {
+          console.error("Error updating balloon quantity:", updateError)
+          toast.error("Failed to update balloon quantity", {
+            description: "An unexpected error occurred while updating the quantity."
+          })
+          return
+        }
+
+        toast.success("Balloon quantity updated", {
+          description: `Added ${parsedQuantity} to existing ${color} ${size} balloons. New total: ${newQuantity}`
         })
-        return
-      }
+      } else {
+        // Add new balloon type
+        const { error: insertError } = await supabase
+          .from("balloon_inventory")
+          .insert([
+            {
+              color: color.trim(),
+              size: size.trim(),
+              quantity: parsedQuantity,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }
+          ])
 
-      toast.success("New balloon type added", {
-        description: `Added ${color} ${size} balloons with quantity ${quantity}.`
-      })
+        if (insertError) {
+          console.error("Error adding balloon type:", insertError)
+          toast.error("Failed to add balloon type", {
+            description: "An unexpected error occurred while adding the balloon type."
+          })
+          return
+        }
+
+        toast.success("New balloon type added", {
+          description: `Added ${color} ${size} balloons with quantity ${quantity}.`
+        })
+      }
 
       // Reset form and notify parent
       setColor("")
