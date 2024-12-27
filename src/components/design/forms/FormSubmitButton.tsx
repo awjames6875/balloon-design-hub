@@ -14,10 +14,11 @@ export const FormSubmitButton = ({
   return (
     <Button 
       type="submit" 
-      className="w-full"
+      className="w-full bg-primary hover:bg-primary-hover text-white font-semibold"
       disabled={!isValid || isCalculating}
+      variant="default"
     >
-      {buttonText}
+      {isCalculating ? "Processing..." : buttonText}
     </Button>
   )
 }

@@ -110,13 +110,27 @@ export const DesignSpecsForm = ({
     }
   }
 
-  const isFormValid = clientName && 
+  // Updated validation logic to be more precise
+  const isFormValid = Boolean(
+    clientName && 
     projectName && 
     length && 
     style && 
     selectedColors.length === 4 && 
-    calculations !== null && 
+    calculations && 
     !isCalculating
+  )
+
+  console.log("Form validation state:", {
+    clientName: Boolean(clientName),
+    projectName: Boolean(projectName),
+    length: Boolean(length),
+    style: Boolean(style),
+    selectedColors: selectedColors.length === 4,
+    calculations: Boolean(calculations),
+    isCalculating,
+    isFormValid
+  })
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
