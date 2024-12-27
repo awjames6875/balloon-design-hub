@@ -38,13 +38,54 @@ export const InventoryUpdateForm = ({
         return
       }
 
-      const { error } = await supabase
+      // First check if the record exists
+      const { data: existingRecord, error: checkError } = await supabase
         .from('balloon_inventory')
-        .update({ quantity: newQuantity })
+        .select('id')
         .eq('color', color)
         .eq('size', size)
+        .maybeSingle()
 
-      if (error) throw error
+      if (checkError) {
+        console.error('Error checking inventory record:', checkError)
+        toast.error('Failed to check inventory record')
+        return
+      }
+
+      let updateError
+
+      if (!existingRecord) {
+        // If record doesn't exist, create it
+        const { error: insertError } = await supabase
+          .from('balloon_inventory')
+          .insert([
+            { 
+              color, 
+              size, 
+              quantity: newQuantity,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }
+          ])
+        updateError = insertError
+      } else {
+        // If record exists, update it
+        const { error: updateRecordError } = await supabase
+          .from('balloon_inventory')
+          .update({ 
+            quantity: newQuantity,
+            updated_at: new Date().toISOString()
+          })
+          .eq('color', color)
+          .eq('size', size)
+        updateError = updateRecordError
+      }
+
+      if (updateError) {
+        console.error('Error updating inventory:', updateError)
+        toast.error('Failed to update inventory')
+        return
+      }
 
       toast.success(`Updated ${color} ${size} balloons quantity to ${newQuantity}`)
       onUpdate()
