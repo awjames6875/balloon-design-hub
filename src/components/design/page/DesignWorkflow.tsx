@@ -25,11 +25,6 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
 
   const handleInventoryChecked = () => {
     if (!formData) return
-    
-    // Generate production form after successful inventory check
-    toast.success("Inventory check passed. Generating production form...")
-    
-    // Save to production details and proceed to accessories
     setCurrentStep("accessories")
   }
 
@@ -57,6 +52,10 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
           colorClusters={formData.colorClusters}
           calculations={formData.calculations}
           onInventoryChecked={handleInventoryChecked}
+          clientName={formData.clientName}
+          projectName={formData.projectName}
+          dimensions={formData.length}
+          style={formData.style}
         />
       )}
 

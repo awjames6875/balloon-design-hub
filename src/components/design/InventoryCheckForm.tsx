@@ -4,21 +4,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { InventoryTable } from "./inventory/InventoryTable"
 import { checkInventory } from "./inventory/inventoryService"
+import { saveDesignToProduction } from "@/services/productionService"
 import type { InventoryItem, ColorCluster, Calculations } from "./inventory/types"
 
 interface InventoryCheckProps {
   colorClusters: ColorCluster[]
   calculations: Calculations
   onInventoryChecked: () => void
+  clientName: string
+  projectName: string
+  dimensions: string
+  style: string
 }
 
 export const InventoryCheckForm = ({ 
   colorClusters, 
   calculations,
-  onInventoryChecked 
+  onInventoryChecked,
+  clientName,
+  projectName,
+  dimensions,
+  style
 }: InventoryCheckProps) => {
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isGeneratingForm, setIsGeneratingForm] = useState(false)
 
   const handleInventoryCheck = async () => {
     setIsLoading(true)
@@ -33,16 +43,44 @@ export const InventoryCheckForm = ({
         toast.error("Some balloons are out of stock. Please check inventory and try again.")
       } else if (hasLowStock) {
         toast.warning("Some balloon colors are running low, but you can proceed.")
-        onInventoryChecked()
+        await generateProductionForm()
       } else {
         toast.success("All required balloons are in stock!")
-        onInventoryChecked()
+        await generateProductionForm()
       }
     } catch (error) {
       console.error('Error checking inventory:', error)
       toast.error("Failed to check inventory")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const generateProductionForm = async () => {
+    setIsGeneratingForm(true)
+    try {
+      await saveDesignToProduction({
+        clientName,
+        projectName,
+        dimensionsFt: parseInt(dimensions),
+        colors: colorClusters.map(cluster => cluster.color),
+        baseClusters: calculations.baseClusters,
+        extraClusters: calculations.extraClusters,
+        totalClusters: calculations.totalClusters,
+        littlesQuantity: calculations.littlesQuantity,
+        grapesQuantity: calculations.grapesQuantity,
+        balloons11in: calculations.balloons11in,
+        balloons16in: calculations.balloons16in,
+        accents: {},
+        productionTime: `${Math.floor((calculations.totalClusters * 15) / 60)}h ${(calculations.totalClusters * 15) % 60}m`,
+      })
+      toast.success("Production form generated successfully!")
+      onInventoryChecked()
+    } catch (error) {
+      console.error('Error generating production form:', error)
+      toast.error("Failed to generate production form")
+    } finally {
+      setIsGeneratingForm(false)
     }
   }
 
@@ -68,17 +106,17 @@ export const InventoryCheckForm = ({
             <Button 
               onClick={handleInventoryCheck} 
               variant="outline"
-              disabled={isLoading}
+              disabled={isLoading || isGeneratingForm}
             >
               Refresh Inventory
             </Button>
             {canProceed && (
               <Button
-                onClick={onInventoryChecked}
-                disabled={isLoading}
+                onClick={generateProductionForm}
+                disabled={isLoading || isGeneratingForm}
                 className="flex-1"
               >
-                Continue to Accessories
+                Generate Production Form
               </Button>
             )}
           </div>
