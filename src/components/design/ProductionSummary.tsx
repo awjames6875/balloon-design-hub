@@ -5,7 +5,7 @@ import { calculateInflationTime } from "@/utils/timeCalculations"
 import { ProjectDetails } from "./production/ProjectDetails"
 import { BalloonColorTable } from "./production/BalloonColorTable"
 import { ProductionMetrics } from "./production/ProductionMetrics"
-import { AccessoriesSection } from "./production/AccessoriesSection"
+import { AccessoriesSection } from "@/components/production/AccessoriesSection"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
 
