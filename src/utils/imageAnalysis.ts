@@ -35,22 +35,20 @@ export const analyzeImageColors = async (imagePath: string): Promise<string[]> =
       return getDefaultColors()
     }
 
-    const { data, error } = await supabase
-      .from('design_image_analysis')
-      .select('detected_colors')
-      .eq('image_path', imagePath)
-      .maybeSingle()
+    // Call the analyze-design edge function
+    const { data, error } = await supabase.functions.invoke('analyze-design', {
+      body: { imageUrl: imagePath }
+    })
 
     if (error) {
-      console.error('Error fetching color analysis:', error)
+      console.error('Error analyzing image:', error)
       toast.error('Failed to analyze image colors')
       return getDefaultColors()
     }
 
-    if (data?.detected_colors) {
-      console.log("Detected colors:", data.detected_colors)
-      return (data.detected_colors as any[])
-        .filter((color): color is string => typeof color === 'string')
+    if (data?.colors && Array.isArray(data.colors)) {
+      console.log("Detected colors:", data.colors)
+      return data.colors
     }
 
     console.log("No colors detected, using defaults")
