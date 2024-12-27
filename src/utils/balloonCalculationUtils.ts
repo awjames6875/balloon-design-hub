@@ -22,7 +22,8 @@ export const calculateBalloonsPerColor = (
     return {
       color: cluster.color,
       balloons11,
-      balloons16
+      balloons16,
+      totalClusters // Add this property to match the expected type
     }
   })
 }
