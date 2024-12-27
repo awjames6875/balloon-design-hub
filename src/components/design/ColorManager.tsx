@@ -78,8 +78,8 @@ export const ColorManager = ({
     setSelectedColors(prevColors => {
       let newColors: string[]
       
-      // If color is already selected, remove it
       if (prevColors.includes(color)) {
+        // If color is already selected, remove it
         newColors = prevColors.filter(c => c !== color)
       } else if (prevColors.length < REQUIRED_COLORS) {
         // If we haven't reached the limit, add the color
@@ -90,7 +90,7 @@ export const ColorManager = ({
         return prevColors
       }
       
-      // Update parent with new colors
+      // Simply update the selected colors without any additional actions
       onColorsSelected(newColors)
       return newColors
     })
