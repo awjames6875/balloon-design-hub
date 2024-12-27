@@ -125,6 +125,7 @@ const ProductionForms = () => {
       
       if (success) {
         toast.success("Production finalized and saved successfully!")
+        navigate("/inventory") // Navigate after successful save
       }
     } catch (error) {
       console.error("Error finalizing production:", error)
