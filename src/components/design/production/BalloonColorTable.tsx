@@ -62,5 +62,5 @@ export const BalloonColorTable = ({
         </TableBody>
       </Table>
     </div>
-  );
-};
+  )
+}

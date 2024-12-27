@@ -30,7 +30,6 @@ export const uploadDesignImage = async (file: File): Promise<string | null> => {
 
 export const analyzeImageColors = async (imagePath: string): Promise<string[]> => {
   try {
-    // If no image path provided, return default colors
     if (!imagePath) {
       console.log('No image path provided, using default colors')
       return getDefaultColors()
@@ -65,14 +64,14 @@ export const analyzeImageColors = async (imagePath: string): Promise<string[]> =
 
 const getDefaultColors = (): string[] => {
   return [
-    "#FF0000", // Red
-    "#FFA500", // Orange
-    "#FFFF00", // Yellow
-    "#008000", // Green
-    "#0000FF", // Blue
-    "#800080", // Purple
-    "#FFC0CB", // Pink
-    "#FFFFFF", // White
-    "#000000", // Black
+    "Red",
+    "Orange", 
+    "Yellow",
+    "Green",
+    "Blue",
+    "Purple",
+    "Pink",
+    "White",
+    "Black"
   ]
 }

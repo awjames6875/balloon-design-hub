@@ -44,7 +44,7 @@ export const ColorManager = ({
     "Vivid Purple",
     "Magenta Pink",
     "Bright Orange",
-    "Ocean Blue",
+    "Ocean Blue"
   ], [])
 
   const [availableColors, setAvailableColors] = useState<string[]>(defaultColors)
