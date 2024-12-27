@@ -5,6 +5,8 @@ import { toast } from "sonner"
 import { InventoryTable } from "./inventory/InventoryTable"
 import { checkInventory } from "./inventory/inventoryService"
 import { saveDesignToProduction } from "@/services/productionService"
+import { updateInventory } from "@/services/inventoryService"
+import { calculateBalloonsPerColor } from "@/utils/balloonCalculationUtils"
 import type { InventoryItem, ColorCluster, Calculations } from "./inventory/types"
 
 interface InventoryCheckProps {
@@ -59,6 +61,16 @@ export const InventoryCheckForm = ({
   const generateProductionForm = async () => {
     setIsGeneratingForm(true)
     try {
+      // First update the inventory
+      const balloonsPerColor = calculateBalloonsPerColor(colorClusters, calculations)
+      const success = await updateInventory(balloonsPerColor)
+      
+      if (!success) {
+        toast.error("Failed to update inventory")
+        return
+      }
+
+      // Then save the production form
       await saveDesignToProduction({
         clientName,
         projectName,
@@ -74,7 +86,8 @@ export const InventoryCheckForm = ({
         accents: {},
         productionTime: `${Math.floor((calculations.totalClusters * 15) / 60)}h ${(calculations.totalClusters * 15) % 60}m`,
       })
-      toast.success("Production form generated successfully!")
+
+      toast.success("Production form generated and inventory updated successfully!")
       onInventoryChecked()
     } catch (error) {
       console.error('Error generating production form:', error)
