@@ -8,6 +8,14 @@ import { BackToHome } from "@/components/BackToHome"
 import { InventoryCheckForm } from "@/components/design/InventoryCheckForm"
 import { supabase } from "@/integrations/supabase/client"
 import type { BalloonInventory } from "@/components/inventory/types"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 export default function Inventory() {
   const location = useLocation()
@@ -46,7 +54,7 @@ export default function Inventory() {
   }
 
   const handleInventoryUpdate = () => {
-    fetchInventory() // Refresh inventory data after update
+    fetchInventory()
   }
 
   useEffect(() => {
@@ -68,12 +76,29 @@ export default function Inventory() {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Inventory Management</h1>
           {fromDesign && designData && (
-            <Button 
-              onClick={handleProceedToProduction}
-              className="bg-accent hover:bg-accent/90"
-            >
-              Proceed to Production Form
-            </Button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button className="bg-accent hover:bg-accent/90">
+                  Proceed to Production Form
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="w-[400px] sm:w-[540px]">
+                <SheetHeader>
+                  <SheetTitle>Production Form</SheetTitle>
+                  <SheetDescription>
+                    Review and confirm production details
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="mt-6">
+                  <Button 
+                    onClick={handleProceedToProduction}
+                    className="w-full"
+                  >
+                    Confirm and Proceed
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           )}
         </div>
 
