@@ -45,7 +45,7 @@ export const ColorManager = ({
     "#D946EF", // Magenta Pink
     "#F97316", // Bright Orange
     "#0EA5E9", // Ocean Blue
-  ], []);
+  ], [])
 
   const [availableColors, setAvailableColors] = useState<string[]>(defaultColors)
   const [selectedColors, setSelectedColors] = useState<string[]>([])
@@ -97,7 +97,7 @@ export const ColorManager = ({
   }
 
   return (
-    <Card className={`mt-4 ${disabled ? 'opacity-50' : ''}`}>
+    <>
       <CardHeader>
         <CardTitle>Select Balloon Colors (exactly {REQUIRED_COLORS})</CardTitle>
       </CardHeader>
@@ -117,6 +117,6 @@ export const ColorManager = ({
           )}
         </p>
       </CardContent>
-    </Card>
+    </>
   )
 }

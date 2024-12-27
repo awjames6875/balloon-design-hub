@@ -1,9 +1,10 @@
 import { useState } from "react"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
 import { saveDesignForm } from "@/services/designFormService"
 import { ProjectInfoForm } from "./forms/ProjectInfoForm"
-import { DesignDetailsForm } from "./forms/DesignDetailsForm"
+import { DimensionsForm } from "./forms/DimensionsForm"
+import { ColorSelectionForm } from "./forms/ColorSelectionForm"
+import { FormSubmitButton } from "./forms/FormSubmitButton"
 import { useDesignCalculations } from "@/hooks/use-design-calculations"
 import { validateDesignForm } from "@/utils/design-form-validation"
 
@@ -120,14 +121,18 @@ export const DesignSpecsForm = ({
         onProjectSelect={handleProjectSelect}
       />
 
-      <DesignDetailsForm
+      <DimensionsForm
         length={length}
         style={style}
-        designImage={designImage}
         onLengthChange={setLength}
         onStyleChange={setStyle}
+        disabled={isCalculating}
+      />
+
+      <ColorSelectionForm
+        designImage={designImage || null}
         onColorsSelected={handleColorsSelected}
-        isCalculating={isCalculating}
+        disabled={isCalculating}
       />
 
       {isCalculating && (
@@ -136,13 +141,11 @@ export const DesignSpecsForm = ({
         </div>
       )}
 
-      <Button 
-        type="submit" 
-        className="w-full"
-        disabled={!isFormValid}
-      >
-        {buttonText}
-      </Button>
+      <FormSubmitButton
+        isValid={isFormValid}
+        isCalculating={isCalculating}
+        buttonText={buttonText}
+      />
     </form>
   )
 }
