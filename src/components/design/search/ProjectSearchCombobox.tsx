@@ -23,13 +23,12 @@ interface ProjectSearchComboboxProps {
 export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchComboboxProps) => {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  const { projects, isLoading } = useProjectSearch()
+  const { data: projects = [], isLoading } = useProjectSearch()
 
-  // Ensure we always have an array to work with and log for debugging
-  const safeProjects = projects || []
-  console.log("Projects in combobox:", safeProjects)
+  // Log for debugging
+  console.log("Projects in combobox:", projects)
 
-  const selectedProject = safeProjects.find(
+  const selectedProject = projects.find(
     (project) => `${project.client_name}-${project.project_name}` === value
   )
 
@@ -53,7 +52,7 @@ export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchCombobox
             {isLoading ? "Loading..." : "No projects found."}
           </CommandEmpty>
           <CommandGroup>
-            {safeProjects.map((project) => {
+            {projects.map((project) => {
               const projectValue = `${project.client_name}-${project.project_name}`
               return (
                 <CommandItem
