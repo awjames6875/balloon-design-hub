@@ -1,4 +1,3 @@
-import { useState } from "react"
 import {
   Command,
   CommandEmpty,
@@ -13,24 +12,22 @@ interface ProjectSearchProps {
 }
 
 export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
-  const [open, setOpen] = useState(false)
   const { projects, isLoading } = useProjectSearch()
 
-  // Ensure we have a valid array of projects
-  const validProjects = Array.isArray(projects) ? projects : []
+  // Ensure we have a valid array of projects and handle undefined/null cases
+  const validProjects = projects ?? []
 
   return (
-    <Command className="rounded-lg border shadow-md">
+    <Command shouldFilter={true} className="rounded-lg border shadow-md">
       <CommandInput placeholder="Search previous projects..." />
       <CommandEmpty>{isLoading ? "Loading..." : "No projects found."}</CommandEmpty>
       <CommandGroup>
-        {validProjects.map((project, index) => (
+        {validProjects.map((project) => (
           <CommandItem
-            key={`${project.client_name}-${project.project_name}-${index}`}
+            key={`${project.client_name}-${project.project_name}`}
             value={`${project.client_name}-${project.project_name}`}
             onSelect={() => {
               onProjectSelect(project)
-              setOpen(false)
             }}
           >
             <span>{project.client_name}</span>

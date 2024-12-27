@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 
 export const useProjectSearch = () => {
-  const { data: projects, isLoading } = useQuery({
+  const { data: projects = [], isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -20,7 +20,7 @@ export const useProjectSearch = () => {
   })
 
   return {
-    projects: projects || [],
+    projects,
     isLoading,
   }
 }
