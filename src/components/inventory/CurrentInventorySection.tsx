@@ -1,8 +1,18 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { InventoryUpdateForm } from "./InventoryUpdateForm"
+import { AddBalloonForm } from "./AddBalloonForm"
 import { supabase } from "@/integrations/supabase/client"
 import { useEffect, useState } from "react"
 import type { BalloonInventory } from "./types"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface CurrentInventorySectionProps {
   inventory: BalloonInventory[]
@@ -17,6 +27,7 @@ export const CurrentInventorySection = ({
 }: CurrentInventorySectionProps) => {
   const [inventory, setInventory] = useState<BalloonInventory[]>(initialInventory)
   const [isLoading, setIsLoading] = useState(initialLoading)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const fetchLatestInventory = async () => {
     setIsLoading(true)
@@ -58,13 +69,34 @@ export const CurrentInventorySection = ({
     onInventoryUpdate() // Call parent's update function as well
   }
 
+  const handleBalloonAdded = () => {
+    handleInventoryUpdate()
+    setIsDialogOpen(false)
+  }
+
   if (isLoading) {
     return <div className="container mx-auto px-4 py-8">Loading inventory...</div>
   }
 
   return (
     <section className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold mb-4">Current Inventory</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Current Inventory</h2>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add New Balloon Type
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Add New Balloon Type</DialogTitle>
+            </DialogHeader>
+            <AddBalloonForm onBalloonAdded={handleBalloonAdded} />
+          </DialogContent>
+        </Dialog>
+      </div>
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
