@@ -51,7 +51,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     setProjectName(project.project_name)
   }
 
-  // Effect to update calculations when length, style, or selectedColors changes
+  // Effect to update calculations when length and style changes
   useEffect(() => {
     const updateCalculations = async () => {
       if (!length || !style) return
@@ -64,8 +64,8 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
         console.log("New calculations:", newCalculations)
         setCalculations(newCalculations)
 
-        // Update color clusters if we have colors selected
-        if (selectedColors.length > 0 && newCalculations) {
+        // Update color clusters if we have exactly 4 colors selected
+        if (selectedColors.length === 4 && newCalculations) {
           console.log("Updating color clusters with colors:", selectedColors)
           const newColorClusters = generateColorPattern(
             selectedColors,
@@ -83,11 +83,20 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     }
 
     updateCalculations()
-  }, [length, style, selectedColors])
+  }, [length, style])
 
   const handleColorsSelected = (colors: string[]) => {
     console.log("Colors selected in DesignSpecsForm:", colors)
     setSelectedColors(colors)
+    
+    // Only update color clusters if we have exactly 4 colors and calculations
+    if (colors.length === 4 && calculations) {
+      const newColorClusters = generateColorPattern(
+        colors,
+        calculations.totalClusters
+      )
+      setColorClusters(newColorClusters)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,8 +117,8 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
       return
     }
 
-    if (selectedColors.length === 0) {
-      toast.error("Please select at least one color")
+    if (selectedColors.length !== 4) {
+      toast.error("Please select exactly 4 colors")
       return
     }
 
@@ -143,7 +152,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     projectName && 
     length && 
     style && 
-    selectedColors.length > 0 && 
+    selectedColors.length === 4 && 
     calculations !== null && 
     !isCalculating
 
