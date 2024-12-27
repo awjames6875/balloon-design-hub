@@ -90,7 +90,7 @@ export const ColorManager = ({
         return prevColors
       }
       
-      // Just update the parent with the new colors, don't trigger form submission
+      // Update parent with new colors
       onColorsSelected(newColors)
       return newColors
     })
