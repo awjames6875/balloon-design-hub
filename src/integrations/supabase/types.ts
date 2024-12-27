@@ -132,6 +132,44 @@ export type Database = {
         }
         Relationships: []
       }
+      design_analysis: {
+        Row: {
+          clusters: number
+          colors: Json
+          created_at: string | null
+          design_id: number | null
+          id: number
+          sizes: Json
+          updated_at: string | null
+        }
+        Insert: {
+          clusters: number
+          colors?: Json
+          created_at?: string | null
+          design_id?: number | null
+          id?: number
+          sizes?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          clusters?: number
+          colors?: Json
+          created_at?: string | null
+          design_id?: number | null
+          id?: number
+          sizes?: Json
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "design_analysis_design_id_fkey"
+            columns: ["design_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       design_image_analysis: {
         Row: {
           created_at: string | null

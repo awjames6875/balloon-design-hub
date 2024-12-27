@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { Separator } from "@/components/ui/separator"
 
 interface ManualImageAnalysisFormProps {
   onDataSubmit: (data: {
@@ -21,6 +22,11 @@ export const ManualImageAnalysisForm = ({
   const [clusters, setClusters] = useState("")
   const [colors, setColors] = useState("")
   const [sizes, setSizes] = useState("")
+  const [analysisResults, setAnalysisResults] = useState<{
+    clusters: number;
+    colors: string[];
+    sizes: { size: string; quantity: number }[];
+  } | null>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,12 +57,14 @@ export const ManualImageAnalysisForm = ({
           return { size: sizeStr, quantity }
         })
 
-      onDataSubmit({
+      const results = {
         clusters: parsedClusters,
         colors: parsedColors,
         sizes: parsedSizes,
-      })
+      }
 
+      setAnalysisResults(results)
+      onDataSubmit(results)
       toast.success("Analysis data saved successfully")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Invalid input")
@@ -68,7 +76,7 @@ export const ManualImageAnalysisForm = ({
       <CardHeader>
         <CardTitle>Manual Image Analysis Input</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="clusters">Number of Clusters</Label>
@@ -112,6 +120,35 @@ export const ManualImageAnalysisForm = ({
             Save Analysis Data
           </Button>
         </form>
+
+        {analysisResults && (
+          <>
+            <Separator className="my-4" />
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Analysis Results</h3>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Clusters:</span>{" "}
+                  {analysisResults.clusters}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Colors:</span>{" "}
+                  {analysisResults.colors.join(", ")}
+                </p>
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Sizes:</span>
+                  <div className="mt-1 space-y-1">
+                    {analysisResults.sizes.map((size) => (
+                      <p key={size.size}>
+                        {size.size}: {size.quantity} balloons
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   )
