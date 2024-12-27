@@ -7,10 +7,24 @@ import { BackToHome } from "@/components/BackToHome"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
+  const [analysisData, setAnalysisData] = useState<{
+    clusters: number
+    colors: string[]
+    sizes: { size: string; quantity: number }[]
+  } | null>(null)
   const navigate = useNavigate()
 
   const handleImageUploaded = (imagePath: string) => {
     setDesignImage(imagePath)
+  }
+
+  const handleAnalysisDataSubmitted = (data: {
+    clusters: number
+    colors: string[]
+    sizes: { size: string; quantity: number }[]
+  }) => {
+    setAnalysisData(data)
+    console.log("Analysis data received:", data)
   }
 
   const handleFormSubmit = async (formData: any) => {
@@ -28,7 +42,8 @@ export default function NewDesign() {
             colorClusters: formData.colorClusters,
             calculations: formData.calculations,
             imagePreview: designImage,
-            clientReference: null
+            clientReference: null,
+            analysisData // Include the manual analysis data
           }
         }
       })
@@ -53,9 +68,12 @@ export default function NewDesign() {
           </div>
 
           <div className="space-y-8">
-            {/* Image Upload Section */}
+            {/* Image Upload Section with Manual Analysis Form */}
             <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
-              <ImageUploadSection onImageUploaded={handleImageUploaded} />
+              <ImageUploadSection 
+                onImageUploaded={handleImageUploaded}
+                onAnalysisDataSubmitted={handleAnalysisDataSubmitted}
+              />
             </div>
 
             {/* Design Specs Form */}
