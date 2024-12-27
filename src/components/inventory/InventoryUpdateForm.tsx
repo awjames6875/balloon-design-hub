@@ -26,15 +26,22 @@ export const InventoryUpdateForm = ({
     setIsUpdating(true)
 
     try {
+      const newQuantity = parseInt(quantity)
+      
+      if (isNaN(newQuantity) || newQuantity < 0) {
+        toast.error('Please enter a valid quantity')
+        return
+      }
+
       const { error } = await supabase
         .from('balloon_inventory')
-        .update({ quantity: parseInt(quantity) })
+        .update({ quantity: newQuantity })
         .eq('color', color)
         .eq('size', size)
 
       if (error) throw error
 
-      toast.success(`Updated ${color} ${size} balloons quantity`)
+      toast.success(`Updated ${color} ${size} balloons quantity to ${newQuantity}`)
       onUpdate()
     } catch (error) {
       console.error('Error updating inventory:', error)
@@ -47,7 +54,7 @@ export const InventoryUpdateForm = ({
   return (
     <form onSubmit={handleSubmit} className="flex items-end gap-4">
       <div className="space-y-2">
-        <Label htmlFor={`quantity-${color}-${size}`}>Quantity</Label>
+        <Label htmlFor={`quantity-${color}-${size}`}>New Quantity</Label>
         <Input
           id={`quantity-${color}-${size}`}
           type="number"
