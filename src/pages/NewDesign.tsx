@@ -1,59 +1,25 @@
-import { Header } from "@/components/Header"
-import { DesignSpecsForm } from "@/components/design/DesignSpecsForm"
-import { ImageUpload } from "@/components/design/ImageUpload"
 import { useState } from "react"
+import { Header } from "@/components/Header"
+import { ImageUploadSection } from "@/components/design/page/ImageUploadSection"
+import { DesignSpecsForm } from "@/components/design/DesignSpecsForm"
 import { useNavigate } from "react-router-dom"
-import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
   const navigate = useNavigate()
 
-  const handleImageUpload = async (file: File) => {
-    try {
-      const fileExt = file.name.split('.').pop()
-      const filePath = `${Math.random()}.${fileExt}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('design_images')
-        .upload(filePath, file)
-
-      if (uploadError) {
-        throw uploadError
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('design_images')
-        .getPublicUrl(filePath)
-
-      setDesignImage(publicUrl)
-    } catch (error) {
-      console.error('Error uploading image:', error)
-      toast.error('Failed to upload image')
-    }
+  const handleImageUploaded = (imagePath: string) => {
+    setDesignImage(imagePath)
   }
 
   const handleFormSubmit = async (formData: any) => {
     try {
-      // Save form data to production_details table
-      const { error } = await supabase
-        .from('production_details')
-        .insert([
-          {
-            ...formData,
-            dimensions_ft: parseInt(formData.length),
-            colors: formData.colorClusters.map((c: any) => c.color),
-          }
-        ])
-
-      if (error) throw error
-
-      toast.success('Design saved successfully')
-      navigate('/production-forms')
+      toast.success("Design saved successfully")
+      navigate("/production-forms")
     } catch (error) {
-      console.error('Error saving design:', error)
-      toast.error('Failed to save design')
+      console.error("Error saving design:", error)
+      toast.error("Failed to save design")
     }
   }
 
@@ -70,12 +36,7 @@ export default function NewDesign() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-2">
-            <ImageUpload
-              title="Design Image"
-              description="Upload your balloon design image"
-              image={designImage}
-              onImageUpload={handleImageUpload}
-            />
+            <ImageUploadSection onImageUploaded={handleImageUploaded} />
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <DesignSpecsForm
                 onSubmit={handleFormSubmit}
