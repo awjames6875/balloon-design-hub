@@ -13,6 +13,12 @@ export interface ColorCluster {
 }
 
 export interface Calculations {
+  baseClusters: number
+  extraClusters: number
+  totalClusters: number
+  littlesQuantity: number
+  grapesQuantity: number
   balloons11in: number
   balloons16in: number
+  totalBalloons: number
 }
