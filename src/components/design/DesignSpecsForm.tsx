@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react"
 import { toast } from "sonner"
 import { saveDesignForm } from "@/services/designFormService"
-import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
-import { generateColorPattern } from "@/utils/colorPatterns"
 import { ProjectInfoForm } from "./forms/ProjectInfoForm"
 import { DesignDetailsForm } from "./forms/DesignDetailsForm"
+import { useDesignCalculations } from "@/hooks/use-design-calculations"
+import { validateDesignForm } from "@/utils/design-form-validation"
 
 export interface DesignSpecsFormData {
   clientName: string
@@ -42,90 +41,38 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
   const [style, setStyle] = useState("")
   const [shape, setShape] = useState("Straight")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
-  const [calculations, setCalculations] = useState<DesignSpecsFormData["calculations"] | null>(null)
-  const [colorClusters, setColorClusters] = useState<DesignSpecsFormData["colorClusters"]>([])
-  const [isCalculating, setIsCalculating] = useState(false)
+
+  const {
+    calculations,
+    isCalculating,
+    colorClusters,
+    updateColorClusters,
+  } = useDesignCalculations(length, style)
 
   const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
     setClientName(project.client_name)
     setProjectName(project.project_name)
   }
 
-  // Effect to update calculations when length and style changes
-  useEffect(() => {
-    const updateCalculations = async () => {
-      if (!length || !style) return
-      
-      setIsCalculating(true)
-      console.log("Updating calculations for length:", length, "and style:", style)
-
-      try {
-        const newCalculations = await calculateBalloonRequirements(parseInt(length), style)
-        console.log("New calculations:", newCalculations)
-        setCalculations(newCalculations)
-
-        // Update color clusters if we have exactly 4 colors selected
-        if (selectedColors.length === 4 && newCalculations) {
-          console.log("Updating color clusters with colors:", selectedColors)
-          const newColorClusters = generateColorPattern(
-            selectedColors,
-            newCalculations.totalClusters
-          )
-          console.log("New color clusters:", newColorClusters)
-          setColorClusters(newColorClusters)
-        }
-      } catch (error) {
-        console.error("Error updating calculations:", error)
-        toast.error("Failed to update balloon calculations")
-      } finally {
-        setIsCalculating(false)
-      }
-    }
-
-    updateCalculations()
-  }, [length, style])
-
   const handleColorsSelected = (colors: string[]) => {
     console.log("Colors selected in DesignSpecsForm:", colors)
     setSelectedColors(colors)
-    
-    // Only update color clusters if we have exactly 4 colors and calculations
-    if (colors.length === 4 && calculations) {
-      const newColorClusters = generateColorPattern(
-        colors,
-        calculations.totalClusters
-      )
-      setColorClusters(newColorClusters)
-    }
+    updateColorClusters(colors)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!clientName || !projectName) {
-      toast.error("Please enter both client name and project name")
-      return
-    }
+    const isValid = validateDesignForm({
+      clientName,
+      projectName,
+      length,
+      style,
+      selectedColors,
+      calculations,
+    })
 
-    if (!length) {
-      toast.error("Please enter the length")
-      return
-    }
-
-    if (!style) {
-      toast.error("Please select a balloon style")
-      return
-    }
-
-    if (selectedColors.length !== 4) {
-      toast.error("Please select exactly 4 colors")
-      return
-    }
-
-    if (!calculations || colorClusters.length === 0) {
-      toast.error("Please wait for calculations to complete")
-      return
-    }
+    if (!isValid) return
 
     try {
       const formData: DesignSpecsFormData = {
