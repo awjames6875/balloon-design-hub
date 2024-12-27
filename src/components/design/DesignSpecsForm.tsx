@@ -33,9 +33,14 @@ export interface DesignSpecsFormData {
 interface DesignSpecsFormProps {
   onSubmit: (data: DesignSpecsFormData) => void
   designImage?: string | null
+  buttonText?: string
 }
 
-export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps) => {
+export const DesignSpecsForm = ({ 
+  onSubmit, 
+  designImage,
+  buttonText = "Submit" 
+}: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
   const [length, setLength] = useState("")
@@ -135,7 +140,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
         className="w-full"
         disabled={!isFormValid}
       >
-        Generate Production Form
+        {buttonText}
       </Button>
     </form>
   )

@@ -18,7 +18,7 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
   const [accessories, setAccessories] = useState<Array<{ type: string; quantity: number }>>([])
 
   const handleSpecsSubmit = (data: DesignSpecsFormData) => {
-    console.log("Specs submitted with colors:", data.colorClusters.map(c => c.color))
+    console.log("Form submitted with data:", data)
     setFormData(data)
     setCurrentStep("inventory")
     toast.info("Checking inventory availability...")
@@ -26,6 +26,7 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
 
   const handleInventoryChecked = () => {
     setCurrentStep("accessories")
+    toast.success("Inventory check passed. Proceeding to accessories.")
   }
 
   const handleAccessoriesSubmit = (accessoryData: Array<{ type: string; quantity: number }>) => {
@@ -40,7 +41,11 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
   return (
     <Card className="p-6">
       {currentStep === "specs" && (
-        <DesignSpecsForm onSubmit={handleSpecsSubmit} designImage={designImage} />
+        <DesignSpecsForm 
+          onSubmit={handleSpecsSubmit} 
+          designImage={designImage}
+          buttonText="Generate Production Form"
+        />
       )}
 
       {currentStep === "inventory" && formData && (

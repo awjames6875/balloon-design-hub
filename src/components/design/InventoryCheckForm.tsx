@@ -53,7 +53,7 @@ export const InventoryCheckForm = ({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Pre-Inflation Inventory Check</CardTitle>
+        <CardTitle>Inventory Check</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
