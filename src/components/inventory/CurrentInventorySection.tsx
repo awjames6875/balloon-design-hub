@@ -1,5 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { InventoryUpdateForm } from "./InventoryUpdateForm"
+import { supabase } from "@/integrations/supabase/client"
+import { useEffect, useState } from "react"
 import type { BalloonInventory } from "./types"
 
 interface CurrentInventorySectionProps {
@@ -9,10 +11,53 @@ interface CurrentInventorySectionProps {
 }
 
 export const CurrentInventorySection = ({ 
-  inventory, 
-  isLoading,
+  inventory: initialInventory, 
+  isLoading: initialLoading,
   onInventoryUpdate
 }: CurrentInventorySectionProps) => {
+  const [inventory, setInventory] = useState<BalloonInventory[]>(initialInventory)
+  const [isLoading, setIsLoading] = useState(initialLoading)
+
+  const fetchLatestInventory = async () => {
+    setIsLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('balloon_inventory')
+        .select('*')
+        .order('color')
+        .order('size')
+
+      if (error) {
+        console.error('Error fetching inventory:', error)
+        return
+      }
+
+      // Transform the data to match BalloonInventory type
+      const transformedData: BalloonInventory[] = data.map(item => ({
+        type: item.color,
+        style: item.size,
+        inStock: item.quantity,
+        toOrder: 0
+      }))
+
+      setInventory(transformedData)
+    } catch (error) {
+      console.error('Error in fetchLatestInventory:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Initial load
+  useEffect(() => {
+    fetchLatestInventory()
+  }, [])
+
+  const handleInventoryUpdate = async () => {
+    await fetchLatestInventory()
+    onInventoryUpdate() // Call parent's update function as well
+  }
+
   if (isLoading) {
     return <div className="container mx-auto px-4 py-8">Loading inventory...</div>
   }
@@ -41,7 +86,7 @@ export const CurrentInventorySection = ({
                     color={item.type}
                     size={item.style}
                     currentQuantity={item.inStock}
-                    onUpdate={onInventoryUpdate}
+                    onUpdate={handleInventoryUpdate}
                   />
                 </TableCell>
               </TableRow>
