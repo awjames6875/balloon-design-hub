@@ -72,8 +72,7 @@ const ProductionForms = () => {
     )
   }
 
-  const productionDetails: Tables<"production_details"> = {
-    id: 0,
+  const productionDetails: Omit<Tables<"production_details">, "id"> = {
     client_name: designState.clientName,
     project_name: designState.projectName,
     dimensions_ft: parseInt(designState.length),
@@ -119,7 +118,7 @@ const ProductionForms = () => {
       const updates = designState.colorClusters.map(cluster => ({
         color: cluster.color,
         size: "11in",
-        quantity: cluster.baseClusters * 3 + cluster.extraClusters * 2, // Example calculation
+        quantity: cluster.baseClusters * 3 + cluster.extraClusters * 2,
       }))
 
       const success = await updateInventoryQuantities(updates)
@@ -151,7 +150,7 @@ const ProductionForms = () => {
       )}
 
       <ProductionDetails
-        details={productionDetails}
+        details={productionDetails as Tables<"production_details">}
         clientReference={designState.clientReference}
         designPreview={designState.imagePreview}
       />
