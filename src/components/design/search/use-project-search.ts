@@ -7,7 +7,7 @@ interface Project {
 }
 
 export const useProjectSearch = () => {
-  const { data: projects, isLoading } = useQuery<Project[]>({
+  const { data: projects = [], isLoading } = useQuery<Project[]>({
     queryKey: ["completed-projects"],
     queryFn: async () => {
       try {
@@ -45,7 +45,7 @@ export const useProjectSearch = () => {
   })
 
   return {
-    projects: projects || [],
+    projects,
     isLoading,
   }
 }

@@ -21,7 +21,7 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
         {isLoading ? "Loading..." : "No completed projects found."}
       </CommandEmpty>
       <CommandGroup>
-        {projects.map((project) => (
+        {Array.isArray(projects) && projects.map((project) => (
           <CommandItem
             key={`${project.client_name}-${project.project_name}`}
             value={`${project.client_name}-${project.project_name}`}
