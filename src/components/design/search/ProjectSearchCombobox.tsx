@@ -25,10 +25,9 @@ export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchCombobox
   const [value, setValue] = useState("")
   const { projects = [], isLoading } = useProjectSearch()
 
-  // Log for debugging
   console.log("Projects in combobox:", projects)
 
-  const selectedProject = projects.find(
+  const selectedProject = projects?.find(
     (project) => `${project.client_name}-${project.project_name}` === value
   )
 
@@ -52,28 +51,34 @@ export const ProjectSearchCombobox = ({ onProjectSelect }: ProjectSearchCombobox
             {isLoading ? "Loading..." : "No projects found."}
           </CommandEmpty>
           <CommandGroup>
-            {projects.map((project) => {
-              const projectValue = `${project.client_name}-${project.project_name}`
-              return (
-                <CommandItem
-                  key={projectValue}
-                  value={projectValue}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
-                    onProjectSelect(project)
-                    setOpen(false)
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === projectValue ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {project.project_name} ({project.client_name})
-                </CommandItem>
-              )
-            })}
+            {projects?.length > 0 ? (
+              projects.map((project) => {
+                const projectValue = `${project.client_name}-${project.project_name}`
+                return (
+                  <CommandItem
+                    key={projectValue}
+                    value={projectValue}
+                    onSelect={(currentValue) => {
+                      setValue(currentValue === value ? "" : currentValue)
+                      onProjectSelect(project)
+                      setOpen(false)
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === projectValue ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {project.project_name} ({project.client_name})
+                  </CommandItem>
+                )
+              })
+            ) : !isLoading && (
+              <div className="py-2 px-4 text-sm text-muted-foreground">
+                No projects found
+              </div>
+            )}
           </CommandGroup>
         </Command>
       </PopoverContent>
