@@ -19,7 +19,24 @@ const colorMap: { [key: string]: string } = {
   "#000000": "Black",
   "#C0C0C0": "Silver",
   "#FFD700": "Gold",
-  "#7E69AB": "Purple"
+  "#8E9196": "Gray",
+  "#9b87f5": "Purple",
+  "#7E69AB": "Purple",
+  "#6E59A5": "Purple",
+  "#1A1F2C": "Navy",
+  "#D6BCFA": "Lavender",
+  "#F2FCE2": "Mint",
+  "#FEF7CD": "Soft Yellow",
+  "#FEC6A1": "Peach",
+  "#E5DEFF": "Lavender",
+  "#FFDEE2": "Light Pink",
+  "#FDE1D3": "Peach",
+  "#D3E4FD": "Light Blue",
+  "#F1F0FB": "White",
+  "#8B5CF6": "Purple",
+  "#D946EF": "Pink",
+  "#F97316": "Orange",
+  "#0EA5E9": "Blue"
 }
 
 export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Promise<boolean> => {
@@ -46,7 +63,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 
       if (!data11) {
         console.error(`No inventory found for ${colorName} 11" balloons`)
-        toast.error(`No inventory found for ${colorName} 11" balloons`)
+        toast.error(`No inventory found for ${colorName} 11" balloons. Please add inventory first.`)
         return false
       }
 
@@ -84,7 +101,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 
       if (!data16) {
         console.error(`No inventory found for ${colorName} 16" balloons`)
-        toast.error(`No inventory found for ${colorName} 16" balloons`)
+        toast.error(`No inventory found for ${colorName} 16" balloons. Please add inventory first.`)
         return false
       }
 
