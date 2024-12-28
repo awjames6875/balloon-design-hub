@@ -33,7 +33,7 @@ serve(async (req) => {
           content: [
             {
               type: "text",
-              text: "Analyze this balloon design image and extract: 1) number of balloon clusters, 2) main colors used (max 4), 3) balloon sizes used (11-inch or 16-inch). Format as JSON with keys: clusters (number), colors (array of hex colors), sizes (array of {size, quantity})."
+              text: "Analyze this balloon design image and extract: 1) number of balloon clusters, 2) main colors used (max 4), 3) balloon sizes used (11-inch or 16-inch). Return ONLY a JSON object with no markdown formatting, with keys: clusters (number), colors (array of hex colors), sizes (array of {size, quantity}). Do not include any explanations or markdown."
             },
             {
               type: "image_url",
@@ -51,8 +51,12 @@ serve(async (req) => {
     console.log('Raw OpenAI response:', content)
 
     try {
+      // Clean the content by removing any markdown code block syntax
+      const cleanedContent = content.replace(/```json\n|\n```|```/g, '').trim()
+      console.log('Cleaned content:', cleanedContent)
+
       // Parse the JSON response from the AI
-      const analysisData = JSON.parse(content)
+      const analysisData = JSON.parse(cleanedContent)
       console.log('Parsed analysis data:', analysisData)
 
       // Validate the required fields
