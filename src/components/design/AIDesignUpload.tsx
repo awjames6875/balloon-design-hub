@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { ImageUpload } from "./ImageUpload"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { toast } from "sonner"
-import { analyzeImageColors } from "@/utils/imageAnalysis"
+import { analyzeImageColors, uploadDesignImage } from "@/utils/imageAnalysis"
 
 interface AIAnalysisData {
   clusters: number
