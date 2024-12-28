@@ -33,7 +33,7 @@ serve(async (req) => {
           content: [
             {
               type: "text",
-              text: "Analyze this balloon design image and provide the following information in JSON format: 1) estimated number of balloon clusters, 2) dominant colors used (max 4), 3) approximate sizes of balloons used (11-inch or 16-inch). Format the response as a JSON object with keys: clusters (number), colors (array of strings), sizes (array of objects with size and quantity)."
+              text: "Analyze this balloon design image and extract: 1) number of balloon clusters, 2) main colors used (max 4), 3) balloon sizes used (11-inch or 16-inch). Format as JSON with keys: clusters (number), colors (array of hex colors), sizes (array of {size, quantity})."
             },
             {
               type: "image_url",
@@ -48,11 +48,17 @@ serve(async (req) => {
     })
 
     const content = response.choices[0].message.content
-    console.log('OpenAI response:', content)
+    console.log('Raw OpenAI response:', content)
 
     try {
       // Parse the JSON response from the AI
       const analysisData = JSON.parse(content)
+      console.log('Parsed analysis data:', analysisData)
+
+      // Validate the required fields
+      if (!analysisData.clusters || !Array.isArray(analysisData.colors) || !Array.isArray(analysisData.sizes)) {
+        throw new Error('Invalid response format from AI')
+      }
 
       // Save analysis to database
       const supabase = createClient(
@@ -79,7 +85,8 @@ serve(async (req) => {
       )
     } catch (parseError) {
       console.error('Error parsing AI response:', parseError)
-      throw new Error('Failed to parse AI response')
+      console.error('Raw content that failed to parse:', content)
+      throw new Error('Failed to parse AI response: ' + parseError.message)
     }
   } catch (error) {
     console.error('Error in analyze-design function:', error)
