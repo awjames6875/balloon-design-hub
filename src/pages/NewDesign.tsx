@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { ImageUploadSection } from "@/components/design/page/ImageUploadSection"
 import { DesignSpecsForm } from "@/components/design/DesignSpecsForm"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
+import { AIDesignUpload } from "@/components/design/AIDesignUpload"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -18,7 +18,7 @@ export default function NewDesign() {
     setDesignImage(imagePath)
   }
 
-  const handleAnalysisDataSubmitted = (data: {
+  const handleAnalysisComplete = (data: {
     clusters: number
     colors: string[]
     sizes: { size: string; quantity: number }[]
@@ -29,7 +29,7 @@ export default function NewDesign() {
 
   const handleFormSubmit = async (formData: any) => {
     try {
-      // Navigate to inventory first with the design data
+      // Navigate to inventory with the design data
       navigate("/inventory", {
         state: {
           fromDesign: true,
@@ -43,7 +43,7 @@ export default function NewDesign() {
             calculations: formData.calculations,
             imagePreview: designImage,
             clientReference: null,
-            analysisData // Include the manual analysis data
+            analysisData
           }
         }
       })
@@ -68,11 +68,11 @@ export default function NewDesign() {
           </div>
 
           <div className="space-y-8">
-            {/* Image Upload Section with Manual Analysis Form */}
+            {/* AI-Enhanced Image Upload Section */}
             <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
-              <ImageUploadSection 
+              <AIDesignUpload 
                 onImageUploaded={handleImageUploaded}
-                onAnalysisDataSubmitted={handleAnalysisDataSubmitted}
+                onAnalysisComplete={handleAnalysisComplete}
               />
             </div>
 
