@@ -33,6 +33,7 @@ interface DesignState {
   }>
   imagePreview: string | null
   clientReference: string | null
+  designAnalysisId?: number // Add this optional field
 }
 
 const ProductionForms = () => {
@@ -98,7 +99,8 @@ const ProductionForms = () => {
     },
     production_time: `${Math.floor((designState.calculations.totalClusters * 15) / 60)}h ${(designState.calculations.totalClusters * 15) % 60}m`,
     creation_date: null,
-    width_ft: null
+    width_ft: null,
+    design_analysis_id: designState.designAnalysisId || null // Add this line
   }
 
   const handleFinalizeProduction = async () => {
