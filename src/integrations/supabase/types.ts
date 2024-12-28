@@ -200,6 +200,7 @@ export type Database = {
           client_name: string
           colors: Json
           creation_date: string | null
+          design_analysis_id: number | null
           dimensions_ft: number
           extra_clusters: number
           grapes_quantity: number
@@ -220,6 +221,7 @@ export type Database = {
           client_name: string
           colors?: Json
           creation_date?: string | null
+          design_analysis_id?: number | null
           dimensions_ft: number
           extra_clusters: number
           grapes_quantity: number
@@ -240,6 +242,7 @@ export type Database = {
           client_name?: string
           colors?: Json
           creation_date?: string | null
+          design_analysis_id?: number | null
           dimensions_ft?: number
           extra_clusters?: number
           grapes_quantity?: number
@@ -252,7 +255,15 @@ export type Database = {
           total_clusters?: number
           width_ft?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "production_details_design_analysis_id_fkey"
+            columns: ["design_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "design_analysis"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
