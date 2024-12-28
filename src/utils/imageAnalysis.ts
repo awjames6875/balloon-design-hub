@@ -62,14 +62,14 @@ export const analyzeImageColors = async (imagePath: string): Promise<string[]> =
 
 const getDefaultColors = (): string[] => {
   return [
-    "Red",
-    "Orange", 
-    "Yellow",
-    "Green",
-    "Blue",
-    "Purple",
-    "Pink",
-    "White",
-    "Black"
+    "#FF0000", // Red
+    "#FFA500", // Orange
+    "#FFFF00", // Yellow
+    "#008000", // Green
+    "#0000FF", // Blue
+    "#800080", // Purple
+    "#FFC0CB", // Pink
+    "#FFFFFF", // White
+    "#000000"  // Black
   ]
 }
