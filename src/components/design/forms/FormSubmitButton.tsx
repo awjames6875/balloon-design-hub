@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button"
 
 interface FormSubmitButtonProps {
-  isValid: boolean
   isCalculating: boolean
+  isValid: boolean
   buttonText: string
 }
 
 export const FormSubmitButton = ({
-  isValid,
   isCalculating,
+  isValid,
   buttonText,
 }: FormSubmitButtonProps) => {
   return (

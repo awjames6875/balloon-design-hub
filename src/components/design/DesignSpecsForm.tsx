@@ -9,8 +9,31 @@ import { validateDesignForm } from "@/utils/design-form-validation"
 import { useDesignCalculations } from "@/hooks/use-design-calculations"
 import { toast } from "sonner"
 
+export interface DesignSpecsFormData {
+  clientName: string
+  projectName: string
+  length: string
+  style: string
+  shape: string
+  colorClusters: Array<{
+    color: string
+    baseClusters: number
+    extraClusters: number
+  }>
+  calculations: {
+    baseClusters: number
+    extraClusters: number
+    totalClusters: number
+    littlesQuantity: number
+    grapesQuantity: number
+    balloons11in: number
+    balloons16in: number
+    totalBalloons: number
+  }
+}
+
 interface DesignSpecsFormProps {
-  onSubmit: (data: any) => void
+  onSubmit: (data: DesignSpecsFormData) => void
   designImage?: string | null
 }
 
@@ -23,11 +46,28 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [totalClusters, setTotalClusters] = useState<number | null>(null)
 
-  const calculations = useDesignCalculations({
+  const { calculations, isCalculating } = useDesignCalculations({
     length: parseInt(length) || 0,
     style,
-    totalClusters: totalClusters || 0
   })
+
+  const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
+    setClientName(project.client_name)
+    setProjectName(project.project_name)
+  }
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const analysisData = urlParams.get('analysisData')
+    if (analysisData) {
+      try {
+        const parsed = JSON.parse(analysisData)
+        setTotalClusters(parsed.clusters)
+      } catch (error) {
+        console.error("Error parsing analysis data:", error)
+      }
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,8 +89,8 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
       }
 
       // Create color clusters based on the total clusters and selected colors
-      const clustersPerColor = Math.floor((totalClusters || 0) / selectedColors.length)
-      const remainingClusters = (totalClusters || 0) % selectedColors.length
+      const clustersPerColor = Math.floor((totalClusters || calculations?.totalClusters || 0) / selectedColors.length)
+      const remainingClusters = (totalClusters || calculations?.totalClusters || 0) % selectedColors.length
 
       const colorClusters = selectedColors.map((color, index) => ({
         color,
@@ -58,7 +98,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
         extraClusters: 0
       }))
 
-      const formData = {
+      const formData: DesignSpecsFormData = {
         clientName,
         projectName,
         length,
@@ -66,8 +106,8 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
         shape: 'Straight',
         colorClusters,
         calculations: {
-          ...calculations,
-          totalClusters: totalClusters || calculations.totalClusters
+          ...calculations!,
+          totalClusters: totalClusters || calculations?.totalClusters || 0
         }
       }
 
@@ -79,20 +119,6 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
       setIsSubmitting(false)
     }
   }
-
-  // Update total clusters when analysis data changes
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const analysisData = urlParams.get('analysisData')
-    if (analysisData) {
-      try {
-        const parsed = JSON.parse(analysisData)
-        setTotalClusters(parsed.clusters)
-      } catch (error) {
-        console.error("Error parsing analysis data:", error)
-      }
-    }
-  }, [])
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -106,27 +132,25 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
             projectName={projectName}
             onClientNameChange={setClientName}
             onProjectNameChange={setProjectName}
+            onProjectSelect={handleProjectSelect}
           />
 
           <DimensionsForm
             length={length}
+            style={style}
             onLengthChange={setLength}
-          />
-
-          <StyleSelect
-            value={style}
-            onChange={setStyle}
+            onStyleChange={setStyle}
           />
 
           <ColorSelectionForm
-            selectedColors={selectedColors}
-            onColorsChange={setSelectedColors}
             designImage={designImage}
+            onColorsSelected={setSelectedColors}
           />
 
           <FormSubmitButton
-            isSubmitting={isSubmitting}
+            isCalculating={isCalculating}
             isValid={selectedColors.length > 0 && !!length && !!style}
+            buttonText="Save Design"
           />
         </CardContent>
       </Card>

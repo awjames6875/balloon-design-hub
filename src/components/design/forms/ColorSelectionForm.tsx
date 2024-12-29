@@ -2,7 +2,7 @@ import { ColorManager } from "../ColorManager"
 import { Card } from "@/components/ui/card"
 
 interface ColorSelectionFormProps {
-  designImage: string | null
+  designImage: string | null | undefined
   onColorsSelected: (colors: string[]) => void
   disabled?: boolean
 }
