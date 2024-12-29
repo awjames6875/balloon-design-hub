@@ -3,6 +3,11 @@ import { calculateBalloonRequirements } from "@/utils/balloonCalculations"
 import { generateColorPattern } from "@/utils/colorPatterns"
 import { toast } from "sonner"
 
+interface DesignCalculationsParams {
+  length: number
+  style: string
+}
+
 interface Calculations {
   baseClusters: number
   extraClusters: number
@@ -14,7 +19,7 @@ interface Calculations {
   totalBalloons: number
 }
 
-export const useDesignCalculations = (length: string, style: string) => {
+export const useDesignCalculations = ({ length, style }: DesignCalculationsParams) => {
   const [calculations, setCalculations] = useState<Calculations | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [colorClusters, setColorClusters] = useState<Array<{
@@ -31,7 +36,7 @@ export const useDesignCalculations = (length: string, style: string) => {
       console.log("Updating calculations for length:", length, "and style:", style)
 
       try {
-        const newCalculations = await calculateBalloonRequirements(parseInt(length), style)
+        const newCalculations = await calculateBalloonRequirements(length, style)
         console.log("New calculations:", newCalculations)
         setCalculations(newCalculations)
       } catch (error) {
