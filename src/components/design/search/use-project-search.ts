@@ -7,7 +7,7 @@ interface Project {
 }
 
 export const useProjectSearch = () => {
-  const { data: projects, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['projects'],
     queryFn: async (): Promise<Project[]> => {
       const { data, error } = await supabase
@@ -17,16 +17,17 @@ export const useProjectSearch = () => {
 
       if (error) {
         console.error('Error fetching projects:', error)
-        throw error
+        return [] // Return empty array instead of throwing
       }
 
       console.info('Fetched projects:', data)
       return data || [] // Ensure we always return an array
-    }
+    },
+    initialData: [] // Provide initial data to prevent undefined
   })
 
   return {
-    projects: projects || [], // Ensure we always return an array even if data is undefined
+    projects: data,
     isLoading,
     error
   }

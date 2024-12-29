@@ -7,32 +7,35 @@ interface ProjectSearchProps {
 }
 
 export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
-  const [open, setOpen] = useState(false)
+  const [inputValue, setInputValue] = useState("")
   const { projects, isLoading } = useProjectSearch()
 
   // Ensure projects is always an array even if undefined
   const safeProjects = projects || []
 
   return (
-    <Command className="rounded-lg border shadow-md">
-      <CommandInput placeholder="Search projects..." />
-      <CommandEmpty>No projects found.</CommandEmpty>
+    <Command className="rounded-lg border shadow-md" shouldFilter={true}>
+      <CommandInput 
+        placeholder="Search projects..." 
+        value={inputValue}
+        onValueChange={setInputValue}
+      />
+      <CommandEmpty>
+        {isLoading ? "Loading..." : "No projects found."}
+      </CommandEmpty>
       <CommandGroup>
-        {isLoading ? (
-          <CommandItem disabled>Loading projects...</CommandItem>
-        ) : (
-          safeProjects.map((project, index) => (
-            <CommandItem
-              key={`${project.client_name}-${project.project_name}-${index}`}
-              onSelect={() => {
-                onProjectSelect(project)
-                setOpen(false)
-              }}
-            >
-              {project.client_name} - {project.project_name}
-            </CommandItem>
-          ))
-        )}
+        {safeProjects.map((project, index) => (
+          <CommandItem
+            key={`${project.client_name}-${project.project_name}-${index}`}
+            value={`${project.client_name}-${project.project_name}`}
+            onSelect={() => {
+              onProjectSelect(project)
+              setInputValue("")
+            }}
+          >
+            {project.client_name} - {project.project_name}
+          </CommandItem>
+        ))}
       </CommandGroup>
     </Command>
   )
