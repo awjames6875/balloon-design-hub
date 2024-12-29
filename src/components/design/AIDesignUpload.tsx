@@ -4,6 +4,8 @@ import { ImageUpload } from "./ImageUpload"
 import { toast } from "sonner"
 import { analyzeImageColors, uploadDesignImage } from "@/utils/imageAnalysis"
 import { AnalysisResults } from "./analysis/AnalysisResults"
+import { ClusterAnalysis } from "./analysis/ClusterAnalysis"
+import { supabase } from "@/integrations/supabase/client"
 
 interface AIAnalysisData {
   clusters: number
@@ -14,6 +16,13 @@ interface AIAnalysisData {
   }>
 }
 
+interface ClusterData {
+  number: number
+  appearances: number
+  positions: string[]
+  color: string
+}
+
 interface AIDesignUploadProps {
   onAnalysisComplete: (data: AIAnalysisData) => void
   onImageUploaded: (imagePath: string) => void
@@ -22,6 +31,7 @@ interface AIDesignUploadProps {
 export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesignUploadProps) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisData, setAnalysisData] = useState<AIAnalysisData | null>(null)
+  const [clusterData, setClusterData] = useState<ClusterData[]>([])
   const [designImage, setDesignImage] = useState<string | null>(null)
 
   const handleImageUpload = async (file: File) => {
@@ -38,8 +48,21 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       setDesignImage(imagePath)
       onImageUploaded(imagePath)
 
-      // Then analyze the colors
+      // Analyze the colors
       const detectedColors = await analyzeImageColors(imagePath)
+      
+      // Analyze clusters using the edge function
+      const { data: clusterAnalysis, error } = await supabase.functions.invoke('analyze-design', {
+        body: { imageUrl: imagePath }
+      })
+
+      if (error) {
+        console.error('Error analyzing clusters:', error)
+        toast.error('Failed to analyze clusters')
+      } else {
+        console.log('Cluster analysis results:', clusterAnalysis)
+        setClusterData(clusterAnalysis.clusters)
+      }
       
       // Create analysis data
       const newAnalysisData: AIAnalysisData = {
@@ -79,6 +102,10 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
           <div className="text-center text-sm text-muted-foreground">
             Analyzing design...
           </div>
+        )}
+
+        {clusterData.length > 0 && (
+          <ClusterAnalysis clusters={clusterData} />
         )}
 
         {analysisData && <AnalysisResults data={analysisData} />}

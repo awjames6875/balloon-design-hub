@@ -6,58 +6,39 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface BalloonCluster {
-  number: number;
-  color: string;
-  balloons: {
-    "11in": number;
-    "16in": number;
-  };
-}
+const analyzeDesignPrompt = `You are a balloon design expert. Analyze this balloon garland design image with extreme precision and provide a detailed JSON response.
 
-interface AnalysisResponse {
-  clusters: BalloonCluster[];
-  decorative: {
-    silver_stars: number;
-    gold_stars: number;
-  };
-}
+Focus specifically on:
+1. Count and identify EACH numbered cluster (#1, #2, #3, etc.)
+2. For each cluster found:
+   - Record its number identifier
+   - Note its position (left, center, right, top, bottom)
+   - Count how many times this specific cluster appears
+   - Identify its color
 
-const analyzeDesignPrompt = `Analyze this balloon design image and provide a JSON response (without any markdown formatting) with:
-1. Identify and count each numbered cluster (#1-#4)
-2. For each cluster, specify:
-   - The exact color using these names only: Wild Berry, Golden Rod, Teal, Orange
-   - Count balloons in the cluster
-   - Identify balloon sizes (11in vs 16in balloons)
-3. Count decorative elements (silver/gold stars)
-
-Return ONLY the JSON object without any markdown formatting or explanation, exactly like this:
+Return ONLY a JSON object with this exact structure:
 {
   "clusters": [
     {
-      "number": 1,
-      "color": "Wild Berry",
-      "balloons": {
-        "11in": 3,
-        "16in": 2
-      }
+      "number": 2,
+      "appearances": 3,
+      "positions": ["left-top", "center", "right-bottom"],
+      "color": "Golden Rod"
     }
   ],
-  "decorative": {
-    "silver_stars": 2,
-    "gold_stars": 1
-  }
-}`
+  "total_cluster_count": 12
+}
+
+Be extremely thorough and methodical in your count. Double-check each cluster identification.`
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
     const { imageUrl } = await req.json()
-    console.log('Analyzing image:', imageUrl)
+    console.log('Analyzing image for clusters:', imageUrl)
 
     if (!imageUrl) {
       throw new Error('No image URL provided')
@@ -67,7 +48,6 @@ serve(async (req) => {
       apiKey: Deno.env.get('OPENAI_API_KEY'),
     })
 
-    // Analyze the image using OpenAI's Vision API
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -89,43 +69,27 @@ serve(async (req) => {
     })
 
     const content = response.choices[0].message.content
-    console.log('Raw OpenAI response:', content)
+    console.log('Raw cluster analysis:', content)
 
     try {
-      // Clean up the response by removing any markdown formatting
       const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
-      console.log('Cleaned content:', cleanContent)
+      const analysisData = JSON.parse(cleanContent)
       
-      // Parse the JSON response
-      const analysisData: AnalysisResponse = JSON.parse(cleanContent)
-      console.log('Parsed analysis data:', analysisData)
-
-      // Calculate total balloons and create summary
-      const summary = {
-        clusters: analysisData.clusters.length,
-        colors: [...new Set(analysisData.clusters.map(c => c.color))],
-        sizes: [
-          {
-            size: "11in",
-            quantity: analysisData.clusters.reduce((sum, c) => sum + c.balloons["11in"], 0)
-          },
-          {
-            size: "16in",
-            quantity: analysisData.clusters.reduce((sum, c) => sum + c.balloons["16in"], 0)
-          }
-        ]
+      // Validate the response structure
+      if (!analysisData.clusters || !Array.isArray(analysisData.clusters)) {
+        throw new Error('Invalid cluster analysis format')
       }
 
-      console.log('Analysis summary:', summary)
+      console.log('Processed cluster analysis:', analysisData)
 
       return new Response(
-        JSON.stringify(summary),
+        JSON.stringify(analysisData),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     } catch (parseError) {
-      console.error('Error parsing AI response:', parseError)
+      console.error('Error parsing cluster analysis:', parseError)
       console.error('Raw content that failed to parse:', content)
-      throw new Error('Failed to parse AI response: ' + parseError.message)
+      throw new Error('Failed to parse cluster analysis: ' + parseError.message)
     }
   } catch (error) {
     console.error('Error in analyze-design function:', error)
