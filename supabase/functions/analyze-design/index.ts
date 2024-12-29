@@ -23,7 +23,7 @@ interface AnalysisResponse {
   };
 }
 
-const analyzeDesignPrompt = `Please analyze this balloon design image with specific attention to:
+const analyzeDesignPrompt = `Analyze this balloon design image and provide a JSON response (without any markdown formatting) with:
 1. Identify and count each numbered cluster (#1-#4)
 2. For each cluster, specify:
    - The exact color using these names only: Wild Berry, Golden Rod, Teal, Orange
@@ -31,7 +31,7 @@ const analyzeDesignPrompt = `Please analyze this balloon design image with speci
    - Identify balloon sizes (11in vs 16in balloons)
 3. Count decorative elements (silver/gold stars)
 
-Format the response as a structured JSON exactly like this:
+Return ONLY the JSON object without any markdown formatting or explanation, exactly like this:
 {
   "clusters": [
     {
@@ -92,8 +92,12 @@ serve(async (req) => {
     console.log('Raw OpenAI response:', content)
 
     try {
+      // Clean up the response by removing any markdown formatting
+      const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
+      console.log('Cleaned content:', cleanContent)
+      
       // Parse the JSON response
-      const analysisData: AnalysisResponse = JSON.parse(content)
+      const analysisData: AnalysisResponse = JSON.parse(cleanContent)
       console.log('Parsed analysis data:', analysisData)
 
       // Calculate total balloons and create summary
