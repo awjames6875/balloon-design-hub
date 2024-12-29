@@ -26,7 +26,7 @@ serve(async (req) => {
 
     // Analyze the image using OpenAI's Vision API
     const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o",  // Changed to use the recommended model
       messages: [
         {
           role: "user",
