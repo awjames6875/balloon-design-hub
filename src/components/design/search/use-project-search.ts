@@ -7,45 +7,27 @@ interface Project {
 }
 
 export const useProjectSearch = () => {
-  const { data: projects = [], isLoading } = useQuery<Project[]>({
-    queryKey: ["completed-projects"],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from("production_details")
-          .select("client_name, project_name")
-          .order("creation_date", { ascending: false })
+  const { data: projects, isLoading, error } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async (): Promise<Project[]> => {
+      const { data, error } = await supabase
+        .from('client_projects')
+        .select('client_name, project_name')
+        .order('created_at', { ascending: false })
 
-        if (error) {
-          console.error("Error fetching projects:", error)
-          return []
-        }
-
-        // Remove duplicates based on client_name and project_name combination
-        const uniqueProjects = data?.reduce((acc: Project[], current) => {
-          const exists = acc.some(
-            project =>
-              project.client_name === current.client_name &&
-              project.project_name === current.project_name
-          )
-          if (!exists) {
-            acc.push(current)
-          }
-          return acc
-        }, []) || []
-
-        console.log("Fetched projects:", uniqueProjects)
-        return uniqueProjects
-      } catch (error) {
-        console.error("Error in project search:", error)
-        return []
+      if (error) {
+        console.error('Error fetching projects:', error)
+        throw error
       }
-    },
-    initialData: [],
+
+      console.info('Fetched projects:', data)
+      return data || [] // Ensure we always return an array
+    }
   })
 
   return {
-    projects,
+    projects: projects || [], // Ensure we always return an array even if data is undefined
     isLoading,
+    error
   }
 }

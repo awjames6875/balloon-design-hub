@@ -1,10 +1,5 @@
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command"
+import { useState } from "react"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
 import { useProjectSearch } from "./search/use-project-search"
 
 interface ProjectSearchProps {
@@ -12,32 +7,31 @@ interface ProjectSearchProps {
 }
 
 export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
+  const [open, setOpen] = useState(false)
   const { projects, isLoading } = useProjectSearch()
-  
+
+  // Ensure projects is always an array even if undefined
+  const safeProjects = projects || []
+
   return (
     <Command className="rounded-lg border shadow-md">
-      <CommandInput placeholder="Search previous projects..." />
-      <CommandEmpty>
-        {isLoading ? "Loading..." : "No completed projects found."}
-      </CommandEmpty>
+      <CommandInput placeholder="Search projects..." />
+      <CommandEmpty>No projects found.</CommandEmpty>
       <CommandGroup>
-        {projects?.length > 0 ? (
-          projects.map((project) => (
+        {isLoading ? (
+          <CommandItem disabled>Loading projects...</CommandItem>
+        ) : (
+          safeProjects.map((project, index) => (
             <CommandItem
-              key={`${project.client_name}-${project.project_name}`}
-              value={`${project.client_name}-${project.project_name}`}
-              onSelect={() => onProjectSelect(project)}
+              key={`${project.client_name}-${project.project_name}-${index}`}
+              onSelect={() => {
+                onProjectSelect(project)
+                setOpen(false)
+              }}
             >
-              <span>{project.client_name}</span>
-              <span className="ml-2 text-muted-foreground">
-                - {project.project_name}
-              </span>
+              {project.client_name} - {project.project_name}
             </CommandItem>
           ))
-        ) : !isLoading && (
-          <div className="py-2 px-4 text-sm text-muted-foreground">
-            No projects found
-          </div>
         )}
       </CommandGroup>
     </Command>
