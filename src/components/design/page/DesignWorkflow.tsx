@@ -21,20 +21,24 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
     console.log("Design specs submitted:", data)
     setFormData(data)
     setCurrentStep("inventory")
+    toast.success("Design specifications saved")
   }
 
   const handleInventoryChecked = () => {
-    if (!formData) return
+    console.log("Inventory checked, moving to accessories")
     setCurrentStep("accessories")
+    toast.success("Inventory check completed")
   }
 
   const handleAccessoriesSubmit = (accessoryData: Array<{ type: string; quantity: number }>) => {
+    console.log("Accessories submitted:", accessoryData)
     setAccessories(accessoryData)
     setCurrentStep("summary")
+    toast.success("Accessories added")
   }
 
-  if (!formData && currentStep !== "specs") {
-    return null
+  const handleFinalize = () => {
+    toast.success("Production form generated successfully")
   }
 
   return (
@@ -43,7 +47,6 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
         <DesignSpecsForm 
           onSubmit={handleSpecsSubmit} 
           designImage={designImage}
-          buttonText="Generate Production Form"
         />
       )}
 
@@ -74,7 +77,7 @@ export const DesignWorkflow = ({ designImage }: DesignWorkflowProps) => {
           style={formData.style}
           colorClusters={formData.colorClusters}
           accessories={accessories}
-          onFinalize={() => {}}
+          onFinalize={handleFinalize}
           calculations={formData.calculations}
         />
       )}
