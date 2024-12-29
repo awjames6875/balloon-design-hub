@@ -6,6 +6,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface BalloonCluster {
+  number: number;
+  color: string;
+  balloons: {
+    "11in": number;
+    "16in": number;
+  };
+}
+
+interface AnalysisResponse {
+  clusters: BalloonCluster[];
+  decorative: {
+    silver_stars: number;
+    gold_stars: number;
+  };
+}
+
 const analyzeDesignPrompt = `Please analyze this balloon design image with specific attention to:
 1. Identify and count each numbered cluster (#1-#4)
 2. For each cluster, specify:
@@ -33,6 +50,7 @@ Format the response as a structured JSON exactly like this:
 }`
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -75,7 +93,7 @@ serve(async (req) => {
 
     try {
       // Parse the JSON response
-      const analysisData = JSON.parse(content)
+      const analysisData: AnalysisResponse = JSON.parse(content)
       console.log('Parsed analysis data:', analysisData)
 
       // Calculate total balloons and create summary
@@ -85,35 +103,16 @@ serve(async (req) => {
         sizes: [
           {
             size: "11in",
-            quantity: analysisData.clusters.reduce((sum, c) => sum + (c.balloons["11in"] || 0), 0)
+            quantity: analysisData.clusters.reduce((sum, c) => sum + c.balloons["11in"], 0)
           },
           {
             size: "16in",
-            quantity: analysisData.clusters.reduce((sum, c) => sum + (c.balloons["16in"] || 0), 0)
+            quantity: analysisData.clusters.reduce((sum, c) => sum + c.balloons["16in"], 0)
           }
         ]
       }
 
       console.log('Analysis summary:', summary)
-
-      // Save analysis to database
-      const supabase = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      )
-
-      const { error: dbError } = await supabase
-        .from('design_analysis')
-        .insert({
-          clusters: summary.clusters,
-          colors: summary.colors,
-          sizes: summary.sizes
-        })
-
-      if (dbError) {
-        console.error('Error saving analysis:', dbError)
-        throw dbError
-      }
 
       return new Response(
         JSON.stringify(summary),
