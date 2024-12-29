@@ -26,14 +26,14 @@ serve(async (req) => {
 
     // Analyze the image using OpenAI's Vision API
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4-vision-preview",
       messages: [
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: "Analyze this balloon design image and extract: 1) number of balloon clusters, 2) main colors used (max 4), 3) balloon sizes used (11-inch or 16-inch). Return ONLY a JSON object with no markdown formatting, with keys: clusters (number), colors (array of hex colors), sizes (array of {size, quantity}). Do not include any explanations or markdown."
+              text: "Analyze this balloon design image and extract: 1) balloon quantities by size (11-inch and 16-inch), 2) main colors used (max 4). Return ONLY a JSON object with no markdown formatting, with keys: sizes (array of {size, quantity}), colors (array of hex colors). Do not include any explanations or markdown."
             },
             {
               type: "image_url",
@@ -56,11 +56,27 @@ serve(async (req) => {
       console.log('Cleaned content:', cleanedContent)
 
       // Parse the JSON response from the AI
-      const analysisData = JSON.parse(cleanedContent)
-      console.log('Parsed analysis data:', analysisData)
+      const aiResponse = JSON.parse(cleanedContent)
+      console.log('Parsed AI response:', aiResponse)
+
+      // Calculate clusters based on balloon quantities
+      // Each cluster typically uses 11 11-inch balloons and 2 16-inch balloons
+      const balloons11in = aiResponse.sizes.find(s => s.size === "11in")?.quantity || 0
+      const balloons16in = aiResponse.sizes.find(s => s.size === "16in")?.quantity || 0
+
+      // Calculate clusters based on the limiting factor
+      const clusters11in = Math.floor(balloons11in / 11) // 11 11-inch balloons per cluster
+      const clusters16in = Math.floor(balloons16in / 2)  // 2 16-inch balloons per cluster
+      const totalClusters = Math.min(clusters11in, clusters16in)
+
+      const analysisData = {
+        clusters: totalClusters,
+        colors: aiResponse.colors,
+        sizes: aiResponse.sizes
+      }
 
       // Validate the required fields
-      if (!analysisData.clusters || !Array.isArray(analysisData.colors) || !Array.isArray(analysisData.sizes)) {
+      if (!Array.isArray(analysisData.colors) || !Array.isArray(analysisData.sizes)) {
         throw new Error('Invalid response format from AI')
       }
 
