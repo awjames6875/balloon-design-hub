@@ -13,11 +13,15 @@ interface ProductionDetails {
   grapesQuantity: number
   balloons11in: number
   balloons16in: number
+  totalBalloons: number
   accents: Record<string, number>
   productionTime: string
+  shape: string
 }
 
 export const saveDesignToProduction = async (details: ProductionDetails) => {
+  console.log("Saving production details to Supabase:", details)
+  
   const { error } = await supabase
     .from("production_details")
     .insert([
@@ -33,9 +37,11 @@ export const saveDesignToProduction = async (details: ProductionDetails) => {
         grapes_quantity: details.grapesQuantity,
         balloons_11in: details.balloons11in,
         balloons_16in: details.balloons16in,
+        total_balloons: details.totalBalloons,
         accents: details.accents,
         production_time: details.productionTime,
-      },
+        shape: details.shape
+      }
     ])
 
   if (error) {

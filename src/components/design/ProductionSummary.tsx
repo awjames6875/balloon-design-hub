@@ -67,7 +67,7 @@ export const ProductionSummary = ({
       }
 
       // Then save production details
-      await saveDesignToProduction({
+      const productionDetails = {
         clientName,
         projectName,
         dimensionsFt: parseInt(dimensions),
@@ -79,12 +79,17 @@ export const ProductionSummary = ({
         grapesQuantity: calculations.grapesQuantity,
         balloons11in: calculations.balloons11in,
         balloons16in: calculations.balloons16in,
+        totalBalloons: calculations.totalBalloons,
         accents: accessories.reduce((acc, curr) => ({
           ...acc,
           [curr.type]: curr.quantity
         }), {}),
         productionTime: calculateInflationTime(calculations.totalClusters),
-      })
+        shape: 'Straight', // Default shape
+      }
+
+      console.log("Saving production details:", productionDetails)
+      await saveDesignToProduction(productionDetails)
       
       toast.success("Production details saved and inventory updated successfully!")
       onFinalize()
