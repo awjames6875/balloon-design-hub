@@ -191,6 +191,36 @@ export type Database = {
         }
         Relationships: []
       }
+      merged_quantities_audit: {
+        Row: {
+          color: string | null
+          id: number
+          merged_at: string | null
+          new_total_quantity: number | null
+          old_quantities: number[] | null
+          original_ids: number[] | null
+          size: string | null
+        }
+        Insert: {
+          color?: string | null
+          id?: number
+          merged_at?: string | null
+          new_total_quantity?: number | null
+          old_quantities?: number[] | null
+          original_ids?: number[] | null
+          size?: string | null
+        }
+        Update: {
+          color?: string | null
+          id?: number
+          merged_at?: string | null
+          new_total_quantity?: number | null
+          old_quantities?: number[] | null
+          original_ids?: number[] | null
+          size?: string | null
+        }
+        Relationships: []
+      }
       production_details: {
         Row: {
           accents: Json
@@ -288,7 +318,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      inventory_merge_history: {
+        Row: {
+          color: string | null
+          merge_id: number | null
+          merged_at: string | null
+          merged_records_count: number | null
+          new_total_quantity: number | null
+          old_quantities: number[] | null
+          size: string | null
+        }
+        Insert: {
+          color?: string | null
+          merge_id?: number | null
+          merged_at?: string | null
+          merged_records_count?: never
+          new_total_quantity?: number | null
+          old_quantities?: number[] | null
+          size?: string | null
+        }
+        Update: {
+          color?: string | null
+          merge_id?: number | null
+          merged_at?: string | null
+          merged_records_count?: never
+          new_total_quantity?: number | null
+          old_quantities?: number[] | null
+          size?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
