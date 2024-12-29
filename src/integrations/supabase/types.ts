@@ -132,6 +132,30 @@ export type Database = {
         }
         Relationships: []
       }
+      color_standards: {
+        Row: {
+          color_name: string
+          created_at: string | null
+          display_name: string
+          hex_code: string
+          id: number
+        }
+        Insert: {
+          color_name: string
+          created_at?: string | null
+          display_name: string
+          hex_code: string
+          id?: number
+        }
+        Update: {
+          color_name?: string
+          created_at?: string | null
+          display_name?: string
+          hex_code?: string
+          id?: number
+        }
+        Relationships: []
+      }
       design_analysis: {
         Row: {
           clusters: number
@@ -350,7 +374,12 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      is_valid_color: {
+        Args: {
+          color_value: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
