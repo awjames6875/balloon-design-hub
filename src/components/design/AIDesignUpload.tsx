@@ -70,20 +70,24 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       } else {
         console.log('Numbered design analysis results:', numberedDesignAnalysis)
         setNumberedAnalysis(numberedDesignAnalysis)
+
+        // Calculate total clusters by summing the count of all clusters
+        const totalClusters = numberedDesignAnalysis?.clusters?.reduce((sum, cluster) => sum + cluster.count, 0) || 0
+
+        // Create analysis data with the correct total
+        const newAnalysisData: AIAnalysisData = {
+          clusters: totalClusters, // Now using the sum of all cluster counts
+          colors: detectedColors,
+          sizes: [
+            { size: "11in", quantity: Math.floor(Math.random() * 50) + 20 },
+            { size: "16in", quantity: Math.floor(Math.random() * 30) + 10 }
+          ]
+        }
+
+        setAnalysisData(newAnalysisData)
+        onAnalysisComplete(newAnalysisData)
       }
       
-      // Create analysis data
-      const newAnalysisData: AIAnalysisData = {
-        clusters: numberedDesignAnalysis?.clusters?.length || 0,
-        colors: detectedColors,
-        sizes: [
-          { size: "11in", quantity: Math.floor(Math.random() * 50) + 20 },
-          { size: "16in", quantity: Math.floor(Math.random() * 30) + 10 }
-        ]
-      }
-
-      setAnalysisData(newAnalysisData)
-      onAnalysisComplete(newAnalysisData)
       toast.success("Design analysis completed")
     } catch (error) {
       console.error("Error in image upload and analysis:", error)
