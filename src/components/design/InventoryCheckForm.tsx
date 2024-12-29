@@ -86,8 +86,10 @@ export const InventoryCheckForm = ({
         grapesQuantity: calculations.grapesQuantity,
         balloons11in: calculations.balloons11in,
         balloons16in: calculations.balloons16in,
+        totalBalloons: calculations.totalBalloons,
         accents: {},
         productionTime: `${Math.floor((calculations.totalClusters * 15) / 60)}h ${(calculations.totalClusters * 15) % 60}m`,
+        shape: 'Straight' // Default shape
       })
 
       toast.success("Production form generated and inventory updated successfully!")
