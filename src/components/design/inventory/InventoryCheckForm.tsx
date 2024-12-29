@@ -7,7 +7,7 @@ import { checkInventory } from "./inventoryService"
 import { saveDesignToProduction } from "@/services/productionService"
 import { updateInventory } from "@/services/inventoryService"
 import { calculateBalloonsPerColor } from "@/utils/balloonCalculationUtils"
-import type { ColorCluster, Calculations } from "./types"
+import type { ColorCluster, Calculations, InventoryItem } from "./types"
 
 interface InventoryCheckProps {
   colorClusters: ColorCluster[]
@@ -28,12 +28,7 @@ export const InventoryCheckForm = ({
   dimensions,
   style
 }: InventoryCheckProps) => {
-  const [inventoryItems, setInventoryItems] = useState<Array<{
-    color: string
-    status: 'in-stock' | 'low' | 'out-of-stock'
-    required: number
-    available: number
-  }>>([])
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isGeneratingForm, setIsGeneratingForm] = useState(false)
 
