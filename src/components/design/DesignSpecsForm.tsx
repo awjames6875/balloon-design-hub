@@ -48,7 +48,7 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
 
   const { calculations, isCalculating } = useDesignCalculations({
     length: parseInt(length) || 0,
-    style,
+    style
   })
 
   const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
