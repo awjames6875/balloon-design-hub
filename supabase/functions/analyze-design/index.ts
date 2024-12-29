@@ -6,30 +6,42 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const analyzeDesignPrompt = `You are a balloon design expert. Analyze this balloon garland design image with extreme precision and provide a detailed JSON response.
+const analyzeNumberedDesign = `
+Analyze this balloon design by following these exact steps:
 
-Focus specifically on:
-1. Count and identify EACH numbered cluster (#1, #2, #3, etc.)
-2. For each cluster found:
-   - Record its number identifier
-   - Note its position (left, center, right, top, bottom)
-   - Count how many times this specific cluster appears
-   - Identify its color
+1. FIRST - Read the numbered color key at the bottom of the image:
+   - Record each number and its EXACT corresponding color name
+   - Only use colors explicitly listed in the key
+   - Do not attempt to interpret or guess any colors
 
-Return ONLY a JSON object with this exact structure:
+2. THEN - Count clusters in the design:
+   - Look for numbered clusters (#1, #2, #3, etc.)
+   - Match each cluster's number to the color key
+   - Record the quantity of each numbered cluster
+
+3. Format response to show:
+   - Total count of each numbered cluster
+   - Use ONLY the exact color names from the key
+   - Match numbers to their defined colors
+
+Example response format:
 {
+  "colorKey": {
+    "1": "Wild Berry",
+    "2": "Golden Rod",
+    "3": "Teal",
+    "4": "Orange"
+  },
   "clusters": [
     {
-      "number": 2,
-      "appearances": 3,
-      "positions": ["left-top", "center", "right-bottom"],
-      "color": "Golden Rod"
+      "number": 1,
+      "definedColor": "Wild Berry",
+      "count": X
     }
-  ],
-  "total_cluster_count": 12
+  ]
 }
 
-Be extremely thorough and methodical in your count. Double-check each cluster identification.`
+IMPORTANT: Never guess colors. Only use colors explicitly defined in the key.`
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -38,7 +50,7 @@ serve(async (req) => {
 
   try {
     const { imageUrl } = await req.json()
-    console.log('Analyzing image for clusters:', imageUrl)
+    console.log('Analyzing numbered design:', imageUrl)
 
     if (!imageUrl) {
       throw new Error('No image URL provided')
@@ -54,7 +66,7 @@ serve(async (req) => {
         {
           role: "user",
           content: [
-            { type: "text", text: analyzeDesignPrompt },
+            { type: "text", text: analyzeNumberedDesign },
             {
               type: "image_url",
               image_url: {
@@ -69,27 +81,27 @@ serve(async (req) => {
     })
 
     const content = response.choices[0].message.content
-    console.log('Raw cluster analysis:', content)
+    console.log('Raw analysis:', content)
 
     try {
       const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
       const analysisData = JSON.parse(cleanContent)
       
       // Validate the response structure
-      if (!analysisData.clusters || !Array.isArray(analysisData.clusters)) {
-        throw new Error('Invalid cluster analysis format')
+      if (!analysisData.colorKey || !analysisData.clusters || !Array.isArray(analysisData.clusters)) {
+        throw new Error('Invalid analysis format')
       }
 
-      console.log('Processed cluster analysis:', analysisData)
+      console.log('Processed analysis:', analysisData)
 
       return new Response(
         JSON.stringify(analysisData),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     } catch (parseError) {
-      console.error('Error parsing cluster analysis:', parseError)
+      console.error('Error parsing analysis:', parseError)
       console.error('Raw content that failed to parse:', content)
-      throw new Error('Failed to parse cluster analysis: ' + parseError.message)
+      throw new Error('Failed to parse analysis: ' + parseError.message)
     }
   } catch (error) {
     console.error('Error in analyze-design function:', error)

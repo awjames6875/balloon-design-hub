@@ -16,11 +16,19 @@ interface AIAnalysisData {
   }>
 }
 
-interface ClusterData {
+interface ColorKey {
+  [key: string]: string
+}
+
+interface Cluster {
   number: number
-  appearances: number
-  positions: string[]
-  color: string
+  definedColor: string
+  count: number
+}
+
+interface NumberedAnalysis {
+  colorKey: ColorKey
+  clusters: Cluster[]
 }
 
 interface AIDesignUploadProps {
@@ -31,7 +39,7 @@ interface AIDesignUploadProps {
 export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesignUploadProps) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisData, setAnalysisData] = useState<AIAnalysisData | null>(null)
-  const [clusterData, setClusterData] = useState<ClusterData[]>([])
+  const [numberedAnalysis, setNumberedAnalysis] = useState<NumberedAnalysis | null>(null)
   const [designImage, setDesignImage] = useState<string | null>(null)
 
   const handleImageUpload = async (file: File) => {
@@ -51,22 +59,22 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       // Analyze the colors
       const detectedColors = await analyzeImageColors(imagePath)
       
-      // Analyze clusters using the edge function
-      const { data: clusterAnalysis, error } = await supabase.functions.invoke('analyze-design', {
+      // Analyze numbered clusters using the edge function
+      const { data: numberedDesignAnalysis, error } = await supabase.functions.invoke('analyze-design', {
         body: { imageUrl: imagePath }
       })
 
       if (error) {
-        console.error('Error analyzing clusters:', error)
-        toast.error('Failed to analyze clusters')
+        console.error('Error analyzing numbered design:', error)
+        toast.error('Failed to analyze numbered design')
       } else {
-        console.log('Cluster analysis results:', clusterAnalysis)
-        setClusterData(clusterAnalysis.clusters)
+        console.log('Numbered design analysis results:', numberedDesignAnalysis)
+        setNumberedAnalysis(numberedDesignAnalysis)
       }
       
       // Create analysis data
       const newAnalysisData: AIAnalysisData = {
-        clusters: Math.floor(Math.random() * 20) + 10, // Placeholder for demo
+        clusters: numberedDesignAnalysis?.clusters?.length || 0,
         colors: detectedColors,
         sizes: [
           { size: "11in", quantity: Math.floor(Math.random() * 50) + 20 },
@@ -104,8 +112,11 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
           </div>
         )}
 
-        {clusterData.length > 0 && (
-          <ClusterAnalysis clusters={clusterData} />
+        {numberedAnalysis && (
+          <ClusterAnalysis 
+            colorKey={numberedAnalysis.colorKey} 
+            clusters={numberedAnalysis.clusters} 
+          />
         )}
 
         {analysisData && <AnalysisResults data={analysisData} />}
