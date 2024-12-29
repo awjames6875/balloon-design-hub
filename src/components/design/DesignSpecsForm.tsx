@@ -1,172 +1,135 @@
-import { useState } from "react"
-import { toast } from "sonner"
-import { saveDesignForm } from "@/services/designFormService"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProjectInfoForm } from "./forms/ProjectInfoForm"
 import { DimensionsForm } from "./forms/DimensionsForm"
+import { StyleSelect } from "./StyleSelect"
 import { ColorSelectionForm } from "./forms/ColorSelectionForm"
 import { FormSubmitButton } from "./forms/FormSubmitButton"
-import { useDesignCalculations } from "@/hooks/use-design-calculations"
 import { validateDesignForm } from "@/utils/design-form-validation"
-
-export interface DesignSpecsFormData {
-  clientName: string
-  projectName: string
-  length: string
-  style: string
-  shape: string
-  colorClusters: Array<{
-    color: string
-    baseClusters: number
-    extraClusters: number
-  }>
-  calculations: {
-    baseClusters: number
-    extraClusters: number
-    totalClusters: number
-    littlesQuantity: number
-    grapesQuantity: number
-    balloons11in: number
-    balloons16in: number
-    totalBalloons: number
-  }
-}
+import { useDesignCalculations } from "@/hooks/use-design-calculations"
+import { toast } from "sonner"
 
 interface DesignSpecsFormProps {
-  onSubmit: (data: DesignSpecsFormData) => void
+  onSubmit: (data: any) => void
   designImage?: string | null
-  buttonText?: string
 }
 
-export const DesignSpecsForm = ({ 
-  onSubmit, 
-  designImage,
-  buttonText = "Submit" 
-}: DesignSpecsFormProps) => {
+export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps) => {
   const [clientName, setClientName] = useState("")
   const [projectName, setProjectName] = useState("")
   const [length, setLength] = useState("")
   const [style, setStyle] = useState("")
-  const [shape, setShape] = useState("Straight")
   const [selectedColors, setSelectedColors] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [totalClusters, setTotalClusters] = useState<number | null>(null)
 
-  const {
-    calculations,
-    isCalculating,
-    colorClusters,
-    updateColorClusters,
-  } = useDesignCalculations(length, style)
-
-  const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
-    setClientName(project.client_name)
-    setProjectName(project.project_name)
-  }
-
-  const handleColorsSelected = (colors: string[]) => {
-    console.log("Colors selected in DesignSpecsForm:", colors)
-    setSelectedColors(colors)
-    updateColorClusters(colors)
-  }
+  const calculations = useDesignCalculations({
+    length: parseInt(length) || 0,
+    style,
+    totalClusters: totalClusters || 0
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (isSubmitting) return
-
-    const isValid = validateDesignForm({
-      clientName,
-      projectName,
-      length,
-      style,
-      selectedColors,
-      calculations,
-    })
-
-    if (!isValid) return
-
     setIsSubmitting(true)
 
     try {
-      const formData: DesignSpecsFormData = {
+      const isValid = validateDesignForm({
         clientName,
         projectName,
         length,
         style,
-        shape,
-        colorClusters,
+        selectedColors,
         calculations
+      })
+
+      if (!isValid) {
+        setIsSubmitting(false)
+        return
       }
 
-      const success = await saveDesignForm(formData)
-      if (success) {
-        toast.success("Design form saved successfully!")
-        onSubmit(formData)
+      // Create color clusters based on the total clusters and selected colors
+      const clustersPerColor = Math.floor((totalClusters || 0) / selectedColors.length)
+      const remainingClusters = (totalClusters || 0) % selectedColors.length
+
+      const colorClusters = selectedColors.map((color, index) => ({
+        color,
+        baseClusters: clustersPerColor + (index < remainingClusters ? 1 : 0),
+        extraClusters: 0
+      }))
+
+      const formData = {
+        clientName,
+        projectName,
+        length,
+        style,
+        shape: 'Straight',
+        colorClusters,
+        calculations: {
+          ...calculations,
+          totalClusters: totalClusters || calculations.totalClusters
+        }
       }
+
+      onSubmit(formData)
     } catch (error) {
-      console.error("Error in form submission:", error)
-      toast.error("Error calculating balloon requirements")
+      console.error("Error submitting form:", error)
+      toast.error("Failed to submit design specifications")
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // Updated validation logic to be more precise
-  const isFormValid = Boolean(
-    clientName && 
-    projectName && 
-    length && 
-    style && 
-    selectedColors.length === 4 && 
-    calculations && 
-    !isCalculating
-  )
-
-  console.log("Form validation state:", {
-    clientName: Boolean(clientName),
-    projectName: Boolean(projectName),
-    length: Boolean(length),
-    style: Boolean(style),
-    selectedColors: selectedColors.length === 4,
-    calculations: Boolean(calculations),
-    isCalculating,
-    isFormValid
-  })
+  // Update total clusters when analysis data changes
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const analysisData = urlParams.get('analysisData')
+    if (analysisData) {
+      try {
+        const parsed = JSON.parse(analysisData)
+        setTotalClusters(parsed.clusters)
+      } catch (error) {
+        console.error("Error parsing analysis data:", error)
+      }
+    }
+  }, [])
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <ProjectInfoForm
-        clientName={clientName}
-        projectName={projectName}
-        onClientNameChange={setClientName}
-        onProjectNameChange={setProjectName}
-        onProjectSelect={handleProjectSelect}
-      />
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Design Specifications</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <ProjectInfoForm
+            clientName={clientName}
+            projectName={projectName}
+            onClientNameChange={setClientName}
+            onProjectNameChange={setProjectName}
+          />
 
-      <DimensionsForm
-        length={length}
-        style={style}
-        onLengthChange={setLength}
-        onStyleChange={setStyle}
-        disabled={isCalculating}
-      />
+          <DimensionsForm
+            length={length}
+            onLengthChange={setLength}
+          />
 
-      <ColorSelectionForm
-        designImage={designImage || null}
-        onColorsSelected={handleColorsSelected}
-        disabled={isCalculating}
-      />
+          <StyleSelect
+            value={style}
+            onChange={setStyle}
+          />
 
-      {isCalculating && (
-        <div className="text-center text-sm text-muted-foreground">
-          Updating calculations...
-        </div>
-      )}
+          <ColorSelectionForm
+            selectedColors={selectedColors}
+            onColorsChange={setSelectedColors}
+            designImage={designImage}
+          />
 
-      <FormSubmitButton
-        isValid={isFormValid}
-        isCalculating={isCalculating || isSubmitting}
-        buttonText={buttonText}
-      />
+          <FormSubmitButton
+            isSubmitting={isSubmitting}
+            isValid={selectedColors.length > 0 && !!length && !!style}
+          />
+        </CardContent>
+      </Card>
     </form>
   )
 }

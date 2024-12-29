@@ -25,6 +25,11 @@ export default function NewDesign() {
   }) => {
     setAnalysisData(data)
     console.log("Analysis data received:", data)
+    
+    // Update URL with analysis data
+    const searchParams = new URLSearchParams(window.location.search)
+    searchParams.set('analysisData', JSON.stringify(data))
+    window.history.replaceState(null, '', `?${searchParams.toString()}`)
   }
 
   const handleFormSubmit = async (formData: any) => {
@@ -40,7 +45,10 @@ export default function NewDesign() {
             style: formData.style,
             shape: formData.shape,
             colorClusters: formData.colorClusters,
-            calculations: formData.calculations,
+            calculations: {
+              ...formData.calculations,
+              totalClusters: analysisData?.clusters || formData.calculations.totalClusters
+            },
             imagePreview: designImage,
             clientReference: null,
             analysisData
@@ -68,7 +76,6 @@ export default function NewDesign() {
           </div>
 
           <div className="space-y-8">
-            {/* AI-Enhanced Image Upload Section */}
             <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
               <AIDesignUpload 
                 onImageUploaded={handleImageUploaded}
@@ -76,7 +83,6 @@ export default function NewDesign() {
               />
             </div>
 
-            {/* Design Specs Form */}
             <div className="bg-white rounded-xl shadow-sm p-8">
               <DesignSpecsForm
                 onSubmit={handleFormSubmit}
