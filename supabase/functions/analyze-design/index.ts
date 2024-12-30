@@ -7,7 +7,9 @@ const corsHeaders = {
 }
 
 const analyzeNumberedDesign = `
-You are a specialized balloon design analyzer. Your task is to analyze balloon design images and return ONLY a JSON object with the following structure, no other text:
+Please analyze the uploaded image and count ONLY the balloon clusters with numbers on them. Ignore any objects or designs that are not part of the numbered clusters (e.g., star-like objects or decorations).
+
+Your response must be ONLY a JSON object with this exact structure:
 
 {
   "colorKey": {
@@ -25,12 +27,14 @@ You are a specialized balloon design analyzer. Your task is to analyze balloon d
   ]
 }
 
-Rules:
-1. Only use colors explicitly listed in the image's color key
-2. Count each numbered cluster carefully
-3. Return ONLY the JSON object, no explanations or other text
-4. Ensure the JSON is properly formatted and valid
-5. Use the exact color names from the key`
+Critical Rules:
+1. Only count clusters that have visible numbers on them
+2. Double-check the count of each numbered cluster twice
+3. Only use colors explicitly listed in the image's color key
+4. Return ONLY the JSON object, no explanations or other text
+5. Ensure the JSON is properly formatted and valid
+6. Use the exact color names from the key
+7. Ignore any non-numbered decorative elements`
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -54,7 +58,7 @@ serve(async (req) => {
       messages: [
         {
           role: "system",
-          content: "You are a specialized balloon design analyzer. You must respond ONLY with valid JSON, no other text."
+          content: "You are a specialized balloon design analyzer. You must respond ONLY with valid JSON, no other text. Focus exclusively on counting numbered clusters and matching them to the color key."
         },
         {
           role: "user",
