@@ -7,41 +7,30 @@ const corsHeaders = {
 }
 
 const analyzeNumberedDesign = `
-Analyze this balloon design by following these exact steps:
+You are a specialized balloon design analyzer. Your task is to analyze balloon design images and return ONLY a JSON object with the following structure, no other text:
 
-1. FIRST - Read the numbered color key at the bottom of the image:
-   - Record each number and its EXACT corresponding color name
-   - Only use colors explicitly listed in the key
-   - Do not attempt to interpret or guess any colors
-
-2. THEN - Count clusters in the design:
-   - Look for numbered clusters (#1, #2, #3, etc.)
-   - Match each cluster's number to the color key
-   - Record the quantity of each numbered cluster
-
-3. Format response to show:
-   - Total count of each numbered cluster
-   - Use ONLY the exact color names from the key
-   - Match numbers to their defined colors
-
-Example response format:
 {
   "colorKey": {
-    "1": "Wild Berry",
-    "2": "Golden Rod",
-    "3": "Teal",
-    "4": "Orange"
+    "1": "color_name",
+    "2": "color_name"
+    // etc for each numbered color in the key
   },
   "clusters": [
     {
       "number": 1,
-      "definedColor": "Wild Berry",
-      "count": X
+      "definedColor": "exact_color_from_key",
+      "count": number_of_clusters
     }
+    // etc for each cluster number found
   ]
 }
 
-IMPORTANT: Never guess colors. Only use colors explicitly defined in the key.`
+Rules:
+1. Only use colors explicitly listed in the image's color key
+2. Count each numbered cluster carefully
+3. Return ONLY the JSON object, no explanations or other text
+4. Ensure the JSON is properly formatted and valid
+5. Use the exact color names from the key`
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -64,6 +53,10 @@ serve(async (req) => {
       model: "gpt-4o",
       messages: [
         {
+          role: "system",
+          content: "You are a specialized balloon design analyzer. You must respond ONLY with valid JSON, no other text."
+        },
+        {
           role: "user",
           content: [
             { type: "text", text: analyzeNumberedDesign },
@@ -77,6 +70,7 @@ serve(async (req) => {
           ],
         },
       ],
+      response_format: { type: "json_object" }, // Force JSON response
       max_tokens: 1000,
     })
 
@@ -84,14 +78,15 @@ serve(async (req) => {
     console.log('Raw analysis:', content)
 
     try {
-      const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
-      const analysisData = JSON.parse(cleanContent)
+      // Parse the response to ensure it's valid JSON
+      const analysisData = JSON.parse(content)
       
       // Validate the response structure
       if (!analysisData.colorKey || !analysisData.clusters || !Array.isArray(analysisData.clusters)) {
         throw new Error('Invalid analysis format')
       }
 
+      // Log the processed analysis for debugging
       console.log('Processed analysis:', analysisData)
 
       return new Response(
