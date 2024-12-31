@@ -66,6 +66,7 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
       <BalloonSummary
         totalBalloons11={totalBalloons11}
         totalBalloons16={totalBalloons16}
+        totalClusters={totalClusters}
       />
     </div>
   )
