@@ -7,7 +7,32 @@ const corsHeaders = {
 }
 
 const analyzeNumberedDesign = `
-Please analyze the uploaded image and count ONLY the balloon clusters with numbers on them. Ignore any objects or designs that are not part of the numbered clusters (e.g., star-like objects or decorations).
+LOVABLE.AI BALLOON CLUSTER ANALYSIS
+
+STEP 1: KEY VERIFICATION
+1. Locate and read the color key in the bottom left corner
+2. Identify each color and its corresponding cluster number
+
+STEP 2: COLOR ANALYSIS
+For each color in the key:
+- Count matching numbered clusters in the image
+- Verify balloon colors match the key
+- Each cluster should have:
+  * 11 balloons (11-inch size)
+  * 2 balloons (16-inch size)
+
+STEP 3: CALCULATE TOTALS
+Calculate for each color and overall:
+- Number of clusters
+- Total 11-inch balloons (clusters × 11)
+- Total 16-inch balloons (clusters × 2)
+
+IMPORTANT RULES:
+1. Only count clusters with visible numbers
+2. Count each cluster twice for accuracy
+3. Ignore decorative elements (stars, lines, etc.)
+4. Only use colors from the key
+5. Report exact color names as shown in key
 
 Your response must be ONLY a JSON object with this exact structure:
 
@@ -21,20 +46,21 @@ Your response must be ONLY a JSON object with this exact structure:
     {
       "number": 1,
       "definedColor": "exact_color_from_key",
-      "count": number_of_clusters
+      "count": number_of_clusters,
+      "balloons11inch": number_of_11inch,
+      "balloons16inch": number_of_16inch
     }
     // etc for each cluster number found
-  ]
+  ],
+  "totals": {
+    "totalClusters": number,
+    "total11inch": number,
+    "total16inch": number,
+    "totalBalloons": number
+  }
 }
 
-Critical Rules:
-1. Only count clusters that have visible numbers on them
-2. Double-check the count of each numbered cluster twice
-3. Only use colors explicitly listed in the image's color key
-4. Return ONLY the JSON object, no explanations or other text
-5. Ensure the JSON is properly formatted and valid
-6. Use the exact color names from the key
-7. Ignore any non-numbered decorative elements`
+Return ONLY the JSON object, no other text or explanations.`
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -58,7 +84,7 @@ serve(async (req) => {
       messages: [
         {
           role: "system",
-          content: "You are a specialized balloon design analyzer. You must respond ONLY with valid JSON, no other text. Focus exclusively on counting numbered clusters and matching them to the color key."
+          content: "You are a specialized balloon cluster analyzer. You must respond ONLY with valid JSON following the exact structure specified. Focus exclusively on counting numbered clusters, matching them to the color key, and calculating balloon quantities."
         },
         {
           role: "user",
