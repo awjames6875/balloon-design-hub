@@ -26,6 +26,14 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
     clustersCount: Math.floor(data.clusters / (data.colors?.length || 1))
   }))
 
+  // Calculate totals
+  const totalBalloons11 = balloonsPerColor.reduce((sum, color) => 
+    sum + (color.clustersCount * color.balloons11), 0
+  )
+  const totalBalloons16 = balloonsPerColor.reduce((sum, color) => 
+    sum + (color.clustersCount * color.balloons16), 0
+  )
+
   return (
     <div className="space-y-4">
       <div>
@@ -54,24 +62,38 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
                 <TableCell className="text-right">{colorData.clustersCount}</TableCell>
                 <TableCell className="text-right">{colorData.balloons11}</TableCell>
                 <TableCell className="text-right">{colorData.balloons16}</TableCell>
-                <TableCell className="text-right">{colorData.clustersCount * colorData.balloons11}</TableCell>
-                <TableCell className="text-right">{colorData.clustersCount * colorData.balloons16}</TableCell>
+                <TableCell className="text-right font-medium">
+                  {colorData.clustersCount * colorData.balloons11}
+                </TableCell>
+                <TableCell className="text-right font-medium">
+                  {colorData.clustersCount * colorData.balloons16}
+                </TableCell>
               </TableRow>
             ))}
-            <TableRow className="font-medium">
+            <TableRow className="font-medium bg-muted/50">
               <TableCell>Total</TableCell>
               <TableCell className="text-right">{data.clusters}</TableCell>
               <TableCell className="text-right">-</TableCell>
               <TableCell className="text-right">-</TableCell>
-              <TableCell className="text-right">
-                {balloonsPerColor.reduce((sum, color) => sum + (color.clustersCount * color.balloons11), 0)}
-              </TableCell>
-              <TableCell className="text-right">
-                {balloonsPerColor.reduce((sum, color) => sum + (color.clustersCount * color.balloons16), 0)}
-              </TableCell>
+              <TableCell className="text-right">{totalBalloons11}</TableCell>
+              <TableCell className="text-right">{totalBalloons16}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
+      </div>
+
+      <div className="mt-4 p-4 bg-muted rounded-lg">
+        <h4 className="text-sm font-medium mb-2">Summary</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-muted-foreground">Total 11" Balloons Needed</p>
+            <p className="text-2xl font-bold">{totalBalloons11}</p>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total 16" Balloons Needed</p>
+            <p className="text-2xl font-bold">{totalBalloons16}</p>
+          </div>
+        </div>
       </div>
     </div>
   )
