@@ -99,16 +99,16 @@ export default function NewDesign() {
                 designImage={designImage}
               />
             </div>
+          </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
-              <h2 className="text-2xl font-semibold text-gray-800">Design Assistant</h2>
-              <div className="grid gap-6 md:grid-cols-2">
-                <div>
-                  <BalloonGeni onUpdate={handleGeniUpdate} />
-                </div>
-                <div>
-                  <CopyBalloonGeniPrompt onUpdate={handleGeniUpdate} />
-                </div>
+          <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
+            <h2 className="text-2xl font-semibold text-gray-800">Design Assistant</h2>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <BalloonGeni onUpdate={handleGeniUpdate} />
+              </div>
+              <div>
+                <CopyBalloonGeniPrompt onUpdate={handleGeniUpdate} />
               </div>
             </div>
           </div>
