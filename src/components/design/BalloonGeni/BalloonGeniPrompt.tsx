@@ -11,8 +11,10 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
   const [inputValue, setInputValue] = useState<string>('')
 
   const handleCommand = async (command: string) => {
+    console.log("Processing command:", command)
     const correction = analyzeGeniCommand(command)
     if (correction) {
+      console.log("Correction generated:", correction)
       setCurrentCorrection(correction)
       setIsConfirming(true)
     }
@@ -42,9 +44,9 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
         <span className="text-sm font-medium">Balloon Geni</span>
       </div>
 
-      <Command className="rounded-lg border">
+      <Command shouldFilter={false} className="rounded-lg border shadow-none">
         <CommandInput 
-          placeholder="Tell me what needs to be corrected..." 
+          placeholder="Tell me what needs to be corrected... (e.g., change red clusters to 5)" 
           value={inputValue}
           onValueChange={setInputValue}
           onKeyDown={(e) => {

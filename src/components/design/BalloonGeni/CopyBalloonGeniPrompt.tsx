@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
+import { Command, CommandInput } from "@/components/ui/command"
 import { BalloonGeniDialog } from "./BalloonGeniDialog"
 import { analyzeGeniCommand } from "./commandPatterns"
 import type { BalloonGeniProps, CorrectionProps } from "./types"
@@ -9,11 +9,12 @@ const CopyBalloonGeniPrompt: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
   const [currentCorrection, setCurrentCorrection] = useState<CorrectionProps | null>(null)
   const [history, setHistory] = useState<CorrectionProps[]>([])
   const [inputValue, setInputValue] = useState<string>('')
-  const [suggestions] = useState<string[]>([]) // Initialize with empty array for Command component
 
   const handleCommand = async (command: string) => {
+    console.log("Processing command:", command)
     const correction = analyzeGeniCommand(command)
     if (correction) {
+      console.log("Correction generated:", correction)
       setCurrentCorrection(correction)
       setIsConfirming(true)
     }
@@ -43,9 +44,9 @@ const CopyBalloonGeniPrompt: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
         <span className="text-sm font-medium">Copy Balloon Geni</span>
       </div>
 
-      <Command className="rounded-lg border" shouldFilter={false}>
+      <Command shouldFilter={false} className="rounded-lg border shadow-none">
         <CommandInput 
-          placeholder="Tell me what needs to be corrected..." 
+          placeholder="Tell me what needs to be corrected... (e.g., change red clusters to 5)" 
           value={inputValue}
           onValueChange={setInputValue}
           onKeyDown={(e) => {
@@ -54,16 +55,6 @@ const CopyBalloonGeniPrompt: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
             }
           }}
         />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup>
-            {suggestions.map((suggestion, index) => (
-              <CommandItem key={index} value={suggestion} onSelect={() => handleCommand(suggestion)}>
-                {suggestion}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
       </Command>
 
       <BalloonGeniDialog
