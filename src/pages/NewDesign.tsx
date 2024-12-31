@@ -68,7 +68,6 @@ export default function NewDesign() {
   const handleGeniUpdate = async (correction: CorrectionProps): Promise<void> => {
     console.log("Geni update:", correction)
     // TODO: Implement the actual correction logic
-    // For now, just show a success toast
     toast.success("Design updated successfully")
   }
 
@@ -77,7 +76,7 @@ export default function NewDesign() {
       <div className="container mx-auto px-4 py-8">
         <BackToHome />
 
-        <div className="max-w-3xl mx-auto space-y-12">
+        <div className="max-w-3xl mx-auto space-y-8">
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold text-gray-800">Create New Design</h1>
             <p className="text-gray-600 max-w-xl mx-auto">
@@ -93,23 +92,25 @@ export default function NewDesign() {
               />
             </div>
 
+            {analysisData && (
+              <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
+                <h2 className="text-2xl font-semibold text-gray-800">Design Assistant</h2>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <BalloonGeni onUpdate={handleGeniUpdate} />
+                  </div>
+                  <div>
+                    <CopyBalloonGeniPrompt onUpdate={handleGeniUpdate} />
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="bg-white rounded-xl shadow-sm p-8">
               <DesignSpecsForm
                 onSubmit={handleFormSubmit}
                 designImage={designImage}
               />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-800">Design Assistant</h2>
-            <div className="grid gap-6 md:grid-cols-2">
-              <div>
-                <BalloonGeni onUpdate={handleGeniUpdate} />
-              </div>
-              <div>
-                <CopyBalloonGeniPrompt onUpdate={handleGeniUpdate} />
-              </div>
             </div>
           </div>
         </div>
