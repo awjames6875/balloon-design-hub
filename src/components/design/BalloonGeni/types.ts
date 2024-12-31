@@ -1,4 +1,9 @@
-export type CorrectionType = 'cluster_count' | 'color_name' | 'balloon_count' | 'add_color' | 'remove_color';
+export type CorrectionType = 
+  | 'cluster_count' 
+  | 'color_name' 
+  | 'balloon_count' 
+  | 'add_color' 
+  | 'remove_color';
 
 export interface CorrectionProps {
   type: CorrectionType;
