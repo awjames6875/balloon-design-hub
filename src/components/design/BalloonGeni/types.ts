@@ -11,6 +11,8 @@ export interface CorrectionProps {
   originalValue: string | number | null;
   newValue: string | number;
   action: string;
+  balloonSize?: '11' | '16';  // For balloon-specific updates
+  clusterCount?: number;      // For tracking cluster counts
 }
 
 export interface BalloonGeniProps {
