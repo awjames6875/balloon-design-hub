@@ -49,12 +49,8 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
   const totalClusters = balloonsPerColor.reduce((sum, color) => 
     sum + color.clustersCount, 0
   )
-  const totalBalloons11 = balloonsPerColor.reduce((sum, color) => 
-    sum + (color.clustersCount * BALLOONS_11_PER_CLUSTER), 0
-  )
-  const totalBalloons16 = balloonsPerColor.reduce((sum, color) => 
-    sum + (color.clustersCount * BALLOONS_16_PER_CLUSTER), 0
-  )
+  const totalBalloons11 = totalClusters * BALLOONS_11_PER_CLUSTER
+  const totalBalloons16 = totalClusters * BALLOONS_16_PER_CLUSTER
 
   return (
     <div className="space-y-4">
