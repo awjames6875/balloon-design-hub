@@ -1,4 +1,4 @@
-import { Command } from "@/components/ui/command"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandLoading } from "@/components/ui/command"
 import { useProjectSearch } from "./search/use-project-search"
 
 export const ProjectSearch = ({
@@ -13,24 +13,26 @@ export const ProjectSearch = ({
 
   return (
     <Command className="rounded-lg border shadow-md">
-      <Command.Input placeholder="Search all projects..." />
-      <Command.List>
+      <CommandInput placeholder="Search all projects..." />
+      <CommandList>
         {isLoading ? (
-          <Command.Loading>Loading...</Command.Loading>
+          <CommandLoading>Loading...</CommandLoading>
         ) : safeProjects.length === 0 ? (
-          <Command.Empty>No projects found.</Command.Empty>
+          <CommandEmpty>No projects found.</CommandEmpty>
         ) : (
-          safeProjects.map((project) => (
-            <Command.Item
-              key={`${project.client_name}-${project.project_name}`}
-              value={`${project.client_name} - ${project.project_name}`}
-              onSelect={() => onProjectSelected(project)}
-            >
-              {project.client_name} - {project.project_name}
-            </Command.Item>
-          ))
+          <CommandGroup>
+            {safeProjects.map((project) => (
+              <CommandItem
+                key={`${project.client_name}-${project.project_name}`}
+                value={`${project.client_name} - ${project.project_name}`}
+                onSelect={() => onProjectSelected(project)}
+              >
+                {project.client_name} - {project.project_name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
         )}
-      </Command.List>
+      </CommandList>
     </Command>
   )
 }

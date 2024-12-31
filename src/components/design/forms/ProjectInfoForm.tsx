@@ -18,7 +18,7 @@ export const ProjectInfoForm = ({
 }: ProjectInfoFormProps) => {
   return (
     <div className="space-y-4">
-      <ProjectSearch onProjectSelect={onProjectSelect} />
+      <ProjectSearch onProjectSelected={onProjectSelect} />
       <ClientInfoFields
         clientName={clientName}
         projectName={projectName}
