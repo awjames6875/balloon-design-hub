@@ -6,6 +6,7 @@ import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
 import BalloonGeni from "@/components/design/BalloonGeni/BalloonGeniPrompt"
 import CopyBalloonGeniPrompt from "@/components/design/BalloonGeni/CopyBalloonGeniPrompt"
+import { CorrectionProps } from "@/components/design/BalloonGeni/types"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -64,9 +65,10 @@ export default function NewDesign() {
     }
   }
 
-  const handleGeniUpdate = (correction: any) => {
+  const handleGeniUpdate = async (correction: CorrectionProps): Promise<void> => {
     console.log("Geni update:", correction)
-    // TODO: Implement the correction logic
+    // TODO: Implement the actual correction logic
+    // For now, just show a success toast
     toast.success("Design updated successfully")
   }
 
