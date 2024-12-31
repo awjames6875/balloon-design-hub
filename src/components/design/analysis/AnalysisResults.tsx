@@ -26,10 +26,6 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
     return <div>No analysis data available</div>
   }
 
-  // Constants for balloons per cluster
-  const BALLOONS_11_PER_CLUSTER = 11
-  const BALLOONS_16_PER_CLUSTER = 2
-
   // Use the numbered analysis data to get accurate cluster counts per color
   const balloonsPerColor = (data.colors || []).map(color => {
     // Find the cluster data for this color from the numbered analysis
@@ -39,18 +35,19 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
     
     return {
       color,
-      balloons11: BALLOONS_11_PER_CLUSTER,
-      balloons16: BALLOONS_16_PER_CLUSTER,
+      balloons11: 11, // Each cluster uses 11 11-inch balloons
+      balloons16: 2,  // Each cluster uses 2 16-inch balloons
       clustersCount: clusterData?.count || 0
     }
   })
 
   // Calculate totals
-  const totalClusters = balloonsPerColor.reduce((sum, color) => 
-    sum + color.clustersCount, 0
+  const totalBalloons11 = balloonsPerColor.reduce((sum, color) => 
+    sum + (color.clustersCount * color.balloons11), 0
   )
-  const totalBalloons11 = totalClusters * BALLOONS_11_PER_CLUSTER
-  const totalBalloons16 = totalClusters * BALLOONS_16_PER_CLUSTER
+  const totalBalloons16 = balloonsPerColor.reduce((sum, color) => 
+    sum + (color.clustersCount * color.balloons16), 0
+  )
 
   return (
     <div className="space-y-4">
@@ -78,21 +75,21 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
                   {colorData.color}
                 </TableCell>
                 <TableCell className="text-right">{colorData.clustersCount}</TableCell>
-                <TableCell className="text-right">{BALLOONS_11_PER_CLUSTER}</TableCell>
-                <TableCell className="text-right">{BALLOONS_16_PER_CLUSTER}</TableCell>
+                <TableCell className="text-right">{colorData.balloons11}</TableCell>
+                <TableCell className="text-right">{colorData.balloons16}</TableCell>
                 <TableCell className="text-right font-medium">
-                  {colorData.clustersCount * BALLOONS_11_PER_CLUSTER}
+                  {colorData.clustersCount * colorData.balloons11}
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  {colorData.clustersCount * BALLOONS_16_PER_CLUSTER}
+                  {colorData.clustersCount * colorData.balloons16}
                 </TableCell>
               </TableRow>
             ))}
             <TableRow className="font-medium bg-muted/50">
               <TableCell>Total</TableCell>
-              <TableCell className="text-right">{totalClusters}</TableCell>
-              <TableCell className="text-right">{BALLOONS_11_PER_CLUSTER}</TableCell>
-              <TableCell className="text-right">{BALLOONS_16_PER_CLUSTER}</TableCell>
+              <TableCell className="text-right">{data.clusters}</TableCell>
+              <TableCell className="text-right">-</TableCell>
+              <TableCell className="text-right">-</TableCell>
               <TableCell className="text-right">{totalBalloons11}</TableCell>
               <TableCell className="text-right">{totalBalloons16}</TableCell>
             </TableRow>
