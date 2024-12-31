@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ImageUpload } from "./ImageUpload"
 import { toast } from "sonner"
-import { analyzeImageColors, uploadDesignImage } from "@/utils/imageAnalysis"
+import { uploadDesignImage } from "@/utils/imageAnalysis"
 import { AnalysisResults } from "./analysis/AnalysisResults"
 import { ClusterAnalysis } from "./analysis/ClusterAnalysis"
 import { supabase } from "@/integrations/supabase/client"
@@ -56,9 +56,6 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       setDesignImage(imagePath)
       onImageUploaded(imagePath)
 
-      // Analyze the colors
-      const detectedColors = await analyzeImageColors(imagePath)
-      
       // Analyze numbered clusters using the edge function
       const { data: numberedDesignAnalysis, error } = await supabase.functions.invoke('analyze-design', {
         body: { imageUrl: imagePath }
@@ -74,10 +71,12 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
         // Calculate total clusters by summing the count of all clusters
         const totalClusters = numberedDesignAnalysis?.clusters?.reduce((sum, cluster) => sum + cluster.count, 0) || 0
 
-        // Create analysis data with the correct total
+        // Create analysis data using only the colors from the key
+        const colorsFromKey = Object.values(numberedDesignAnalysis?.colorKey || {})
+        
         const newAnalysisData: AIAnalysisData = {
-          clusters: totalClusters, // Now using the sum of all cluster counts
-          colors: detectedColors,
+          clusters: totalClusters,
+          colors: colorsFromKey,
           sizes: [
             { size: "11in", quantity: Math.floor(Math.random() * 50) + 20 },
             { size: "16in", quantity: Math.floor(Math.random() * 30) + 10 }

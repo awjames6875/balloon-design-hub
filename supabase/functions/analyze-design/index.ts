@@ -6,20 +6,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const analyzeNumberedDesign = `You are a specialized balloon cluster analyzer. Analyze this balloon design image and return ONLY a JSON object with the following structure. DO NOT include any other text.
+const analyzeNumberedDesign = `You are a specialized balloon cluster analyzer. Your task is to analyze this balloon design image and identify numbered clusters and their colors. Return ONLY a JSON object with the following structure. DO NOT include any other text.
 
 ANALYSIS RULES:
-1. Look for numbered clusters in the image
-2. Each number represents a cluster of balloons
-3. Each cluster should have a defined color
-4. Count total occurrences of each numbered cluster
-5. Create a color key mapping numbers to colors
+1. Look for numbered clusters in the image (numbers that indicate balloon groupings)
+2. For each numbered cluster, identify its color
+3. Count how many times each numbered cluster appears
+4. Create a mapping between cluster numbers and their colors
 
 RETURN THIS EXACT JSON STRUCTURE:
 {
   "colorKey": {
     "1": "color_name",
     "2": "color_name"
+    // ... for each numbered cluster found
   },
   "clusters": [
     {
@@ -27,6 +27,7 @@ RETURN THIS EXACT JSON STRUCTURE:
       "definedColor": "color_name",
       "count": number_of_occurrences
     }
+    // ... for each cluster number found
   ]
 }`
 
@@ -49,7 +50,7 @@ serve(async (req) => {
 
     console.log('Sending request to OpenAI...')
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4-vision-preview",
       messages: [
         {
           role: "system",
@@ -68,7 +69,6 @@ serve(async (req) => {
           ]
         }
       ],
-      response_format: { type: "json_object" },
       max_tokens: 1000
     })
 
@@ -76,11 +76,17 @@ serve(async (req) => {
     console.log('Raw OpenAI response:', content)
 
     // Parse and validate the response
-    const analysisData = JSON.parse(content)
-    
-    // Provide default data if no clusters are detected
-    if (!analysisData.colorKey || !analysisData.clusters || analysisData.clusters.length === 0) {
-      console.log('No clusters detected, providing default response')
+    let analysisData
+    try {
+      analysisData = JSON.parse(content)
+    } catch (error) {
+      console.error('Failed to parse OpenAI response:', error)
+      throw new Error('Failed to parse analysis response')
+    }
+
+    // Validate the response structure
+    if (!analysisData?.colorKey || !analysisData?.clusters || !Array.isArray(analysisData.clusters)) {
+      console.log('Invalid response structure, providing default response')
       return new Response(
         JSON.stringify({
           colorKey: { "1": "white" },
