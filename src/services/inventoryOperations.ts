@@ -17,14 +17,15 @@ export const addNewBalloonType = async (
     if (existingBalloon) {
       // Update existing balloon quantity
       const newQuantity = existingBalloon.quantity + quantity
-      const { error: updateError } = await supabase
+      const { data: updateData, error: updateError } = await supabase
         .from("balloon_inventory")
         .update({ 
           quantity: newQuantity,
           updated_at: new Date().toISOString()
         })
         .eq("id", existingBalloon.id)
-        .single()
+        .select()
+        .maybeSingle()
 
       if (updateError) {
         console.error("Error updating balloon quantity:", updateError)
@@ -37,7 +38,7 @@ export const addNewBalloonType = async (
       })
     } else {
       // Add new balloon type
-      const { error: insertError } = await supabase
+      const { data: insertData, error: insertError } = await supabase
         .from("balloon_inventory")
         .insert([
           {
@@ -49,7 +50,7 @@ export const addNewBalloonType = async (
           }
         ])
         .select()
-        .single()
+        .maybeSingle()
 
       if (insertError) {
         console.error("Error adding balloon type:", insertError)
