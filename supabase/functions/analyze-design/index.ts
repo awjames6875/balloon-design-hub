@@ -11,11 +11,15 @@ const analyzeNumberedDesign = `You are a specialized balloon cluster analyzer. Y
 ANALYSIS RULES:
 1. Look for the color key in the bottom left that maps numbers to colors
 2. For each numbered cluster in the key:
-   - Count EVERY instance of that numbered cluster in the design
+   - Count EVERY SINGLE instance of that numbered cluster in the design
    - Each cluster consists of 11 (11-inch) + 2 (16-inch) balloons
-3. Count clusters ONLY if they have a visible number matching the key
+   - Count clusters ONLY if they have a visible number matching the key
+3. Double-check your count:
+   - Look at the design from left to right
+   - Count each numbered cluster individually
+   - Verify your count by doing a second pass from right to left
 4. Ignore all decorative elements (stars, lines, etc.)
-5. Double verify all counts before responding
+5. Triple verify all counts before responding
 
 RETURN THIS EXACT JSON STRUCTURE:
 {
@@ -53,7 +57,7 @@ serve(async (req) => {
 
     console.log('Sending request to OpenAI...')
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4-vision-preview",
       messages: [
         {
           role: "system",
@@ -68,6 +72,10 @@ serve(async (req) => {
                 url: imageUrl,
                 detail: "high"
               }
+            },
+            {
+              type: "text",
+              text: "Please count EVERY SINGLE numbered cluster in this design. Make sure to verify your count multiple times for 100% accuracy."
             }
           ]
         }
