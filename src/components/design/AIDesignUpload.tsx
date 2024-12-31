@@ -72,7 +72,7 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
         const totalClusters = numberedDesignAnalysis?.clusters?.reduce((sum, cluster) => sum + cluster.count, 0) || 0
 
         // Create analysis data using only the colors from the key
-        const colorsFromKey = Object.values(numberedDesignAnalysis?.colorKey || {})
+        const colorsFromKey = Object.values(numberedDesignAnalysis?.colorKey || {}) as string[]
         
         const newAnalysisData: AIAnalysisData = {
           clusters: totalClusters,

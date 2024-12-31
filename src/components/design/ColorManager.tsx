@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { analyzeImageColors } from "@/utils/imageAnalysis"
 import { toast } from "sonner"
 import { ColorGrid } from "./ColorGrid"
 import { ColorSelectionStatus } from "./ColorSelectionStatus"
@@ -19,27 +18,6 @@ export const ColorManager = ({
 }: ColorManagerProps) => {
   const [availableColors, setAvailableColors] = useState<string[]>(DEFAULT_COLORS)
   const [selectedColors, setSelectedColors] = useState<string[]>([])
-
-  useEffect(() => {
-    const fetchColors = async () => {
-      if (designImage) {
-        try {
-          const detectedColors = await analyzeImageColors(designImage)
-          if (detectedColors && detectedColors.length > 0) {
-            setAvailableColors(prevColors => {
-              const allColors = [...new Set([...detectedColors, ...prevColors])]
-              return allColors
-            })
-          }
-        } catch (error) {
-          console.error("Error analyzing colors:", error)
-          toast.error("Failed to analyze image colors")
-        }
-      }
-    }
-
-    fetchColors()
-  }, [designImage])
 
   useEffect(() => {
     onColorsSelected(selectedColors)
