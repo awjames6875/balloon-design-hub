@@ -50,7 +50,7 @@ serve(async (req) => {
 
     console.log('Sending request to OpenAI...')
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Using the mini model for faster, cheaper analysis
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -75,7 +75,6 @@ serve(async (req) => {
     const content = response.choices[0].message.content
     console.log('Raw OpenAI response:', content)
 
-    // Parse and validate the response
     let analysisData
     try {
       // Remove any potential markdown code block markers
@@ -96,6 +95,13 @@ serve(async (req) => {
         }
       }
 
+      // Calculate total clusters by summing the count of all clusters
+      const totalClusters = analysisData.clusters.reduce((sum, cluster) => sum + cluster.count, 0)
+      console.log('Total clusters calculated:', totalClusters)
+
+      // Update the response to include the total count
+      analysisData.totalClusters = totalClusters
+
     } catch (parseError) {
       console.error('Failed to parse OpenAI response:', parseError)
       console.log('Content that failed to parse:', content)
@@ -104,7 +110,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           colorKey: { "1": "white" },
-          clusters: [{ number: 1, definedColor: "white", count: 1 }]
+          clusters: [{ number: 1, definedColor: "white", count: 1 }],
+          totalClusters: 1
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
