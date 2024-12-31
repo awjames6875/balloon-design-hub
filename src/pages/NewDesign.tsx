@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
+import BalloonGeni from "@/components/design/BalloonGeni/BalloonGeniPrompt"
+import CopyBalloonGeniPrompt from "@/components/design/BalloonGeni/CopyBalloonGeniPrompt"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -62,6 +64,12 @@ export default function NewDesign() {
     }
   }
 
+  const handleGeniUpdate = (correction: any) => {
+    console.log("Geni update:", correction)
+    // TODO: Implement the correction logic
+    toast.success("Design updated successfully")
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background">
       <div className="container mx-auto px-4 py-8">
@@ -88,6 +96,18 @@ export default function NewDesign() {
                 onSubmit={handleFormSubmit}
                 designImage={designImage}
               />
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
+              <h2 className="text-2xl font-semibold text-gray-800">Design Assistant</h2>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div>
+                  <BalloonGeni onUpdate={handleGeniUpdate} />
+                </div>
+                <div>
+                  <CopyBalloonGeniPrompt onUpdate={handleGeniUpdate} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
