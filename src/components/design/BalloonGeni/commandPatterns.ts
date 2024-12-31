@@ -1,7 +1,5 @@
-// First, import our types
-import { CorrectionProps, CorrectionType } from './types'
+import { CorrectionProps, CorrectionType } from './types';
 
-// Create the function and make it globally available for testing
 export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
   const patterns = [
     // Change cluster count pattern
@@ -66,30 +64,29 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
         action: 'remove_color'
       })
     }
-  ]
+  ];
 
-  // Try each pattern
   for (const pattern of patterns) {
-    const matches = command.match(pattern.regex)
+    const matches = command.match(pattern.regex);
     if (matches) {
-      return pattern.handler(matches)
+      return pattern.handler(matches);
     }
   }
 
-  return null
+  return null;
 }
 
 // Make it available globally for browser testing
 if (typeof window !== 'undefined') {
-  (window as any).analyzeGeniCommand = analyzeGeniCommand
+  (window as any).analyzeGeniCommand = analyzeGeniCommand;
 }
 
 // Add test function to window for easy console testing
 if (typeof window !== 'undefined') {
   (window as any).testCommand = (command: string) => {
-    console.log('--------------------')
-    console.log('Testing:', command)
-    console.log('Result:', analyzeGeniCommand(command))
-    console.log('--------------------')
+    console.log('--------------------');
+    console.log('Testing:', command);
+    console.log('Result:', analyzeGeniCommand(command));
+    console.log('--------------------');
   }
 }
