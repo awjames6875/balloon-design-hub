@@ -164,6 +164,7 @@ export type Database = {
           design_id: number | null
           id: number
           sizes: Json
+          total_balloons: number | null
           updated_at: string | null
         }
         Insert: {
@@ -173,6 +174,7 @@ export type Database = {
           design_id?: number | null
           id?: number
           sizes?: Json
+          total_balloons?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -182,6 +184,7 @@ export type Database = {
           design_id?: number | null
           id?: number
           sizes?: Json
+          total_balloons?: number | null
           updated_at?: string | null
         }
         Relationships: [

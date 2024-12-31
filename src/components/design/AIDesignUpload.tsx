@@ -37,19 +37,39 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
 
   const handleImageUpload = async (file: File) => {
     try {
+      console.log("Starting image upload process...")
       setIsAnalyzing(true)
       
       // First upload the image
+      console.log("Attempting to upload image to Supabase storage...")
       const imagePath = await uploadDesignImage(file)
       if (!imagePath) {
+        console.error("Failed to get image path from uploadDesignImage")
         toast.error("Failed to upload image")
         return
       }
 
+      console.log("Image uploaded successfully, path:", imagePath)
       setDesignImage(imagePath)
       onImageUploaded(imagePath)
 
+      // Test Supabase connection
+      console.log("Testing Supabase connection...")
+      const { data: testData, error: testError } = await supabase
+        .from('balloon_styles')
+        .select('*')
+        .limit(1)
+
+      if (testError) {
+        console.error("Supabase connection test failed:", testError)
+        toast.error("Failed to connect to Supabase")
+        return
+      }
+
+      console.log("Supabase connection test successful:", testData)
+
       // Analyze numbered clusters using the edge function
+      console.log("Calling analyze-design edge function...")
       const { data: numberedDesignAnalysis, error } = await supabase.functions.invoke('analyze-design', {
         body: { imageUrl: imagePath }
       })
@@ -92,7 +112,6 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
   const handleRefresh = () => {
     setAnalysisData(null)
     setDesignImage(null)
-    // Also notify parent component that image has been cleared
     onImageUploaded("")
     toast.success("Analysis data cleared. You can now upload a new design.")
   }

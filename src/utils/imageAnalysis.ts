@@ -3,9 +3,11 @@ import { toast } from "sonner"
 
 export const uploadDesignImage = async (file: File): Promise<string | null> => {
   try {
+    console.log("Starting image upload to Supabase storage...")
     const fileExt = file.name.split('.').pop()
     const fileName = `design_${Date.now()}.${fileExt}`
     
+    console.log("Attempting to upload file:", fileName)
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('design_images')
       .upload(fileName, file)
@@ -16,10 +18,13 @@ export const uploadDesignImage = async (file: File): Promise<string | null> => {
       return null
     }
 
+    console.log("File uploaded successfully:", uploadData)
+
     const { data: { publicUrl } } = supabase.storage
       .from('design_images')
       .getPublicUrl(uploadData.path)
 
+    console.log("Generated public URL:", publicUrl)
     return publicUrl
   } catch (error) {
     console.error('Error in uploadDesignImage:', error)
