@@ -1,4 +1,4 @@
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandLoading } from "@/components/ui/command"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { useProjectSearch } from "./search/use-project-search"
 
 export const ProjectSearch = ({
@@ -16,7 +16,7 @@ export const ProjectSearch = ({
       <CommandInput placeholder="Search all projects..." />
       <CommandList>
         {isLoading ? (
-          <CommandLoading>Loading...</CommandLoading>
+          <CommandEmpty>Loading...</CommandEmpty>
         ) : safeProjects.length === 0 ? (
           <CommandEmpty>No projects found.</CommandEmpty>
         ) : (
