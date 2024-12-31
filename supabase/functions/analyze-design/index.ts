@@ -28,20 +28,13 @@ YOU MUST RETURN ONLY THIS JSON STRUCTURE, NO OTHER TEXT:
     {
       "number": 1,
       "definedColor": "exact_color_from_key",
-      "count": number_of_clusters,
-      "balloons11inch": number_of_clusters_times_11,
-      "balloons16inch": number_of_clusters_times_2
+      "count": number_of_clusters
     }
-  ],
-  "totals": {
-    "totalClusters": sum_of_all_clusters,
-    "total11inch": sum_of_all_11inch,
-    "total16inch": sum_of_all_16inch,
-    "totalBalloons": total_11inch_plus_16inch
-  }
+  ]
 }`
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -89,9 +82,25 @@ serve(async (req) => {
     try {
       const analysisData = JSON.parse(content)
       
-      if (!analysisData.colorKey || !analysisData.clusters || !Array.isArray(analysisData.clusters)) {
-        throw new Error('Invalid analysis format')
+      // Validate the response structure
+      if (!analysisData || typeof analysisData !== 'object') {
+        throw new Error('Invalid analysis format: not an object')
       }
+
+      if (!analysisData.colorKey || typeof analysisData.colorKey !== 'object') {
+        throw new Error('Invalid analysis format: missing or invalid colorKey')
+      }
+
+      if (!analysisData.clusters || !Array.isArray(analysisData.clusters)) {
+        throw new Error('Invalid analysis format: missing or invalid clusters array')
+      }
+
+      // Validate each cluster
+      analysisData.clusters.forEach((cluster: any, index: number) => {
+        if (!cluster.number || !cluster.definedColor || typeof cluster.count !== 'number') {
+          throw new Error(`Invalid cluster format at index ${index}`)
+        }
+      })
 
       console.log('Processed analysis:', analysisData)
 
