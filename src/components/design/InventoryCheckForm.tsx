@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
@@ -28,6 +29,7 @@ export const InventoryCheckForm = ({
   dimensions,
   style
 }: InventoryCheckProps) => {
+  const navigate = useNavigate()
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isGeneratingForm, setIsGeneratingForm] = useState(false)
@@ -89,13 +91,25 @@ export const InventoryCheckForm = ({
         totalBalloons: calculations.totalBalloons,
         accents: {},
         productionTime: `${Math.floor((calculations.totalClusters * 15) / 60)}h ${(calculations.totalClusters * 15) % 60}m`,
-        shape: 'Straight' // Default shape
+        shape: 'Straight'
       })
 
       toast.success("Production form generated and inventory updated successfully!")
       
-      // Refresh the inventory display
-      await handleInventoryCheck()
+      // Navigate to production forms with the design data
+      navigate("/production-forms", {
+        state: {
+          designData: {
+            clientName,
+            projectName,
+            length: dimensions,
+            style,
+            colorClusters,
+            calculations,
+            shape: 'Straight'
+          }
+        }
+      })
       
       onInventoryChecked()
     } catch (error) {
