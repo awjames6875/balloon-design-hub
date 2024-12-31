@@ -50,7 +50,7 @@ serve(async (req) => {
 
     console.log('Sending request to OpenAI...')
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // Updated to use the correct model
+      model: "gpt-4o-mini", // Using the mini model for faster, cheaper analysis
       messages: [
         {
           role: "system",
@@ -78,15 +78,29 @@ serve(async (req) => {
     // Parse and validate the response
     let analysisData
     try {
-      analysisData = JSON.parse(content)
-    } catch (error) {
-      console.error('Failed to parse OpenAI response:', error)
-      throw new Error('Failed to parse analysis response')
-    }
+      // Remove any potential markdown code block markers
+      const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
+      analysisData = JSON.parse(cleanContent)
+      
+      // Validate the response structure
+      if (!analysisData?.colorKey || !analysisData?.clusters || !Array.isArray(analysisData.clusters)) {
+        console.error('Invalid response structure:', analysisData)
+        throw new Error('Invalid response structure')
+      }
 
-    // Validate the response structure
-    if (!analysisData?.colorKey || !analysisData?.clusters || !Array.isArray(analysisData.clusters)) {
-      console.log('Invalid response structure, providing default response')
+      // Validate each cluster has required properties
+      for (const cluster of analysisData.clusters) {
+        if (!('number' in cluster && 'definedColor' in cluster && 'count' in cluster)) {
+          console.error('Invalid cluster structure:', cluster)
+          throw new Error('Invalid cluster structure')
+        }
+      }
+
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI response:', parseError)
+      console.log('Content that failed to parse:', content)
+      
+      // Provide a default response for testing
       return new Response(
         JSON.stringify({
           colorKey: { "1": "white" },
