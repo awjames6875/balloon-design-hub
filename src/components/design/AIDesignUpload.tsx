@@ -4,7 +4,6 @@ import { ImageUpload } from "./ImageUpload"
 import { toast } from "sonner"
 import { uploadDesignImage } from "@/utils/imageAnalysis"
 import { AnalysisResults } from "./analysis/AnalysisResults"
-import { ClusterAnalysis } from "./analysis/ClusterAnalysis"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
@@ -26,21 +25,6 @@ interface AIAnalysisData {
   }
 }
 
-interface ColorKey {
-  [key: string]: string
-}
-
-interface Cluster {
-  number: number
-  definedColor: string
-  count: number
-}
-
-interface NumberedAnalysis {
-  colorKey: ColorKey
-  clusters: Cluster[]
-}
-
 interface AIDesignUploadProps {
   onAnalysisComplete: (data: AIAnalysisData) => void
   onImageUploaded: (imagePath: string) => void
@@ -49,7 +33,6 @@ interface AIDesignUploadProps {
 export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesignUploadProps) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisData, setAnalysisData] = useState<AIAnalysisData | null>(null)
-  const [numberedAnalysis, setNumberedAnalysis] = useState<NumberedAnalysis | null>(null)
   const [designImage, setDesignImage] = useState<string | null>(null)
 
   const handleImageUpload = async (file: File) => {
@@ -76,7 +59,6 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
         toast.error('Failed to analyze numbered design')
       } else {
         console.log('Numbered design analysis results:', numberedDesignAnalysis)
-        setNumberedAnalysis(numberedDesignAnalysis)
 
         // Calculate total clusters by summing the count of all clusters
         const totalClusters = numberedDesignAnalysis?.clusters?.reduce((sum, cluster) => sum + cluster.count, 0) || 0
@@ -109,7 +91,6 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
 
   const handleRefresh = () => {
     setAnalysisData(null)
-    setNumberedAnalysis(null)
     setDesignImage(null)
     // Also notify parent component that image has been cleared
     onImageUploaded("")
@@ -120,7 +101,7 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Design Upload & Analysis</CardTitle>
-        {(designImage || analysisData || numberedAnalysis) && (
+        {(designImage || analysisData) && (
           <Button 
             variant="outline" 
             size="icon"
@@ -144,13 +125,6 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
           <div className="text-center text-sm text-muted-foreground">
             Analyzing design...
           </div>
-        )}
-
-        {numberedAnalysis && (
-          <ClusterAnalysis 
-            colorKey={numberedAnalysis.colorKey} 
-            clusters={numberedAnalysis.clusters} 
-          />
         )}
 
         {analysisData && <AnalysisResults data={analysisData} />}
