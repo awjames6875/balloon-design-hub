@@ -1,3 +1,4 @@
+// Define all possible correction types
 export type CorrectionType = 
   | 'cluster_count' 
   | 'color_name' 
@@ -5,6 +6,7 @@ export type CorrectionType =
   | 'add_color' 
   | 'remove_color';
 
+// Interface for handling corrections
 export interface CorrectionProps {
   type: CorrectionType;
   color: string;
@@ -15,6 +17,7 @@ export interface CorrectionProps {
   clusterCount?: number;      // For tracking cluster counts
 }
 
+// Props for the BalloonGeni component
 export interface BalloonGeniProps {
   onUpdate: (correction: CorrectionProps) => Promise<void>;
 }
