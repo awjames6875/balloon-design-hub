@@ -10,16 +10,20 @@ interface AnalysisData {
 }
 
 interface AnalysisResultsProps {
-  data: AnalysisData
+  data: AnalysisData | null
 }
 
 export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
+  if (!data) {
+    return <div>No analysis data available</div>
+  }
+
   // Calculate balloons per cluster for each color
-  const balloonsPerColor = data.colors.map(color => ({
+  const balloonsPerColor = (data.colors || []).map(color => ({
     color,
     balloons11: 11, // Each cluster uses 11 11-inch balloons
     balloons16: 2,  // Each cluster uses 2 16-inch balloons
-    clustersCount: Math.floor(data.clusters / data.colors.length)
+    clustersCount: Math.floor(data.clusters / (data.colors?.length || 1))
   }))
 
   return (
@@ -32,7 +36,7 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
         <div>
           <h4 className="text-sm font-medium mb-2">Detected Colors</h4>
           <div className="flex gap-2">
-            {data.colors.map((color, index) => (
+            {(data.colors || []).map((color, index) => (
               <div
                 key={index}
                 className="w-6 h-6 rounded-full border border-gray-200"
@@ -84,7 +88,7 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.sizes.map((size, index) => (
+            {(data.sizes || []).map((size, index) => (
               <TableRow key={index}>
                 <TableCell>{size.size}</TableCell>
                 <TableCell className="text-right">{size.quantity}</TableCell>
