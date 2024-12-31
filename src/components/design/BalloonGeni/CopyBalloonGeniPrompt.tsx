@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Command, CommandInput, CommandList, CommandEmpty } from "@/components/ui/command"
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
 import { BalloonGeniDialog } from "./BalloonGeniDialog"
 import { analyzeGeniCommand } from "./commandPatterns"
 import type { BalloonGeniProps, CorrectionProps } from "./types"
@@ -9,6 +9,7 @@ const CopyBalloonGeniPrompt: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
   const [currentCorrection, setCurrentCorrection] = useState<CorrectionProps | null>(null)
   const [history, setHistory] = useState<CorrectionProps[]>([])
   const [inputValue, setInputValue] = useState<string>('')
+  const [suggestions] = useState<string[]>([]) // Initialize with empty array for Command component
 
   const handleCommand = async (command: string) => {
     const correction = analyzeGeniCommand(command)
@@ -42,7 +43,7 @@ const CopyBalloonGeniPrompt: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
         <span className="text-sm font-medium">Copy Balloon Geni</span>
       </div>
 
-      <Command className="rounded-lg border">
+      <Command className="rounded-lg border" shouldFilter={false}>
         <CommandInput 
           placeholder="Tell me what needs to be corrected..." 
           value={inputValue}
@@ -55,6 +56,13 @@ const CopyBalloonGeniPrompt: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
         />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup>
+            {suggestions.map((suggestion, index) => (
+              <CommandItem key={index} value={suggestion} onSelect={() => handleCommand(suggestion)}>
+                {suggestion}
+              </CommandItem>
+            ))}
+          </CommandGroup>
         </CommandList>
       </Command>
 
