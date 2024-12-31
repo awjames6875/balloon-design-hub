@@ -1,5 +1,5 @@
 // First, import our types
-import { CorrectionProps } from './types'
+import { CorrectionProps, CorrectionType } from './types'
 
 // Create the function and make it globally available for testing
 export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
@@ -7,8 +7,8 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
     // Change cluster count pattern
     {
       regex: /change (\w+) clusters? to (\d+)/i,
-      handler: (matches: RegExpMatchArray) => ({
-        type: 'cluster_count',
+      handler: (matches: RegExpMatchArray): CorrectionProps => ({
+        type: 'cluster_count' as CorrectionType,
         color: matches[1].toLowerCase(),
         originalValue: null,
         newValue: parseInt(matches[2]),
@@ -21,7 +21,7 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
     {
       regex: /change (\w+) color to (\w+)/i,
       handler: (matches: RegExpMatchArray): CorrectionProps => ({
-        type: 'color_name',
+        type: 'color_name' as CorrectionType,
         color: matches[1].toLowerCase(),
         originalValue: matches[1],
         newValue: matches[2],
@@ -29,11 +29,11 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
       })
     },
 
-    // Update balloon count pattern
+    // Change balloon count pattern
     {
       regex: /change (\w+) (\d+)" balloons? to (\d+)/i,
       handler: (matches: RegExpMatchArray): CorrectionProps => ({
-        type: 'balloon_count',
+        type: 'balloon_count' as CorrectionType,
         color: matches[1].toLowerCase(),
         originalValue: null,
         newValue: parseInt(matches[3]),
@@ -46,7 +46,7 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
     {
       regex: /add (\w+) with (\d+) clusters?/i,
       handler: (matches: RegExpMatchArray): CorrectionProps => ({
-        type: 'add_color',
+        type: 'add_color' as CorrectionType,
         color: matches[1].toLowerCase(),
         originalValue: null,
         newValue: parseInt(matches[2]),
@@ -59,7 +59,7 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
     {
       regex: /remove (\w+) color/i,
       handler: (matches: RegExpMatchArray): CorrectionProps => ({
-        type: 'remove_color',
+        type: 'remove_color' as CorrectionType,
         color: matches[1].toLowerCase(),
         originalValue: matches[1],
         newValue: '',
