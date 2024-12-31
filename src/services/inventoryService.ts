@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
 interface ColorBalloonData {
-  color: string
+  color: string  // Changed from colors to color
   balloons11: number
   balloons16: number
 }
@@ -11,7 +11,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
   console.log("Starting inventory update with:", balloonsPerColor)
   
   for (const colorData of balloonsPerColor) {
-    const colorName = colorData.color
+    const colorName = colorData.color  // Using color instead of colors
     console.log(`Processing ${colorName}: ${colorData.balloons11} 11" and ${colorData.balloons16} 16" balloons`)
 
     try {
@@ -19,7 +19,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
       const { data: data11, error: error11 } = await supabase
         .from('balloon_inventory')
         .select('quantity')
-        .eq('color', colorName)
+        .eq('color', colorName)  // Using color instead of colors
         .eq('size', '11in')
         .maybeSingle()
 
@@ -35,7 +35,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
           .from('balloon_inventory')
           .insert([
             {
-              color: colorName,
+              color: colorName,  // Using color instead of colors
               size: '11in',
               quantity: colorData.balloons11
             }
@@ -57,7 +57,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
         const { error: updateError11 } = await supabase
           .from('balloon_inventory')
           .update({ quantity: newQuantity11 })
-          .eq('color', colorName)
+          .eq('color', colorName)  // Using color instead of colors
           .eq('size', '11in')
 
         if (updateError11) {
@@ -71,7 +71,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
       const { data: data16, error: error16 } = await supabase
         .from('balloon_inventory')
         .select('quantity')
-        .eq('color', colorName)
+        .eq('color', colorName)  // Using color instead of colors
         .eq('size', '16in')
         .maybeSingle()
 
@@ -87,7 +87,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
           .from('balloon_inventory')
           .insert([
             {
-              color: colorName,
+              color: colorName,  // Using color instead of colors
               size: '16in',
               quantity: colorData.balloons16
             }
@@ -109,7 +109,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
         const { error: updateError16 } = await supabase
           .from('balloon_inventory')
           .update({ quantity: newQuantity16 })
-          .eq('color', colorName)
+          .eq('color', colorName)  // Using color instead of colors
           .eq('size', '16in')
 
         if (updateError16) {
@@ -132,18 +132,18 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 }
 
 export const checkInventoryLevels = async (colors: string[]): Promise<boolean> => {
-  for (const color of colors) {
+  for (const color of colors) {  // Using color instead of colors
     const { data: data11 } = await supabase
       .from('balloon_inventory')
       .select('quantity')
-      .eq('color', color)
+      .eq('color', color)  // Using color instead of colors
       .eq('size', '11in')
       .maybeSingle()
 
     const { data: data16 } = await supabase
       .from('balloon_inventory')
       .select('quantity')
-      .eq('color', color)
+      .eq('color', color)  // Using color instead of colors
       .eq('size', '16in')
       .maybeSingle()
 
