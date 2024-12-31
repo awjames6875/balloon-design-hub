@@ -7,6 +7,14 @@ interface AnalysisData {
     size: string
     quantity: number
   }>
+  numberedAnalysis?: {
+    colorKey: { [key: string]: string }
+    clusters: Array<{
+      number: number
+      definedColor: string
+      count: number
+    }>
+  }
 }
 
 interface AnalysisResultsProps {
@@ -18,13 +26,20 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
     return <div>No analysis data available</div>
   }
 
-  // Calculate balloons per cluster for each color
-  const balloonsPerColor = (data.colors || []).map(color => ({
-    color,
-    balloons11: 11, // Each cluster uses 11 11-inch balloons
-    balloons16: 2,  // Each cluster uses 2 16-inch balloons
-    clustersCount: Math.floor(data.clusters / (data.colors?.length || 1))
-  }))
+  // Use the numbered analysis data to get accurate cluster counts per color
+  const balloonsPerColor = (data.colors || []).map(color => {
+    // Find the cluster data for this color from the numbered analysis
+    const clusterData = data.numberedAnalysis?.clusters.find(
+      cluster => cluster.definedColor === color
+    )
+    
+    return {
+      color,
+      balloons11: 11, // Each cluster uses 11 11-inch balloons
+      balloons16: 2,  // Each cluster uses 2 16-inch balloons
+      clustersCount: clusterData?.count || 0
+    }
+  })
 
   // Calculate totals
   const totalBalloons11 = balloonsPerColor.reduce((sum, color) => 

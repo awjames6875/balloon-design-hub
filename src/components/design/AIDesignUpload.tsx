@@ -16,6 +16,14 @@ interface AIAnalysisData {
     size: string
     quantity: number
   }>
+  numberedAnalysis?: {
+    colorKey: { [key: string]: string }
+    clusters: Array<{
+      number: number
+      definedColor: string
+      count: number
+    }>
+  }
 }
 
 interface ColorKey {
@@ -82,7 +90,8 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
           sizes: [
             { size: "11in", quantity: Math.floor(Math.random() * 50) + 20 },
             { size: "16in", quantity: Math.floor(Math.random() * 30) + 10 }
-          ]
+          ],
+          numberedAnalysis: numberedDesignAnalysis
         }
 
         setAnalysisData(newAnalysisData)
