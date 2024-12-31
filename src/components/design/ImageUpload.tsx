@@ -1,6 +1,6 @@
 import { ImageIcon, Upload } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface ImageUploadProps {
   title: string
@@ -16,6 +16,11 @@ export const ImageUpload = ({
   onImageUpload,
 }: ImageUploadProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(image)
+
+  // Update preview when image prop changes
+  useEffect(() => {
+    setPreviewUrl(image)
+  }, [image])
 
   const handleClick = () => {
     const input = document.createElement("input")

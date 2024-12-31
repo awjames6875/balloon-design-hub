@@ -102,6 +102,8 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
     setAnalysisData(null)
     setNumberedAnalysis(null)
     setDesignImage(null)
+    // Also notify parent component that image has been cleared
+    onImageUploaded("")
     toast.success("Analysis data cleared. You can now upload a new design.")
   }
 
