@@ -6,27 +6,32 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const analyzeNumberedDesign = `You are a specialized balloon cluster analyzer. Your task is to analyze this balloon design image and identify numbered clusters and their colors. Return ONLY a JSON object with the following structure. DO NOT include any other text.
+const analyzeNumberedDesign = `You are a specialized balloon cluster analyzer focused on PRECISE counting. Your task is to analyze balloon design images with numbered clusters. Follow these steps EXACTLY:
 
-ANALYSIS RULES:
-1. Look for the color key in the bottom left that maps numbers to colors
-2. For each numbered cluster in the key:
-   - Count EVERY SINGLE instance of that numbered cluster in the design
-   - Each cluster consists of 11 (11-inch) + 2 (16-inch) balloons
-   - Count clusters ONLY if they have a visible number matching the key
+CRITICAL COUNTING RULES:
+1. First, identify the color key in the bottom left/right that maps numbers to colors
+2. For EACH number in the key:
+   - Start from the LEFT side of the design
+   - Move RIGHT systematically, row by row
+   - Count ONLY clusters that have a clearly visible number matching the key
+   - Mark each counted cluster (mentally) to avoid double-counting
+   - Keep a running tally for each number
 3. Double-check your count:
-   - Look at the design from left to right
-   - Count each numbered cluster individually
-   - Verify your count by doing a second pass from right to left
-4. Ignore all decorative elements (stars, lines, etc.)
-5. Triple verify all counts before responding
+   - Repeat the count from RIGHT to LEFT
+   - If counts differ, do a third count
+   - Report the most consistent count
+4. Verification steps:
+   - Zoom in on each cluster to ensure number visibility
+   - Count each numbered section separately
+   - Cross-reference with the color key
+5. IGNORE all decorative elements (stars, lines, etc.)
 
-RETURN THIS EXACT JSON STRUCTURE:
+Return ONLY this JSON structure (no other text):
 {
   "colorKey": {
     "1": "color_name",
     "2": "color_name"
-    // ... for each numbered cluster found
+    // ... for each numbered cluster in key
   },
   "clusters": [
     {
@@ -34,7 +39,7 @@ RETURN THIS EXACT JSON STRUCTURE:
       "definedColor": "color_name",
       "count": number_of_occurrences
     }
-    // ... for each cluster number found
+    // ... for each cluster number
   ]
 }`
 
@@ -75,7 +80,7 @@ serve(async (req) => {
             },
             {
               type: "text",
-              text: "Please count EVERY SINGLE numbered cluster in this design. Make sure to verify your count multiple times for 100% accuracy."
+              text: "Count EVERY numbered cluster in this design. Follow the counting rules EXACTLY. Verify your count multiple times for 100% accuracy. If you're unsure about any number, mark it in your response."
             }
           ]
         }
@@ -88,17 +93,14 @@ serve(async (req) => {
 
     let analysisData
     try {
-      // Remove any potential markdown code block markers
       const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
       analysisData = JSON.parse(cleanContent)
       
-      // Validate the response structure
       if (!analysisData?.colorKey || !analysisData?.clusters || !Array.isArray(analysisData.clusters)) {
         console.error('Invalid response structure:', analysisData)
         throw new Error('Invalid response structure')
       }
 
-      // Validate each cluster has required properties
       for (const cluster of analysisData.clusters) {
         if (!('number' in cluster && 'definedColor' in cluster && 'count' in cluster)) {
           console.error('Invalid cluster structure:', cluster)
@@ -106,11 +108,8 @@ serve(async (req) => {
         }
       }
 
-      // Calculate total clusters by summing the count of all clusters
       const totalClusters = analysisData.clusters.reduce((sum, cluster) => sum + cluster.count, 0)
       console.log('Total clusters calculated:', totalClusters)
-
-      // Update the response to include the total count
       analysisData.totalClusters = totalClusters
 
     } catch (parseError) {
