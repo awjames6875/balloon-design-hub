@@ -6,6 +6,8 @@ import { uploadDesignImage } from "@/utils/imageAnalysis"
 import { AnalysisResults } from "./analysis/AnalysisResults"
 import { ClusterAnalysis } from "./analysis/ClusterAnalysis"
 import { supabase } from "@/integrations/supabase/client"
+import { Button } from "@/components/ui/button"
+import { RefreshCw } from "lucide-react"
 
 interface AIAnalysisData {
   clusters: number
@@ -96,10 +98,28 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
     }
   }
 
+  const handleRefresh = () => {
+    setAnalysisData(null)
+    setNumberedAnalysis(null)
+    setDesignImage(null)
+    toast.success("Analysis data cleared. You can now upload a new design.")
+  }
+
   return (
     <Card className="w-full">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Design Upload & Analysis</CardTitle>
+        {(designImage || analysisData || numberedAnalysis) && (
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={handleRefresh}
+            className="h-8 w-8"
+            title="Start Over"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         <ImageUpload
