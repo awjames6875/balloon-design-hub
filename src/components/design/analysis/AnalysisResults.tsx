@@ -28,35 +28,17 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <h4 className="text-sm font-medium mb-2">Total Detected Clusters</h4>
-          <p className="text-2xl font-bold">{data.clusters}</p>
-        </div>
-        <div>
-          <h4 className="text-sm font-medium mb-2">Detected Colors</h4>
-          <div className="flex gap-2">
-            {(data.colors || []).map((color, index) => (
-              <div
-                key={index}
-                className="w-6 h-6 rounded-full border border-gray-200"
-                style={{ backgroundColor: color }}
-                title={color}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
       <div>
         <h4 className="text-sm font-medium mb-2">Balloons Per Color Cluster</h4>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Color</TableHead>
-              <TableHead className="text-right">Clusters</TableHead>
+              <TableHead className="text-right">Total Clusters</TableHead>
               <TableHead className="text-right">11" Balloons per Cluster</TableHead>
               <TableHead className="text-right">16" Balloons per Cluster</TableHead>
+              <TableHead className="text-right">Total 11" Balloons</TableHead>
+              <TableHead className="text-right">Total 16" Balloons</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,28 +54,22 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
                 <TableCell className="text-right">{colorData.clustersCount}</TableCell>
                 <TableCell className="text-right">{colorData.balloons11}</TableCell>
                 <TableCell className="text-right">{colorData.balloons16}</TableCell>
+                <TableCell className="text-right">{colorData.clustersCount * colorData.balloons11}</TableCell>
+                <TableCell className="text-right">{colorData.clustersCount * colorData.balloons16}</TableCell>
               </TableRow>
             ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div>
-        <h4 className="text-sm font-medium mb-2">Total Balloons Required</h4>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Size</TableHead>
-              <TableHead className="text-right">Total Quantity</TableHead>
+            <TableRow className="font-medium">
+              <TableCell>Total</TableCell>
+              <TableCell className="text-right">{data.clusters}</TableCell>
+              <TableCell className="text-right">-</TableCell>
+              <TableCell className="text-right">-</TableCell>
+              <TableCell className="text-right">
+                {balloonsPerColor.reduce((sum, color) => sum + (color.clustersCount * color.balloons11), 0)}
+              </TableCell>
+              <TableCell className="text-right">
+                {balloonsPerColor.reduce((sum, color) => sum + (color.clustersCount * color.balloons16), 0)}
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {(data.sizes || []).map((size, index) => (
-              <TableRow key={index}>
-                <TableCell>{size.size}</TableCell>
-                <TableCell className="text-right">{size.quantity}</TableCell>
-              </TableRow>
-            ))}
           </TableBody>
         </Table>
       </div>
