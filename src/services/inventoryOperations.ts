@@ -8,6 +8,7 @@ export const addNewBalloonType = async (
   quantity: number
 ): Promise<boolean> => {
   try {
+    console.log("Adding new balloon type:", { color, size, quantity })
     const isValid = await validateInventoryUpdate(color, size, quantity)
     if (!isValid) return false
 
@@ -23,6 +24,7 @@ export const addNewBalloonType = async (
           updated_at: new Date().toISOString()
         })
         .eq("id", existingBalloon.id)
+        .single()
 
       if (updateError) {
         console.error("Error updating balloon quantity:", updateError)
@@ -46,10 +48,18 @@ export const addNewBalloonType = async (
             updated_at: new Date().toISOString()
           }
         ])
+        .select()
+        .single()
 
       if (insertError) {
         console.error("Error adding balloon type:", insertError)
-        toast.error("Failed to add balloon type")
+        if (insertError.message.includes("Invalid color format")) {
+          toast.error("Invalid color format", {
+            description: "Please check the color name and try again"
+          })
+        } else {
+          toast.error("Failed to add balloon type")
+        }
         return false
       }
 
