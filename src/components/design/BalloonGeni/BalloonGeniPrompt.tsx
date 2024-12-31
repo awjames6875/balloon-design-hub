@@ -4,7 +4,7 @@ import { BalloonGeniDialog } from "./BalloonGeniDialog"
 import { analyzeGeniCommand } from "./commandPatterns"
 import type { BalloonGeniProps, CorrectionProps } from "./types"
 
-const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
+const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) => {
   const [isConfirming, setIsConfirming] = useState<boolean>(false)
   const [currentCorrection, setCurrentCorrection] = useState<CorrectionProps | null>(null)
   const [history, setHistory] = useState<CorrectionProps[]>([])
@@ -14,6 +14,16 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
     console.log("Processing command:", command)
     const correction = analyzeGeniCommand(command)
     if (correction) {
+      // Validate the correction against current colorClusters
+      const isValidColor = colorClusters?.some(
+        cluster => cluster.color.toLowerCase() === correction.color.toLowerCase()
+      )
+
+      if (!isValidColor) {
+        toast.error(`Color ${correction.color} not found in current design`)
+        return
+      }
+
       console.log("Correction generated:", correction)
       setCurrentCorrection(correction)
       setIsConfirming(true)
@@ -35,6 +45,7 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate }) => {
       setInputValue('')
     } catch (error) {
       console.error('Error updating:', error)
+      toast.error("Failed to apply correction")
     }
   }
 
