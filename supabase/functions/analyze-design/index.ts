@@ -9,10 +9,13 @@ const corsHeaders = {
 const analyzeNumberedDesign = `You are a specialized balloon cluster analyzer. Your task is to analyze this balloon design image and identify numbered clusters and their colors. Return ONLY a JSON object with the following structure. DO NOT include any other text.
 
 ANALYSIS RULES:
-1. Look for numbered clusters in the image (numbers that indicate balloon groupings)
-2. For each numbered cluster, identify its color
-3. Count how many times each numbered cluster appears
-4. Create a mapping between cluster numbers and their colors
+1. Look for the color key in the bottom left that maps numbers to colors
+2. For each numbered cluster in the key:
+   - Count EVERY instance of that numbered cluster in the design
+   - Each cluster consists of 11 (11-inch) + 2 (16-inch) balloons
+3. Count clusters ONLY if they have a visible number matching the key
+4. Ignore all decorative elements (stars, lines, etc.)
+5. Double verify all counts before responding
 
 RETURN THIS EXACT JSON STRUCTURE:
 {
@@ -50,7 +53,7 @@ serve(async (req) => {
 
     console.log('Sending request to OpenAI...')
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -105,16 +108,7 @@ serve(async (req) => {
     } catch (parseError) {
       console.error('Failed to parse OpenAI response:', parseError)
       console.log('Content that failed to parse:', content)
-      
-      // Provide a default response for testing
-      return new Response(
-        JSON.stringify({
-          colorKey: { "1": "white" },
-          clusters: [{ number: 1, definedColor: "white", count: 1 }],
-          totalClusters: 1
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      throw new Error('Failed to parse analysis response')
     }
 
     console.log('Processed analysis data:', analysisData)
