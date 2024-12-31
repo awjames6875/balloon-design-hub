@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { Command, CommandInput } from "@/components/ui/command"
+import { Command, CommandInput, CommandList, CommandEmpty } from "@/components/ui/command"
 import { BalloonGeniDialog } from "./BalloonGeniDialog"
 import { analyzeGeniCommand } from "./commandPatterns"
 import type { BalloonGeniProps, CorrectionProps } from "./types"
+import { toast } from "sonner"
 
 const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) => {
   const [isConfirming, setIsConfirming] = useState<boolean>(false)
@@ -66,6 +67,9 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) =>
             }
           }}
         />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+        </CommandList>
       </Command>
 
       <BalloonGeniDialog

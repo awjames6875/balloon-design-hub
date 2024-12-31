@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Command, CommandInput } from "@/components/ui/command"
+import { Command, CommandInput, CommandList, CommandEmpty } from "@/components/ui/command"
 import { BalloonGeniDialog } from "./BalloonGeniDialog"
 import { analyzeGeniCommand } from "./commandPatterns"
 import type { BalloonGeniProps, CorrectionProps } from "./types"
@@ -67,6 +67,9 @@ const CopyBalloonGeniPrompt: React.FC<BalloonGeniProps> = ({ onUpdate, colorClus
             }
           }}
         />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+        </CommandList>
       </Command>
 
       <BalloonGeniDialog
