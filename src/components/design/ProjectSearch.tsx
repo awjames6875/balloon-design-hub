@@ -13,7 +13,7 @@ interface ProjectSearchProps {
 }
 
 export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
-  const { data: projects = [], isLoading } = useQuery({
+  const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -28,25 +28,29 @@ export const ProjectSearch = ({ onProjectSelect }: ProjectSearchProps) => {
 
       return data || []
     },
+    initialData: [], // Provide initial empty array
   })
+
+  // Ensure we always have an array to map over
+  const safeProjects = Array.isArray(projects) ? projects : []
 
   return (
     <Command className="rounded-lg border shadow-md">
       <CommandInput placeholder="Search projects..." />
-      <CommandEmpty>No projects found.</CommandEmpty>
-      {!isLoading && (
-        <CommandGroup>
-          {projects.map((project) => (
-            <CommandItem
-              key={project.id}
-              value={`${project.client_name} - ${project.project_name}`}
-              onSelect={() => onProjectSelect(project)}
-            >
-              {project.client_name} - {project.project_name}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      )}
+      <CommandEmpty>
+        {isLoading ? "Loading..." : "No projects found."}
+      </CommandEmpty>
+      <CommandGroup>
+        {safeProjects.map((project) => (
+          <CommandItem
+            key={project.id}
+            value={`${project.client_name} - ${project.project_name}`}
+            onSelect={() => onProjectSelect(project)}
+          >
+            {project.client_name} - {project.project_name}
+          </CommandItem>
+        ))}
+      </CommandGroup>
     </Command>
   )
 }
