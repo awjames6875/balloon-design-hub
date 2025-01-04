@@ -22,9 +22,4 @@ export interface BalloonGeniProps {
     baseClusters: number;
     extraClusters: number;
   }>;
-  onClustersUpdate?: (newClusters: Array<{
-    color: string;
-    baseClusters: number;
-    extraClusters: number;
-  }>) => void;
 }

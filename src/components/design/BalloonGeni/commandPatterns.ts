@@ -4,7 +4,7 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
   const patterns = [
     // Change cluster count pattern
     {
-      regex: /change (\w+) clusters? to (\d+)/i,
+      regex: /(?:change|set|update) (\w+) clusters? (?:to|=) (\d+)/i,
       handler: (matches: RegExpMatchArray): CorrectionProps => ({
         type: 'cluster_count' as CorrectionType,
         color: matches[1].toLowerCase(),
@@ -15,34 +15,22 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
       })
     },
     
-    // Change color name pattern
+    // Make cluster count pattern
     {
-      regex: /change (\w+) color to (\w+)/i,
+      regex: /(?:make|set) (\w+) (?:to|=) (\d+) clusters?/i,
       handler: (matches: RegExpMatchArray): CorrectionProps => ({
-        type: 'color_name' as CorrectionType,
-        color: matches[1].toLowerCase(),
-        originalValue: matches[1],
-        newValue: matches[2],
-        action: 'update_color'
-      })
-    },
-
-    // Change balloon count pattern
-    {
-      regex: /change (\w+) (\d+)" balloons? to (\d+)/i,
-      handler: (matches: RegExpMatchArray): CorrectionProps => ({
-        type: 'balloon_count' as CorrectionType,
+        type: 'cluster_count' as CorrectionType,
         color: matches[1].toLowerCase(),
         originalValue: null,
-        newValue: parseInt(matches[3]),
-        action: 'update_balloon_count',
-        balloonSize: matches[2] as '11' | '16'
+        newValue: parseInt(matches[2]),
+        action: 'update_clusters',
+        clusterCount: parseInt(matches[2])
       })
     },
 
     // Add new color pattern
     {
-      regex: /add (\w+) with (\d+) clusters?/i,
+      regex: /add (\w+)(?: color)? with (\d+) clusters?/i,
       handler: (matches: RegExpMatchArray): CorrectionProps => ({
         type: 'add_color' as CorrectionType,
         color: matches[1].toLowerCase(),
@@ -55,7 +43,7 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
 
     // Remove color pattern
     {
-      regex: /remove (\w+) color/i,
+      regex: /remove (\w+)(?: color)?/i,
       handler: (matches: RegExpMatchArray): CorrectionProps => ({
         type: 'remove_color' as CorrectionType,
         color: matches[1].toLowerCase(),
@@ -63,30 +51,36 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
         newValue: '',
         action: 'remove_color'
       })
+    },
+
+    // Update balloon count pattern
+    {
+      regex: /(?:change|set|update) (\w+) (\d+)" balloons? (?:to|=) (\d+)/i,
+      handler: (matches: RegExpMatchArray): CorrectionProps => ({
+        type: 'balloon_count' as CorrectionType,
+        color: matches[1].toLowerCase(),
+        originalValue: null,
+        newValue: parseInt(matches[3]),
+        action: 'update_balloon_count',
+        balloonSize: matches[2] as '11' | '16'
+      })
     }
   ];
 
   for (const pattern of patterns) {
     const matches = command.match(pattern.regex);
     if (matches) {
+      console.log("Pattern matched:", pattern.regex);
+      console.log("Matches:", matches);
       return pattern.handler(matches);
     }
   }
 
+  console.log("No pattern matched for command:", command);
   return null;
 }
 
 // Make it available globally for browser testing
 if (typeof window !== 'undefined') {
   (window as any).analyzeGeniCommand = analyzeGeniCommand;
-}
-
-// Add test function to window for easy console testing
-if (typeof window !== 'undefined') {
-  (window as any).testCommand = (command: string) => {
-    console.log('--------------------');
-    console.log('Testing:', command);
-    console.log('Result:', analyzeGeniCommand(command));
-    console.log('--------------------');
-  }
 }

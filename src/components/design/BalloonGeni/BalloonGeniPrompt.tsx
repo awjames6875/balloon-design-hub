@@ -14,20 +14,24 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) =>
   const handleCommand = async (command: string) => {
     console.log("Processing command:", command)
     const correction = analyzeGeniCommand(command)
+    
     if (correction) {
+      console.log("Generated correction:", correction)
+      
       // Validate the correction against current colorClusters
       const isValidColor = colorClusters?.some(
         cluster => cluster.color.toLowerCase() === correction.color.toLowerCase()
       )
 
-      if (!isValidColor) {
+      if (!isValidColor && correction.type !== 'add_color') {
         toast.error(`Color ${correction.color} not found in current design`)
         return
       }
 
-      console.log("Correction generated:", correction)
       setCurrentCorrection(correction)
       setIsConfirming(true)
+    } else {
+      toast.error("I couldn't understand that command. Try something like 'change red clusters to 5' or 'add blue with 3 clusters'")
     }
   }
 
@@ -44,6 +48,8 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) =>
       setIsConfirming(false)
       setCurrentCorrection(null)
       setInputValue('')
+      
+      toast.success(`Updated ${currentCorrection.color} clusters successfully`)
     } catch (error) {
       console.error('Error updating:', error)
       toast.error("Failed to apply correction")
@@ -53,7 +59,7 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) =>
   return (
     <div className="mt-4 p-4 border rounded-lg">
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-sm font-medium">Balloon Geni</span>
+        <span className="text-sm font-medium">Design Assistant</span>
       </div>
 
       <Command shouldFilter={false} className="rounded-lg border shadow-none">
@@ -68,7 +74,7 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) =>
           }}
         />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandEmpty>Type a command and press Enter...</CommandEmpty>
         </CommandList>
       </Command>
 
@@ -78,6 +84,19 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) =>
         correction={currentCorrection}
         onConfirm={handleConfirm}
       />
+
+      {history.length > 0 && (
+        <div className="mt-4">
+          <p className="text-sm text-muted-foreground mb-2">Recent changes:</p>
+          <ul className="text-sm space-y-1">
+            {history.map((correction, index) => (
+              <li key={index} className="text-muted-foreground">
+                • Changed {correction.color} to {correction.newValue} clusters
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }
