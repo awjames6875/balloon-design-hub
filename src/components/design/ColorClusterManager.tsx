@@ -22,14 +22,33 @@ export const useColorClusterManager = ({
   const handleGeniUpdate = async (correction: CorrectionProps) => {
     try {
       if (correction.type === 'cluster_count') {
-        // Case-insensitive color matching
-        const matchingCluster = colorClusters.find(cluster => 
-          cluster.color.toLowerCase().includes(correction.color.toLowerCase()) ||
-          correction.color.toLowerCase().includes(cluster.color.toLowerCase())
-        )
+        console.log("Checking color clusters:", colorClusters)
+        console.log("Looking for color:", correction.color)
+        
+        // Improved color matching logic
+        const matchingCluster = colorClusters.find(cluster => {
+          const clusterColor = cluster.color.toLowerCase()
+          const correctionColor = correction.color.toLowerCase()
+          
+          // Check for exact match
+          if (clusterColor === correctionColor) return true
+          
+          // Check if the cluster color contains the correction color or vice versa
+          if (clusterColor.includes(correctionColor) || correctionColor.includes(clusterColor)) return true
+          
+          // Check for common color variations
+          if (clusterColor.includes('orange') && correctionColor.includes('orange')) return true
+          if (clusterColor.includes('blue') && correctionColor.includes('blue')) return true
+          if (clusterColor.includes('red') && correctionColor.includes('red')) return true
+          // Add more color variations as needed
+          
+          return false
+        })
+
+        console.log("Found matching cluster:", matchingCluster)
 
         if (!matchingCluster) {
-          toast.error(`Color ${correction.color} not found in current design`)
+          toast.error(`Color ${correction.color} not found in current design. Available colors: ${colorClusters.map(c => c.color).join(', ')}`)
           return
         }
 
@@ -44,6 +63,7 @@ export const useColorClusterManager = ({
           return cluster
         })
 
+        console.log("Updated clusters:", updatedClusters)
         onClustersUpdate(updatedClusters)
         
         // Recalculate totals

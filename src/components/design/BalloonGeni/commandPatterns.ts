@@ -1,10 +1,12 @@
 import { CorrectionProps, CorrectionType } from './types';
 
 export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
+  console.log("Processing command:", command);
+  
   const patterns = [
     // Change cluster count pattern
     {
-      regex: /(?:change|set|update) (\w+) clusters? (?:to|=) (\d+)/i,
+      regex: /(?:change|set|update) (\w+)(?: color)?(?: clusters?)? (?:to|=) (\d+)/i,
       handler: (matches: RegExpMatchArray): CorrectionProps => ({
         type: 'cluster_count' as CorrectionType,
         color: matches[1].toLowerCase(),
@@ -51,19 +53,6 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
         newValue: '',
         action: 'remove_color'
       })
-    },
-
-    // Update balloon count pattern
-    {
-      regex: /(?:change|set|update) (\w+) (\d+)" balloons? (?:to|=) (\d+)/i,
-      handler: (matches: RegExpMatchArray): CorrectionProps => ({
-        type: 'balloon_count' as CorrectionType,
-        color: matches[1].toLowerCase(),
-        originalValue: null,
-        newValue: parseInt(matches[3]),
-        action: 'update_balloon_count',
-        balloonSize: matches[2] as '11' | '16'
-      })
     }
   ];
 
@@ -72,7 +61,9 @@ export const analyzeGeniCommand = (command: string): CorrectionProps | null => {
     if (matches) {
       console.log("Pattern matched:", pattern.regex);
       console.log("Matches:", matches);
-      return pattern.handler(matches);
+      const correction = pattern.handler(matches);
+      console.log("Generated correction:", correction);
+      return correction;
     }
   }
 
