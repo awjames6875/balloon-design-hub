@@ -5,7 +5,6 @@ import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
 import BalloonGeni from "@/components/design/BalloonGeni/BalloonGeniPrompt"
-import CopyBalloonGeniPrompt from "@/components/design/BalloonGeni/CopyBalloonGeniPrompt"
 import { CorrectionProps } from "@/components/design/BalloonGeni/types"
 
 export default function NewDesign() {
@@ -95,13 +94,8 @@ export default function NewDesign() {
             {analysisData && (
               <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
                 <h2 className="text-2xl font-semibold text-gray-800">Design Assistant</h2>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <BalloonGeni onUpdate={handleGeniUpdate} />
-                  </div>
-                  <div>
-                    <CopyBalloonGeniPrompt onUpdate={handleGeniUpdate} />
-                  </div>
+                <div>
+                  <BalloonGeni onUpdate={handleGeniUpdate} />
                 </div>
               </div>
             )}
