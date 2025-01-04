@@ -2,14 +2,13 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProjectInfoForm } from "./forms/ProjectInfoForm"
 import { DimensionsForm } from "./forms/DimensionsForm"
-import { StyleSelect } from "./StyleSelect"
 import { ColorSelectionForm } from "./forms/ColorSelectionForm"
 import { FormSubmitButton } from "./forms/FormSubmitButton"
 import { validateDesignForm } from "@/utils/design-form-validation"
 import { useDesignCalculations } from "@/hooks/use-design-calculations"
 import { toast } from "sonner"
 import BalloonGeni from "./BalloonGeni/BalloonGeniPrompt"
-import CopyBalloonGeniPrompt from "./BalloonGeni/CopyBalloonGeniPrompt"
+import { useColorClusterManager } from "./ColorClusterManager"
 import type { CorrectionProps } from "./BalloonGeni/types"
 
 export interface DesignSpecsFormData {
@@ -59,6 +58,12 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
     style
   })
 
+  const { handleGeniUpdate } = useColorClusterManager({
+    colorClusters,
+    onClustersUpdate: setColorClusters,
+    onTotalClustersUpdate: setTotalClusters
+  })
+
   const handleProjectSelect = (project: { client_name: string; project_name: string }) => {
     setClientName(project.client_name)
     setProjectName(project.project_name)
@@ -76,37 +81,6 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
       }
     }
   }, [])
-
-  const handleGeniUpdate = async (correction: CorrectionProps) => {
-    try {
-      if (correction.type === 'cluster_count') {
-        const updatedClusters = colorClusters.map(cluster => {
-          if (cluster.color.toLowerCase() === correction.color.toLowerCase()) {
-            return {
-              ...cluster,
-              baseClusters: Math.ceil(correction.clusterCount! * 0.7),
-              extraClusters: Math.floor(correction.clusterCount! * 0.3)
-            }
-          }
-          return cluster
-        })
-
-        setColorClusters(updatedClusters)
-        
-        // Recalculate totals
-        const totalClustersCount = updatedClusters.reduce(
-          (sum, cluster) => sum + cluster.baseClusters + cluster.extraClusters, 
-          0
-        )
-        setTotalClusters(totalClustersCount)
-
-        toast.success(`Updated clusters for ${correction.color}`)
-      }
-    } catch (error) {
-      console.error("Error updating design:", error)
-      toast.error("Failed to update design")
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -187,12 +161,8 @@ export const DesignSpecsForm = ({ onSubmit, designImage }: DesignSpecsFormProps)
           />
 
           {selectedColors.length > 0 && (
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6">
               <BalloonGeni 
-                onUpdate={handleGeniUpdate}
-                colorClusters={colorClusters}
-              />
-              <CopyBalloonGeniPrompt 
                 onUpdate={handleGeniUpdate}
                 colorClusters={colorClusters}
               />
