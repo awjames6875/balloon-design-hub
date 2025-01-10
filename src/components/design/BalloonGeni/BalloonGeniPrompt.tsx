@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { Command, CommandInput, CommandList, CommandEmpty } from "@/components/ui/command"
 import { BalloonGeniDialog } from "./BalloonGeniDialog"
-import { analyzeGeniCommand } from "./commandPatterns"
 import type { BalloonGeniProps, CorrectionProps } from "./types"
 import { toast } from "sonner"
+import { supabase } from "@/integrations/supabase/client"
 
 const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) => {
   const [isConfirming, setIsConfirming] = useState<boolean>(false)
@@ -13,25 +13,32 @@ const BalloonGeni: React.FC<BalloonGeniProps> = ({ onUpdate, colorClusters }) =>
 
   const handleCommand = async (command: string) => {
     console.log("Processing command:", command)
-    const correction = analyzeGeniCommand(command)
     
-    if (correction) {
-      console.log("Generated correction:", correction)
-      
-      // Validate the correction against current colorClusters
-      const isValidColor = colorClusters?.some(
-        cluster => cluster.color.toLowerCase() === correction.color.toLowerCase()
-      )
+    try {
+      const { data, error } = await supabase.functions.invoke('process-geni-command', {
+        body: { 
+          command,
+          currentClusters: colorClusters
+        }
+      })
 
-      if (!isValidColor && correction.type !== 'add_color') {
-        toast.error(`Color ${correction.color} not found in current design`)
+      if (error) {
+        console.error("Error processing command:", error)
+        toast.error("Failed to process command")
         return
       }
 
-      setCurrentCorrection(correction)
-      setIsConfirming(true)
-    } else {
-      toast.error("I couldn't understand that command. Try something like 'change red clusters to 5' or 'add blue with 3 clusters'")
+      console.log("Generated correction:", data)
+      
+      if (data) {
+        setCurrentCorrection(data)
+        setIsConfirming(true)
+      } else {
+        toast.error("I couldn't understand that command. Try something like 'change red clusters to 5' or 'add blue with 3 clusters'")
+      }
+    } catch (error) {
+      console.error("Error processing command:", error)
+      toast.error("Failed to process command")
     }
   }
 
