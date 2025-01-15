@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
@@ -10,6 +11,7 @@ export default function NewDesign() {
     colors: string[]
     sizes: { size: string; quantity: number }[]
   } | null>(null)
+  const navigate = useNavigate()
 
   const handleImageUploaded = (imagePath: string) => {
     setDesignImage(imagePath)
@@ -38,7 +40,7 @@ export default function NewDesign() {
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold text-gray-800">Create New Design</h1>
             <p className="text-gray-600 max-w-xl mx-auto">
-              Start by uploading your design image
+              Start by uploading your design image for AI analysis
             </p>
           </div>
 
