@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
-import { SimpleDesignAssistant } from "@/components/design/SimpleDesignAssistant"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -63,15 +62,6 @@ export default function NewDesign() {
     }
   }
 
-  const handleDesignUpdate = (update: { type: string; value: number }) => {
-    if (update.type === 'UPDATE_TOTAL_CLUSTERS' && analysisData) {
-      setAnalysisData({
-        ...analysisData,
-        clusters: update.value
-      })
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background">
       <div className="container mx-auto px-4 py-8">
@@ -92,16 +82,6 @@ export default function NewDesign() {
                 onAnalysisComplete={handleAnalysisComplete}
               />
             </div>
-
-            {analysisData && (
-              <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
-                <h2 className="text-2xl font-semibold text-gray-800">Design Assistant</h2>
-                <SimpleDesignAssistant 
-                  designData={{ totalClusters: analysisData.clusters }}
-                  onUpdate={handleDesignUpdate}
-                />
-              </div>
-            )}
 
             <div className="bg-white rounded-xl shadow-sm p-8">
               <DesignSpecsForm
