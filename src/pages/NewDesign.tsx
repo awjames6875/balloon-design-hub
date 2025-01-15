@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
 import { DesignStateManager } from "@/components/design/DesignStateManager"
+import { Card } from "@/components/ui/card"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -46,17 +47,17 @@ export default function NewDesign() {
           </div>
 
           <div className="space-y-8">
-            <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            <Card className="p-6 hover:shadow-md transition-shadow">
               <AIDesignUpload 
                 onImageUploaded={handleImageUploaded}
                 onAnalysisComplete={handleAnalysisComplete}
               />
-            </div>
+            </Card>
 
             {analysisData && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
+              <Card className="p-6">
                 <DesignStateManager />
-              </div>
+              </Card>
             )}
           </div>
         </div>
