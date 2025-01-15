@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { SimpleDesignAssistant } from "./SimpleDesignAssistant"
 import { BalloonChart } from "@/components/charts/BalloonChart"
 
 interface ColorDistribution {
@@ -100,11 +99,6 @@ export const DesignStateManager = () => {
 
   return (
     <div className="space-y-6">
-      <SimpleDesignAssistant 
-        designData={designData}
-        onUpdate={handleDesignUpdate}
-      />
-
       <div className="p-4 bg-white rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold mb-4">Design Distribution</h3>
         <BalloonChart data={chartData} />
