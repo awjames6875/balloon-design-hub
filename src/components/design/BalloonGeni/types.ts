@@ -3,11 +3,12 @@ export type CorrectionType =
   | 'color_name' 
   | 'balloon_count' 
   | 'add_color' 
-  | 'remove_color';
+  | 'remove_color'
+  | 'total_clusters';
 
 export interface CorrectionProps {
   type: CorrectionType;
-  color: string;
+  color?: string;
   originalValue: string | number | null;
   newValue: string | number;
   action: string;

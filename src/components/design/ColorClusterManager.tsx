@@ -40,7 +40,6 @@ export const useColorClusterManager = ({
           if (clusterColor.includes('orange') && correctionColor.includes('orange')) return true
           if (clusterColor.includes('blue') && correctionColor.includes('blue')) return true
           if (clusterColor.includes('red') && correctionColor.includes('red')) return true
-          // Add more color variations as needed
           
           return false
         })
@@ -74,6 +73,22 @@ export const useColorClusterManager = ({
         onTotalClustersUpdate(totalClustersCount)
 
         toast.success(`Updated clusters for ${matchingCluster.color}`)
+      } else if (correction.type === 'total_clusters') {
+        // Handle updating total clusters
+        const totalClusters = correction.clusterCount!
+        const clustersPerColor = Math.floor(totalClusters / colorClusters.length)
+        const remainingClusters = totalClusters % colorClusters.length
+
+        const updatedClusters = colorClusters.map((cluster, index) => ({
+          ...cluster,
+          baseClusters: Math.ceil((clustersPerColor + (index < remainingClusters ? 1 : 0)) * 0.7),
+          extraClusters: Math.floor((clustersPerColor + (index < remainingClusters ? 1 : 0)) * 0.3)
+        }))
+
+        console.log("Updated clusters for total change:", updatedClusters)
+        onClustersUpdate(updatedClusters)
+        onTotalClustersUpdate(totalClusters)
+        toast.success(`Updated total clusters to ${totalClusters}`)
       }
     } catch (error) {
       console.error("Error updating design:", error)

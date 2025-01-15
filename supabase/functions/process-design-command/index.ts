@@ -8,7 +8,6 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -39,19 +38,31 @@ serve(async (req) => {
             Your task is to analyze commands about balloon clusters and return structured data about the changes requested.
             Current clusters: ${JSON.stringify(currentClusters)}
             
-            Example commands:
-            - "change red clusters to 5"
-            - "set blue to 3 clusters"
-            - "make orange 4"
+            Example commands and their interpretations:
+            - "change red clusters to 5" -> { type: "cluster_count", color: "red", clusterCount: 5 }
+            - "set blue to 3 clusters" -> { type: "cluster_count", color: "blue", clusterCount: 3 }
+            - "make orange 4" -> { type: "cluster_count", color: "orange", clusterCount: 4 }
+            - "total clusters should be 11" -> { type: "total_clusters", clusterCount: 11 }
+            - "change total to 15 clusters" -> { type: "total_clusters", clusterCount: 15 }
             
             Return format must be:
+            For color changes:
             {
-              type: "cluster_count" | "color_name",
+              type: "cluster_count",
               color: string,
-              clusterCount?: number,
-              originalValue: string | number | null,
-              newValue: string | number,
-              action: string
+              clusterCount: number,
+              originalValue: number | null,
+              newValue: number,
+              action: "update_clusters"
+            }
+            
+            For total cluster changes:
+            {
+              type: "total_clusters",
+              clusterCount: number,
+              originalValue: number | null,
+              newValue: number,
+              action: "update_total"
             }`
           },
           {
@@ -74,11 +85,20 @@ serve(async (req) => {
     let correction
     try {
       correction = JSON.parse(data.choices[0].message.content)
+      console.log('Parsed correction:', correction)
+      
+      // Validate the correction format
+      if (!correction.type || 
+          (correction.type !== 'cluster_count' && correction.type !== 'total_clusters') ||
+          !correction.action ||
+          (correction.type === 'cluster_count' && !correction.color)) {
+        throw new Error('Invalid correction format')
+      }
     } catch (e) {
       console.error('Failed to parse OpenAI response:', e)
       correction = {
         type: 'error',
-        message: 'Could not understand command'
+        message: 'Could not understand command. Try something like "change red clusters to 5" or "total clusters should be 11"'
       }
     }
 
@@ -87,7 +107,10 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('Error:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      type: 'error',
+      message: error.message || "Failed to process command"
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
