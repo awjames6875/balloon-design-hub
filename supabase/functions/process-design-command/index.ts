@@ -1,6 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts"
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,7 +21,7 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured')
     }
 
-    // Call OpenAI API
+    // Call OpenAI API with improved prompt
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -34,36 +33,31 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a balloon design assistant that helps modify balloon cluster specifications.
-            Your task is to analyze commands about balloon clusters and return structured data about the changes requested.
-            Current clusters: ${JSON.stringify(currentClusters)}
+            content: `You are a balloon design assistant that processes commands about balloon clusters.
+            Current configuration: ${JSON.stringify(currentClusters)}
             
-            Example commands and their interpretations:
-            - "change red clusters to 5" -> { type: "cluster_count", color: "red", clusterCount: 5 }
-            - "set blue to 3 clusters" -> { type: "cluster_count", color: "blue", clusterCount: 3 }
-            - "make orange 4" -> { type: "cluster_count", color: "orange", clusterCount: 4 }
-            - "total clusters should be 11" -> { type: "total_clusters", clusterCount: 11 }
-            - "change total to 15 clusters" -> { type: "total_clusters", clusterCount: 15 }
+            Your task is to analyze commands and return a JSON object with the changes requested.
             
-            Return format must be:
-            For color changes:
+            For total cluster changes (e.g. "total should be 11", "change total to 15"):
             {
-              type: "cluster_count",
-              color: string,
-              clusterCount: number,
-              originalValue: number | null,
-              newValue: number,
-              action: "update_clusters"
+              "type": "total_clusters",
+              "clusterCount": number,
+              "originalValue": null,
+              "newValue": number,
+              "action": "update_total"
             }
             
-            For total cluster changes:
+            For specific color changes (e.g. "change red to 5", "make blue 3"):
             {
-              type: "total_clusters",
-              clusterCount: number,
-              originalValue: number | null,
-              newValue: number,
-              action: "update_total"
-            }`
+              "type": "cluster_count",
+              "color": "color_name",
+              "clusterCount": number,
+              "originalValue": null,
+              "newValue": number,
+              "action": "update_clusters"
+            }
+            
+            Return ONLY the JSON object, no other text.`
           },
           {
             role: 'user',
@@ -71,7 +65,7 @@ serve(async (req) => {
           }
         ],
         temperature: 0.1,
-        max_tokens: 200,
+        max_tokens: 150,
       }),
     })
 
@@ -96,10 +90,12 @@ serve(async (req) => {
       }
     } catch (e) {
       console.error('Failed to parse OpenAI response:', e)
-      correction = {
+      return new Response(JSON.stringify({
         type: 'error',
-        message: 'Could not understand command. Try something like "change red clusters to 5" or "total clusters should be 11"'
-      }
+        message: 'Could not understand command. Try "change total clusters to 11" or "set red clusters to 5"'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     return new Response(JSON.stringify(correction), {
