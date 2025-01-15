@@ -13,9 +13,19 @@ interface BalloonChartProps {
     actual: number
     effective: number
   }>
+  colors?: {
+    actual?: string
+    effective?: string
+  }
 }
 
-export function BalloonChart({ data }: BalloonChartProps) {
+export function BalloonChart({ 
+  data,
+  colors = {
+    actual: "hsl(220 80% 50%)",
+    effective: "hsl(150 80% 50%)"
+  }
+}: BalloonChartProps) {
   return (
     <div className="w-full h-full rounded-lg bg-white p-6">
       <div className="h-[600px]">
@@ -23,11 +33,17 @@ export function BalloonChart({ data }: BalloonChartProps) {
           config={{
             actual: {
               label: "Actual Stock",
-              theme: { light: "hsl(220 80% 50%)", dark: "hsl(220 80% 50%)" },
+              theme: { 
+                light: colors.actual || "hsl(220 80% 50%)", 
+                dark: colors.actual || "hsl(220 80% 50%)" 
+              },
             },
             effective: {
               label: "Effective Stock",
-              theme: { light: "hsl(150 80% 50%)", dark: "hsl(150 80% 50%)" },
+              theme: { 
+                light: colors.effective || "hsl(150 80% 50%)", 
+                dark: colors.effective || "hsl(150 80% 50%)" 
+              },
             },
           }}
         >
@@ -46,12 +62,12 @@ export function BalloonChart({ data }: BalloonChartProps) {
             <YAxis />
             <Bar 
               dataKey="actual" 
-              fill="var(--color-actual)"
+              fill={colors.actual || "var(--color-actual)"}
               radius={[4, 4, 0, 0]}
             />
             <Bar 
               dataKey="effective" 
-              fill="var(--color-effective)"
+              fill={colors.effective || "var(--color-effective)"}
               radius={[4, 4, 0, 0]}
             />
             <ChartTooltip 
