@@ -21,42 +21,31 @@ export const useColorClusterManager = ({
 }: ColorClusterManagerProps) => {
   const handleGeniUpdate = async (correction: CorrectionProps) => {
     try {
+      console.log("Starting Geni update with correction:", correction)
+      
       if (correction.type === 'cluster_count') {
-        console.log("Checking color clusters:", colorClusters)
-        console.log("Looking for color:", correction.color)
-        
-        // Improved color matching logic
+        console.log("Processing cluster count update")
         const matchingCluster = colorClusters.find(cluster => {
           const clusterColor = cluster.color.toLowerCase()
           const correctionColor = correction.color.toLowerCase()
-          
-          // Check for exact match
-          if (clusterColor === correctionColor) return true
-          
-          // Check if the cluster color contains the correction color or vice versa
-          if (clusterColor.includes(correctionColor) || correctionColor.includes(clusterColor)) return true
-          
-          // Check for common color variations
-          if (clusterColor.includes('orange') && correctionColor.includes('orange')) return true
-          if (clusterColor.includes('blue') && correctionColor.includes('blue')) return true
-          if (clusterColor.includes('red') && correctionColor.includes('red')) return true
-          
-          return false
+          return clusterColor === correctionColor || 
+                 clusterColor.includes(correctionColor) || 
+                 correctionColor.includes(clusterColor)
         })
 
-        console.log("Found matching cluster:", matchingCluster)
-
         if (!matchingCluster) {
-          toast.error(`Color ${correction.color} not found in current design. Available colors: ${colorClusters.map(c => c.color).join(', ')}`)
+          console.error("No matching cluster found for color:", correction.color)
+          toast.error(`Color ${correction.color} not found in current design`)
           return
         }
 
         const updatedClusters = colorClusters.map(cluster => {
           if (cluster.color === matchingCluster.color) {
+            const totalClusters = correction.clusterCount!
             return {
               ...cluster,
-              baseClusters: Math.ceil(correction.clusterCount! * 0.7),
-              extraClusters: Math.floor(correction.clusterCount! * 0.3)
+              baseClusters: Math.ceil(totalClusters * 0.7),
+              extraClusters: Math.floor(totalClusters * 0.3)
             }
           }
           return cluster
@@ -65,33 +54,35 @@ export const useColorClusterManager = ({
         console.log("Updated clusters:", updatedClusters)
         onClustersUpdate(updatedClusters)
         
-        // Recalculate totals
         const totalClustersCount = updatedClusters.reduce(
           (sum, cluster) => sum + cluster.baseClusters + cluster.extraClusters, 
           0
         )
         onTotalClustersUpdate(totalClustersCount)
-
         toast.success(`Updated clusters for ${matchingCluster.color}`)
+
       } else if (correction.type === 'total_clusters') {
-        // Handle updating total clusters
+        console.log("Processing total clusters update to:", correction.clusterCount)
         const totalClusters = correction.clusterCount!
         const clustersPerColor = Math.floor(totalClusters / colorClusters.length)
         const remainingClusters = totalClusters % colorClusters.length
 
-        const updatedClusters = colorClusters.map((cluster, index) => ({
-          ...cluster,
-          baseClusters: Math.ceil((clustersPerColor + (index < remainingClusters ? 1 : 0)) * 0.7),
-          extraClusters: Math.floor((clustersPerColor + (index < remainingClusters ? 1 : 0)) * 0.3)
-        }))
+        const updatedClusters = colorClusters.map((cluster, index) => {
+          const clusterTotal = clustersPerColor + (index < remainingClusters ? 1 : 0)
+          return {
+            ...cluster,
+            baseClusters: Math.ceil(clusterTotal * 0.7),
+            extraClusters: Math.floor(clusterTotal * 0.3)
+          }
+        })
 
-        console.log("Updated clusters for total change:", updatedClusters)
+        console.log("Distributing total clusters:", totalClusters, "Updated clusters:", updatedClusters)
         onClustersUpdate(updatedClusters)
         onTotalClustersUpdate(totalClusters)
         toast.success(`Updated total clusters to ${totalClusters}`)
       }
     } catch (error) {
-      console.error("Error updating design:", error)
+      console.error("Error in handleGeniUpdate:", error)
       toast.error("Failed to update design")
     }
   }
