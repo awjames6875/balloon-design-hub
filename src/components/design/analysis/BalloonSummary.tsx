@@ -2,12 +2,14 @@ interface BalloonSummaryProps {
   totalBalloons11: number
   totalBalloons16: number
   totalClusters: number
+  onUpdate?: (totalClusters: number) => void
 }
 
 export const BalloonSummary = ({
   totalBalloons11,
   totalBalloons16,
   totalClusters,
+  onUpdate
 }: BalloonSummaryProps) => {
   const totalBalloons = totalBalloons11 + totalBalloons16;
 

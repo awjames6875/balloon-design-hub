@@ -40,8 +40,6 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       console.log("Starting image upload process...")
       setIsAnalyzing(true)
       
-      // First upload the image
-      console.log("Attempting to upload image to Supabase storage...")
       const imagePath = await uploadDesignImage(file)
       if (!imagePath) {
         console.error("Failed to get image path from uploadDesignImage")
@@ -53,7 +51,6 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       setDesignImage(imagePath)
       onImageUploaded(imagePath)
 
-      // Test Supabase connection
       console.log("Testing Supabase connection...")
       const { data: testData, error: testError } = await supabase
         .from('balloon_styles')
@@ -68,7 +65,6 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
 
       console.log("Supabase connection test successful:", testData)
 
-      // Analyze numbered clusters using the edge function
       console.log("Calling analyze-design edge function...")
       const { data: numberedDesignAnalysis, error } = await supabase.functions.invoke('analyze-design', {
         body: { imageUrl: imagePath }
@@ -79,25 +75,7 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
         toast.error('Failed to analyze numbered design')
       } else {
         console.log('Numbered design analysis results:', numberedDesignAnalysis)
-
-        // Calculate total clusters by summing the count of all clusters
-        const totalClusters = numberedDesignAnalysis?.clusters?.reduce((sum, cluster) => sum + cluster.count, 0) || 0
-
-        // Create analysis data using only the colors from the key
-        const colorsFromKey = Object.values(numberedDesignAnalysis?.colorKey || {}) as string[]
-        
-        const newAnalysisData: AIAnalysisData = {
-          clusters: totalClusters,
-          colors: colorsFromKey,
-          sizes: [
-            { size: "11in", quantity: Math.floor(Math.random() * 50) + 20 },
-            { size: "16in", quantity: Math.floor(Math.random() * 30) + 10 }
-          ],
-          numberedAnalysis: numberedDesignAnalysis
-        }
-
-        setAnalysisData(newAnalysisData)
-        onAnalysisComplete(newAnalysisData)
+        updateAnalysisData(numberedDesignAnalysis)
       }
       
       toast.success("Design analysis completed")
@@ -106,6 +84,39 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       toast.error("Failed to analyze design")
     } finally {
       setIsAnalyzing(false)
+    }
+  }
+
+  // New function to update analysis data
+  const updateAnalysisData = (numberedDesignAnalysis: any) => {
+    const totalClusters = numberedDesignAnalysis?.clusters?.reduce((sum: number, cluster: any) => sum + cluster.count, 0) || 0
+    const colorsFromKey = Object.values(numberedDesignAnalysis?.colorKey || {}) as string[]
+    
+    const newAnalysisData: AIAnalysisData = {
+      clusters: totalClusters,
+      colors: colorsFromKey,
+      sizes: [
+        { size: "11in", quantity: Math.floor(totalClusters * 11) }, // Each cluster uses 11 11-inch balloons
+        { size: "16in", quantity: Math.floor(totalClusters * 2) }   // Each cluster uses 2 16-inch balloons
+      ],
+      numberedAnalysis: numberedDesignAnalysis
+    }
+
+    setAnalysisData(newAnalysisData)
+    onAnalysisComplete(newAnalysisData)
+  }
+
+  // New function to handle design assistant updates
+  const handleDesignAssistantUpdate = (updatedClusters: number) => {
+    if (analysisData && analysisData.numberedAnalysis) {
+      const updatedAnalysis = {
+        ...analysisData.numberedAnalysis,
+        clusters: analysisData.numberedAnalysis.clusters.map(cluster => ({
+          ...cluster,
+          count: Math.floor(updatedClusters / analysisData.numberedAnalysis!.clusters.length)
+        }))
+      }
+      updateAnalysisData(updatedAnalysis)
     }
   }
 
@@ -146,7 +157,12 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
           </div>
         )}
 
-        {analysisData && <AnalysisResults data={analysisData} />}
+        {analysisData && (
+          <AnalysisResults 
+            data={analysisData} 
+            onDesignAssistantUpdate={handleDesignAssistantUpdate}
+          />
+        )}
       </CardContent>
     </Card>
   )

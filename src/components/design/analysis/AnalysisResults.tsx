@@ -20,9 +20,10 @@ interface AnalysisData {
 
 interface AnalysisResultsProps {
   data: AnalysisData | null
+  onDesignAssistantUpdate?: (totalClusters: number) => void
 }
 
-export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
+export const AnalysisResults = ({ data, onDesignAssistantUpdate }: AnalysisResultsProps) => {
   if (!data) {
     return <div>No analysis data available</div>
   }
@@ -53,6 +54,13 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
   const totalBalloons11 = totalClusters * BALLOONS_11_PER_CLUSTER
   const totalBalloons16 = totalClusters * BALLOONS_16_PER_CLUSTER
 
+  // Handle updates from the design assistant
+  const handleDesignAssistantUpdate = (newTotalClusters: number) => {
+    if (onDesignAssistantUpdate) {
+      onDesignAssistantUpdate(newTotalClusters)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <BalloonCalculationTable
@@ -67,6 +75,7 @@ export const AnalysisResults = ({ data }: AnalysisResultsProps) => {
         totalBalloons11={totalBalloons11}
         totalBalloons16={totalBalloons16}
         totalClusters={totalClusters}
+        onUpdate={handleDesignAssistantUpdate}
       />
     </div>
   )
