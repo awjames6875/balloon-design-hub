@@ -36,6 +36,28 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
   const [designImage, setDesignImage] = useState<string | null>(null)
   const [currentDesignId, setCurrentDesignId] = useState<number | null>(null)
 
+  const recalculateValues = (totalClusters: number, colors: string[]) => {
+    const clustersPerColor = Math.floor(totalClusters / colors.length)
+    const remainingClusters = totalClusters % colors.length
+
+    return {
+      clusters: totalClusters,
+      colors: colors,
+      sizes: [
+        { size: "11in", quantity: totalClusters * 11 },
+        { size: "16in", quantity: totalClusters * 2 }
+      ],
+      numberedAnalysis: {
+        colorKey: Object.fromEntries(colors.map((color, i) => [i + 1, color])),
+        clusters: colors.map((color, index) => ({
+          number: index + 1,
+          definedColor: color,
+          count: clustersPerColor + (index < remainingClusters ? 1 : 0)
+        }))
+      }
+    }
+  }
+
   const handleImageUpload = async (file: File) => {
     try {
       console.log("Starting image upload process...")
@@ -79,15 +101,7 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       const totalClusters = numberedDesignAnalysis?.clusters?.reduce((sum: number, cluster: any) => sum + cluster.count, 0) || 0
       const colorsFromKey = Object.values(numberedDesignAnalysis?.colorKey || {}) as string[]
       
-      const analysisData: AIAnalysisData = {
-        clusters: totalClusters,
-        colors: colorsFromKey,
-        sizes: [
-          { size: "11in", quantity: Math.floor(totalClusters * 11) },
-          { size: "16in", quantity: Math.floor(totalClusters * 2) }
-        ],
-        numberedAnalysis: numberedDesignAnalysis
-      }
+      const analysisData = recalculateValues(totalClusters, colorsFromKey)
 
       const { data: savedAnalysis, error } = await supabase
         .from('design_analysis')
@@ -95,7 +109,7 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
           clusters: totalClusters,
           colors: colorsFromKey,
           sizes: analysisData.sizes,
-          total_balloons: Math.floor(totalClusters * 13)
+          total_balloons: totalClusters * 13
         }])
         .select()
         .single()
@@ -119,31 +133,10 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
   const handleDesignAssistantUpdate = async (updatedClusters: number) => {
     console.log('Handling design assistant update with clusters:', updatedClusters)
     
-    if (analysisData?.numberedAnalysis) {
+    if (analysisData?.colors) {
       try {
-        const clustersPerColor = Math.floor(updatedClusters / analysisData.numberedAnalysis.clusters.length)
-        const remainingClusters = updatedClusters % analysisData.numberedAnalysis.clusters.length
-        
-        const updatedAnalysis = {
-          ...analysisData.numberedAnalysis,
-          clusters: analysisData.numberedAnalysis.clusters.map((cluster, index) => ({
-            ...cluster,
-            count: clustersPerColor + (index < remainingClusters ? 1 : 0)
-          }))
-        }
-
-        console.log('Created updated analysis:', updatedAnalysis)
-        
-        // Update the local state first
-        const newAnalysisData: AIAnalysisData = {
-          clusters: updatedClusters,
-          colors: analysisData.colors,
-          sizes: [
-            { size: "11in", quantity: Math.floor(updatedClusters * 11) },
-            { size: "16in", quantity: Math.floor(updatedClusters * 2) }
-          ],
-          numberedAnalysis: updatedAnalysis
-        }
+        // Recalculate all values based on the new total clusters
+        const newAnalysisData = recalculateValues(updatedClusters, analysisData.colors)
         
         // Update database
         if (currentDesignId) {
@@ -152,7 +145,7 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
             .update({
               clusters: updatedClusters,
               sizes: newAnalysisData.sizes,
-              total_balloons: Math.floor(updatedClusters * 13)
+              total_balloons: updatedClusters * 13
             })
             .eq('id', currentDesignId)
 
@@ -172,8 +165,8 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
         toast.error('Failed to update analysis')
       }
     } else {
-      console.error('No numbered analysis data available')
-      toast.error('Cannot update design: No analysis data available')
+      console.error('No color data available')
+      toast.error('Cannot update design: No color data available')
     }
   }
 
