@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { BalloonChart } from "@/components/charts/BalloonChart"
 import { SimpleDesignAssistant } from "./SimpleDesignAssistant"
 
 interface ColorDistribution {
@@ -34,11 +33,6 @@ export const DesignStateManager = () => {
     }
   })
 
-  const [chartColors, setChartColors] = useState({
-    actual: "hsl(220 80% 50%)",
-    effective: "hsl(150 80% 50%)"
-  })
-
   const handleDesignUpdate = (update: { type: string; value: number }) => {
     if (update.type === 'UPDATE_TOTAL_CLUSTERS') {
       const newClustersPerColor = Math.floor(update.value / Object.keys(designData.colorDistribution).length)
@@ -71,27 +65,12 @@ export const DesignStateManager = () => {
     }
   }
 
-  // Transform design data for the chart
-  const chartData = Object.entries(designData.colorDistribution).map(([color, data]) => ({
-    name: color,
-    actual: data.balloons11,
-    effective: data.balloons16
-  }))
-
   return (
     <div className="space-y-6">
       <SimpleDesignAssistant 
         designData={designData}
         onUpdate={handleDesignUpdate}
       />
-
-      <div className="p-4 bg-white rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-4">Design Distribution</h3>
-        <BalloonChart 
-          data={chartData}
-          colors={chartColors}
-        />
-      </div>
 
       <div className="p-4 bg-white rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold mb-2">Design Summary</h3>
