@@ -103,14 +103,13 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
         numberedAnalysis: numberedDesignAnalysis
       }
 
-      // Save to design_analysis table
       const { data: savedAnalysis, error } = await supabase
         .from('design_analysis')
         .insert([{
           clusters: totalClusters,
           colors: colorsFromKey,
           sizes: analysisData.sizes,
-          total_balloons: Math.floor(totalClusters * 13) // 11 + 2 balloons per cluster
+          total_balloons: Math.floor(totalClusters * 13)
         }])
         .select()
         .single()
@@ -121,6 +120,7 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
         return
       }
 
+      console.log('Analysis saved to database:', savedAnalysis)
       setCurrentDesignId(savedAnalysis.id)
       setAnalysisData(analysisData)
       onAnalysisComplete(analysisData)
@@ -131,60 +131,70 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
   }
 
   const updateAnalysisData = async (numberedDesignAnalysis: any) => {
-    const totalClusters = numberedDesignAnalysis?.clusters?.reduce((sum: number, cluster: any) => sum + cluster.count, 0) || 0
-    const colorsFromKey = Object.values(numberedDesignAnalysis?.colorKey || {}) as string[]
-    
-    const newAnalysisData: AIAnalysisData = {
-      clusters: totalClusters,
-      colors: colorsFromKey,
-      sizes: [
-        { size: "11in", quantity: Math.floor(totalClusters * 11) },
-        { size: "16in", quantity: Math.floor(totalClusters * 2) }
-      ],
-      numberedAnalysis: numberedDesignAnalysis
-    }
-
-    // Update database if we have a current design ID
-    if (currentDesignId) {
-      const { error } = await supabase
-        .from('design_analysis')
-        .update({
-          clusters: totalClusters,
-          colors: colorsFromKey,
-          sizes: newAnalysisData.sizes,
-          total_balloons: Math.floor(totalClusters * 13)
-        })
-        .eq('id', currentDesignId)
-
-      if (error) {
-        console.error('Error updating analysis in database:', error)
-        toast.error('Failed to update analysis')
-        return
+    try {
+      const totalClusters = numberedDesignAnalysis?.clusters?.reduce((sum: number, cluster: any) => sum + cluster.count, 0) || 0
+      const colorsFromKey = Object.values(numberedDesignAnalysis?.colorKey || {}) as string[]
+      
+      const newAnalysisData: AIAnalysisData = {
+        clusters: totalClusters,
+        colors: colorsFromKey,
+        sizes: [
+          { size: "11in", quantity: Math.floor(totalClusters * 11) },
+          { size: "16in", quantity: Math.floor(totalClusters * 2) }
+        ],
+        numberedAnalysis: numberedDesignAnalysis
       }
-    }
 
-    console.log('Updating analysis data with new values:', newAnalysisData)
-    setAnalysisData(newAnalysisData)
-    onAnalysisComplete(newAnalysisData)
+      if (currentDesignId) {
+        const { error } = await supabase
+          .from('design_analysis')
+          .update({
+            clusters: totalClusters,
+            colors: colorsFromKey,
+            sizes: newAnalysisData.sizes,
+            total_balloons: Math.floor(totalClusters * 13)
+          })
+          .eq('id', currentDesignId)
+
+        if (error) {
+          console.error('Error updating analysis in database:', error)
+          toast.error('Failed to update analysis')
+          return
+        }
+        
+        console.log('Analysis updated in database with new values:', newAnalysisData)
+      }
+
+      setAnalysisData(newAnalysisData)
+      onAnalysisComplete(newAnalysisData)
+    } catch (error) {
+      console.error('Error updating analysis:', error)
+      toast.error('Failed to update analysis')
+    }
   }
 
   const handleDesignAssistantUpdate = async (updatedClusters: number) => {
-    if (analysisData && analysisData.numberedAnalysis) {
+    console.log('Handling design assistant update with clusters:', updatedClusters)
+    
+    if (analysisData?.numberedAnalysis) {
       const clustersPerColor = Math.floor(updatedClusters / analysisData.numberedAnalysis.clusters.length)
       const remainingClusters = updatedClusters % analysisData.numberedAnalysis.clusters.length
       
+      // Create a deep copy of the numbered analysis to avoid mutation
       const updatedAnalysis = {
         ...analysisData.numberedAnalysis,
-        totalClusters: updatedClusters,
         clusters: analysisData.numberedAnalysis.clusters.map((cluster, index) => ({
           ...cluster,
           count: clustersPerColor + (index < remainingClusters ? 1 : 0)
         }))
       }
 
-      console.log('Updating clusters with:', updatedAnalysis)
+      console.log('Created updated analysis:', updatedAnalysis)
       await updateAnalysisData(updatedAnalysis)
       toast.success('Design analysis updated successfully')
+    } else {
+      console.error('No numbered analysis data available')
+      toast.error('Cannot update design: No analysis data available')
     }
   }
 
