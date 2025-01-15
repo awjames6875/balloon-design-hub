@@ -1,4 +1,4 @@
-import { BalloonCalculationTable } from "../production/BalloonCalculationTable"
+import { BalloonCalculationTable } from "./BalloonCalculationTable"
 import { BalloonSummary } from "./BalloonSummary"
 
 interface AnalysisResultsProps {
@@ -37,20 +37,20 @@ export const AnalysisResults = ({ data, onDesignAssistantUpdate }: AnalysisResul
       />
       {data.numberedAnalysis && (
         <BalloonCalculationTable
-          balloonsByColor={Object.entries(data.numberedAnalysis.colorKey).map(([number, color]) => {
+          balloonsPerColor={Object.entries(data.numberedAnalysis.colorKey).map(([number, color]) => {
             const cluster = data.numberedAnalysis!.clusters.find(c => c.number.toString() === number);
             return {
               color,
               balloons11: (cluster?.count || 0) * 11,
               balloons16: (cluster?.count || 0) * 2,
-              totalClusters: cluster?.count || 0
+              clustersCount: cluster?.count || 0
             };
           })}
-          calculations={{
-            balloons11in: balloons11,
-            balloons16in: balloons16,
-            totalClusters: data.clusters
-          }}
+          totalClusters={data.clusters}
+          BALLOONS_11_PER_CLUSTER={11}
+          BALLOONS_16_PER_CLUSTER={2}
+          totalBalloons11={balloons11}
+          totalBalloons16={balloons16}
         />
       )}
     </div>
