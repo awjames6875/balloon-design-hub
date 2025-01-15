@@ -1,10 +1,9 @@
 import { useState } from "react"
-import { DesignSpecsForm } from "@/components/design/DesignSpecsForm"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
-import { SimpleDesignAssistant } from "@/components/design/SimpleDesignAssistant"
+import { DesignStateManager } from "@/components/design/DesignStateManager"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -33,51 +32,12 @@ export default function NewDesign() {
     window.history.replaceState(null, '', `?${searchParams.toString()}`)
   }
 
-  const handleFormSubmit = async (formData: any) => {
-    try {
-      // Navigate to inventory with the design data
-      navigate("/inventory", {
-        state: {
-          fromDesign: true,
-          designData: {
-            clientName: formData.clientName,
-            projectName: formData.projectName,
-            length: formData.length,
-            style: formData.style,
-            shape: formData.shape,
-            colorClusters: formData.colorClusters,
-            calculations: {
-              ...formData.calculations,
-              totalClusters: analysisData?.clusters || formData.calculations.totalClusters
-            },
-            imagePreview: designImage,
-            clientReference: null,
-            analysisData
-          }
-        }
-      })
-      toast.success("Design saved! Please check inventory before proceeding.")
-    } catch (error) {
-      console.error("Error saving design:", error)
-      toast.error("Failed to save design")
-    }
-  }
-
-  const handleDesignUpdate = (update: { type: string; value: number }) => {
-    if (update.type === 'UPDATE_TOTAL_CLUSTERS' && analysisData) {
-      setAnalysisData({
-        ...analysisData,
-        clusters: update.value
-      })
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background">
       <div className="container mx-auto px-4 py-8">
         <BackToHome />
 
-        <div className="max-w-3xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-8">
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold text-gray-800">Create New Design</h1>
             <p className="text-gray-600 max-w-xl mx-auto">
@@ -94,21 +54,10 @@ export default function NewDesign() {
             </div>
 
             {analysisData && (
-              <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
-                <h2 className="text-2xl font-semibold text-gray-800">Design Assistant</h2>
-                <SimpleDesignAssistant 
-                  designData={{ totalClusters: analysisData.clusters }}
-                  onUpdate={handleDesignUpdate}
-                />
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <DesignStateManager />
               </div>
             )}
-
-            <div className="bg-white rounded-xl shadow-sm p-8">
-              <DesignSpecsForm
-                onSubmit={handleFormSubmit}
-                designImage={designImage}
-              />
-            </div>
           </div>
         </div>
       </div>
