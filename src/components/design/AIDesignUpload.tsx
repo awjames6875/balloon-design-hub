@@ -163,19 +163,26 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       }
     }
 
+    console.log('Updating analysis data with new values:', newAnalysisData)
     setAnalysisData(newAnalysisData)
     onAnalysisComplete(newAnalysisData)
   }
 
   const handleDesignAssistantUpdate = async (updatedClusters: number) => {
     if (analysisData && analysisData.numberedAnalysis) {
+      const clustersPerColor = Math.floor(updatedClusters / analysisData.numberedAnalysis.clusters.length)
+      const remainingClusters = updatedClusters % analysisData.numberedAnalysis.clusters.length
+      
       const updatedAnalysis = {
         ...analysisData.numberedAnalysis,
-        clusters: analysisData.numberedAnalysis.clusters.map(cluster => ({
+        totalClusters: updatedClusters,
+        clusters: analysisData.numberedAnalysis.clusters.map((cluster, index) => ({
           ...cluster,
-          count: Math.floor(updatedClusters / analysisData.numberedAnalysis!.clusters.length)
+          count: clustersPerColor + (index < remainingClusters ? 1 : 0)
         }))
       }
+
+      console.log('Updating clusters with:', updatedAnalysis)
       await updateAnalysisData(updatedAnalysis)
       toast.success('Design analysis updated successfully')
     }
