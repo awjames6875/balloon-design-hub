@@ -39,3 +39,22 @@ export const recalculateDesignValues = (
     }
   }
 }
+
+export const calculateBalloonQuantities = (totalClusters: number) => {
+  return {
+    balloons11in: totalClusters * 11,
+    balloons16in: totalClusters * 2,
+    totalBalloons: totalClusters * 13
+  }
+}
+
+export const distributeClustersByColor = (totalClusters: number, colors: string[]) => {
+  const clustersPerColor = Math.floor(totalClusters / colors.length)
+  const remainingClusters = totalClusters % colors.length
+
+  return colors.map((color, index) => ({
+    color,
+    baseClusters: Math.ceil((clustersPerColor + (index < remainingClusters ? 1 : 0)) * 0.7),
+    extraClusters: Math.floor((clustersPerColor + (index < remainingClusters ? 1 : 0)) * 0.3)
+  }))
+}

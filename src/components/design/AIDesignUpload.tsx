@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client"
 import { DesignControls } from "./analysis/DesignControls"
 import { recalculateDesignValues, type AIAnalysisData } from "@/utils/designCalculations"
 import { saveDesignAnalysis, updateDesignAnalysis } from "@/services/designAnalysisService"
+import { DesignAssistant } from "./DesignAssistant/DesignAssistant"
+import type { CorrectionProps } from "./BalloonGeni/types"
 
 interface AIDesignUploadProps {
   onAnalysisComplete: (data: AIAnalysisData) => void
@@ -71,19 +73,22 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
     }
   }
 
-  const handleDesignAssistantUpdate = async (updatedClusters: number) => {
+  const handleDesignAssistantUpdate = async (correction: CorrectionProps) => {
     if (!analysisData?.colors) {
       toast.error('Cannot update design: No color data available')
       return
     }
 
     try {
-      const newAnalysisData = recalculateDesignValues(updatedClusters, analysisData.colors)
+      const newAnalysisData = recalculateDesignValues(
+        correction.type === 'total_clusters' ? correction.clusterCount! : analysisData.clusters,
+        analysisData.colors
+      )
       
       if (currentDesignId) {
         const success = await updateDesignAnalysis(
           currentDesignId,
-          updatedClusters,
+          newAnalysisData.clusters,
           newAnalysisData.sizes
         )
 
@@ -130,10 +135,19 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
         )}
 
         {analysisData && (
-          <AnalysisResults 
-            data={analysisData} 
-            onDesignAssistantUpdate={handleDesignAssistantUpdate}
-          />
+          <>
+            <AnalysisResults 
+              data={analysisData}
+            />
+            <DesignAssistant 
+              onUpdate={handleDesignAssistantUpdate}
+              colorClusters={analysisData.numberedAnalysis?.clusters.map(c => ({
+                color: c.definedColor,
+                baseClusters: Math.ceil(c.count * 0.7),
+                extraClusters: Math.floor(c.count * 0.3)
+              }))}
+            />
+          </>
         )}
       </CardContent>
     </Card>
