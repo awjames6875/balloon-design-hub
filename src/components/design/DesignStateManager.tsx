@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { BalloonChart } from "@/components/charts/BalloonChart"
+import { SimpleDesignAssistant } from "./SimpleDesignAssistant"
 
 interface ColorDistribution {
   [color: string]: {
