@@ -34,12 +34,7 @@ export const DesignStateManager = () => {
     }
   })
 
-  const [chartColors, setChartColors] = useState({
-    actual: "hsl(220 80% 50%)",
-    effective: "hsl(150 80% 50%)"
-  })
-
-  const handleDesignUpdate = (update: { type: string; value: number }) => {
+  const handleDesignUpdate = (update: { type: string; value: number; color?: string }) => {
     if (update.type === 'UPDATE_TOTAL_CLUSTERS') {
       const newClustersPerColor = Math.floor(update.value / Object.keys(designData.colorDistribution).length)
       const remainingClusters = update.value % Object.keys(designData.colorDistribution).length
@@ -68,6 +63,31 @@ export const DesignStateManager = () => {
           '16inch': totalBalloons16
         }
       })
+    } else if (update.type === 'UPDATE_COLOR_CLUSTERS' && update.color) {
+      const updatedColorDistribution = {
+        ...designData.colorDistribution,
+        [update.color]: {
+          clusters: update.value,
+          balloons11: update.value * 11,
+          balloons16: update.value * 2
+        }
+      }
+
+      const totalClusters = Object.values(updatedColorDistribution)
+        .reduce((sum, color) => sum + color.clusters, 0)
+      const totalBalloons11 = Object.values(updatedColorDistribution)
+        .reduce((sum, color) => sum + color.balloons11, 0)
+      const totalBalloons16 = Object.values(updatedColorDistribution)
+        .reduce((sum, color) => sum + color.balloons16, 0)
+
+      setDesignData({
+        totalClusters,
+        colorDistribution: updatedColorDistribution,
+        totalBalloons: {
+          '11inch': totalBalloons11,
+          '16inch': totalBalloons16
+        }
+      })
     }
   }
 
@@ -87,10 +107,7 @@ export const DesignStateManager = () => {
 
       <div className="p-4 bg-white rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold mb-4">Design Distribution</h3>
-        <BalloonChart 
-          data={chartData}
-          colors={chartColors}
-        />
+        <BalloonChart data={chartData} />
       </div>
 
       <div className="p-4 bg-white rounded-lg shadow-sm">
