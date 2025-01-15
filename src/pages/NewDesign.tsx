@@ -4,8 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
-import BalloonGeni from "@/components/design/BalloonGeni/BalloonGeniPrompt"
-import { CorrectionProps } from "@/components/design/BalloonGeni/types"
+import { SimpleDesignAssistant } from "@/components/design/SimpleDesignAssistant"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -64,10 +63,13 @@ export default function NewDesign() {
     }
   }
 
-  const handleGeniUpdate = async (correction: CorrectionProps): Promise<void> => {
-    console.log("Geni update:", correction)
-    // TODO: Implement the actual correction logic
-    toast.success("Design updated successfully")
+  const handleDesignUpdate = (update: { type: string; value: number }) => {
+    if (update.type === 'UPDATE_TOTAL_CLUSTERS' && analysisData) {
+      setAnalysisData({
+        ...analysisData,
+        clusters: update.value
+      })
+    }
   }
 
   return (
@@ -94,9 +96,10 @@ export default function NewDesign() {
             {analysisData && (
               <div className="bg-white rounded-xl shadow-sm p-8 space-y-6">
                 <h2 className="text-2xl font-semibold text-gray-800">Design Assistant</h2>
-                <div>
-                  <BalloonGeni onUpdate={handleGeniUpdate} />
-                </div>
+                <SimpleDesignAssistant 
+                  designData={{ totalClusters: analysisData.clusters }}
+                  onUpdate={handleDesignUpdate}
+                />
               </div>
             )}
 
