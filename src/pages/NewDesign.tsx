@@ -55,9 +55,7 @@ export default function NewDesign() {
             </Card>
 
             {analysisData && (
-              <Card className="p-6">
-                <DesignStateManager />
-              </Card>
+              <DesignStateManager />
             )}
           </div>
         </div>
