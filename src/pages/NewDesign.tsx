@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { DesignSpecsForm } from "@/components/design/DesignSpecsForm"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
@@ -31,6 +32,36 @@ export default function NewDesign() {
     window.history.replaceState(null, '', `?${searchParams.toString()}`)
   }
 
+  const handleFormSubmit = async (formData: any) => {
+    try {
+      // Navigate to inventory with the design data
+      navigate("/inventory", {
+        state: {
+          fromDesign: true,
+          designData: {
+            clientName: formData.clientName,
+            projectName: formData.projectName,
+            length: formData.length,
+            style: formData.style,
+            shape: formData.shape,
+            colorClusters: formData.colorClusters,
+            calculations: {
+              ...formData.calculations,
+              totalClusters: analysisData?.clusters || formData.calculations.totalClusters
+            },
+            imagePreview: designImage,
+            clientReference: null,
+            analysisData
+          }
+        }
+      })
+      toast.success("Design saved! Please check inventory before proceeding.")
+    } catch (error) {
+      console.error("Error saving design:", error)
+      toast.error("Failed to save design")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background">
       <div className="container mx-auto px-4 py-8">
@@ -40,7 +71,7 @@ export default function NewDesign() {
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold text-gray-800">Create New Design</h1>
             <p className="text-gray-600 max-w-xl mx-auto">
-              Start by uploading your design image for AI analysis
+              Start by uploading your design image, then specify the requirements below
             </p>
           </div>
 
@@ -49,6 +80,13 @@ export default function NewDesign() {
               <AIDesignUpload 
                 onImageUploaded={handleImageUploaded}
                 onAnalysisComplete={handleAnalysisComplete}
+              />
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-8">
+              <DesignSpecsForm
+                onSubmit={handleFormSubmit}
+                designImage={designImage}
               />
             </div>
           </div>
