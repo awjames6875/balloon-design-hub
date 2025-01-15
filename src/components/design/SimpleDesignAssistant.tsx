@@ -12,6 +12,7 @@ interface SimpleDesignAssistantProps {
 
 export const SimpleDesignAssistant = ({ designData, onUpdate }: SimpleDesignAssistantProps) => {
   const [command, setCommand] = useState('')
+  const [recentChanges, setRecentChanges] = useState<string[]>([])
 
   const handleCommandChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCommand(e.target.value)
@@ -23,12 +24,16 @@ export const SimpleDesignAssistant = ({ designData, onUpdate }: SimpleDesignAssi
     if (commandLower.includes('total clusters')) {
       const matches = commandLower.match(/\d+/)
       if (matches) {
-        const newTotalClusters = parseInt(matches[0])
+        const newValue = parseInt(matches[0])
         onUpdate({
           type: 'UPDATE_TOTAL_CLUSTERS',
-          value: newTotalClusters
+          value: newValue
         })
-        toast.success(`Updated total clusters to ${newTotalClusters}`)
+        setRecentChanges([
+          `Changed total clusters to ${newValue}`,
+          ...recentChanges.slice(0, 4)
+        ])
+        toast.success(`Updated total clusters to ${newValue}`)
       } else {
         toast.error("Could not find a number in your command")
       }
@@ -61,6 +66,16 @@ export const SimpleDesignAssistant = ({ designData, onUpdate }: SimpleDesignAssi
             {designData && (
               <div className="text-sm text-gray-600">
                 Current total clusters: {designData.totalClusters}
+              </div>
+            )}
+            {recentChanges.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Recent Changes:</h3>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  {recentChanges.map((change, index) => (
+                    <li key={index}>• {change}</li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>

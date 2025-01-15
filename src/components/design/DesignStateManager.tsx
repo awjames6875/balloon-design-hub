@@ -39,11 +39,36 @@ export const DesignStateManager = () => {
     effective: "hsl(150 80% 50%)"
   })
 
-  const handleDesignUpdate = (updatedDesign: Partial<DesignData>) => {
-    setDesignData(prev => ({
-      ...prev,
-      ...updatedDesign
-    }))
+  const handleDesignUpdate = (update: { type: string; value: number }) => {
+    if (update.type === 'UPDATE_TOTAL_CLUSTERS') {
+      const newClustersPerColor = Math.floor(update.value / Object.keys(designData.colorDistribution).length)
+      const remainingClusters = update.value % Object.keys(designData.colorDistribution).length
+      
+      const updatedColorDistribution = Object.fromEntries(
+        Object.entries(designData.colorDistribution).map(([color, _], index) => {
+          const colorClusters = newClustersPerColor + (index < remainingClusters ? 1 : 0)
+          return [color, {
+            clusters: colorClusters,
+            balloons11: colorClusters * 11,
+            balloons16: colorClusters * 2
+          }]
+        })
+      )
+
+      const totalBalloons11 = Object.values(updatedColorDistribution)
+        .reduce((sum, color) => sum + color.balloons11, 0)
+      const totalBalloons16 = Object.values(updatedColorDistribution)
+        .reduce((sum, color) => sum + color.balloons16, 0)
+
+      setDesignData({
+        totalClusters: update.value,
+        colorDistribution: updatedColorDistribution,
+        totalBalloons: {
+          '11inch': totalBalloons11,
+          '16inch': totalBalloons16
+        }
+      })
+    }
   }
 
   // Transform design data for the chart
@@ -55,6 +80,11 @@ export const DesignStateManager = () => {
 
   return (
     <div className="space-y-6">
+      <SimpleDesignAssistant 
+        designData={designData}
+        onUpdate={handleDesignUpdate}
+      />
+
       <div className="p-4 bg-white rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold mb-4">Design Distribution</h3>
         <BalloonChart 
