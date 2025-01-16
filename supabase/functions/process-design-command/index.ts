@@ -21,7 +21,6 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured')
     }
 
-    // Call OpenAI API with improved prompt
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -42,7 +41,7 @@ serve(async (req) => {
             {
               "type": "total_clusters",
               "clusterCount": number,
-              "originalValue": null,
+              "originalValue": number,
               "newValue": number,
               "action": "update_total"
             }
@@ -52,7 +51,7 @@ serve(async (req) => {
               "type": "cluster_count",
               "color": "color_name",
               "clusterCount": number,
-              "originalValue": null,
+              "originalValue": number,
               "newValue": number,
               "action": "update_clusters"
             }
@@ -81,13 +80,30 @@ serve(async (req) => {
       correction = JSON.parse(data.choices[0].message.content)
       console.log('Parsed correction:', correction)
       
-      // Validate the correction format
+      // Enhanced validation
       if (!correction.type || 
           (correction.type !== 'cluster_count' && correction.type !== 'total_clusters') ||
           !correction.action ||
-          (correction.type === 'cluster_count' && !correction.color)) {
+          (correction.type === 'cluster_count' && !correction.color) ||
+          typeof correction.clusterCount !== 'number') {
         throw new Error('Invalid correction format')
       }
+
+      // Add originalValue if not present
+      if (correction.type === 'cluster_count' && currentClusters) {
+        const matchingCluster = currentClusters.find(c => 
+          c.color.toLowerCase() === correction.color.toLowerCase()
+        )
+        correction.originalValue = matchingCluster ? 
+          matchingCluster.baseClusters + matchingCluster.extraClusters : 
+          0
+      } else if (correction.type === 'total_clusters' && currentClusters) {
+        correction.originalValue = currentClusters.reduce(
+          (sum, c) => sum + c.baseClusters + c.extraClusters, 
+          0
+        )
+      }
+
     } catch (e) {
       console.error('Failed to parse OpenAI response:', e)
       return new Response(JSON.stringify({
