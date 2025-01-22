@@ -62,7 +62,7 @@ serve(async (req) => {
 
     console.log('Sending request to OpenAI...')
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4-vision-preview",
       messages: [
         {
           role: "system",
@@ -93,14 +93,17 @@ serve(async (req) => {
 
     let analysisData
     try {
+      // Clean the response content by removing markdown code blocks if present
       const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
       analysisData = JSON.parse(cleanContent)
       
+      // Validate response structure
       if (!analysisData?.colorKey || !analysisData?.clusters || !Array.isArray(analysisData.clusters)) {
         console.error('Invalid response structure:', analysisData)
         throw new Error('Invalid response structure')
       }
 
+      // Validate each cluster has required properties
       for (const cluster of analysisData.clusters) {
         if (!('number' in cluster && 'definedColor' in cluster && 'count' in cluster)) {
           console.error('Invalid cluster structure:', cluster)
@@ -108,6 +111,7 @@ serve(async (req) => {
         }
       }
 
+      // Calculate total clusters
       const totalClusters = analysisData.clusters.reduce((sum, cluster) => sum + cluster.count, 0)
       console.log('Total clusters calculated:', totalClusters)
       analysisData.totalClusters = totalClusters
