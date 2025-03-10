@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
-import { checkInventory } from "./inventoryService"
+import { checkInventory, getLatestInventory } from "./inventoryService"
 import type { InventoryItem, ColorCluster } from "./types"
 
 export const useInventoryCheck = (colorClusters: ColorCluster[], refreshTrigger?: number) => {
@@ -43,9 +42,6 @@ export const useInventoryCheck = (colorClusters: ColorCluster[], refreshTrigger?
   // Create demo color clusters based on available inventory
   const createDemoClusters = async (): Promise<ColorCluster[]> => {
     try {
-      // Import the getLatestInventory function
-      const { getLatestInventory } = await import('./inventoryService')
-      
       // Get the latest inventory to find colors that have stock
       const inventoryData = await getLatestInventory()
       const availableColors = Object.keys(inventoryData).slice(0, 3) // Take up to 3 colors

@@ -1,115 +1,15 @@
 
 import { supabase } from "@/integrations/supabase/client"
-import { InventoryItem, ColorCluster } from "./types"
 import { toast } from "sonner"
+import { InventoryItem, ColorCluster } from "./types"
+import { getColorName, normalizeColorName } from "./utils/colorUtils"
+import { getInventoryStatus, calculateBalloonsPerColor } from "./utils/inventoryStatusUtils"
+import { getLatestInventory, findColorInventory } from "./services/inventoryDataService"
 
-const colorMap: { [key: string]: string } = {
-  "#FF0000": "Red",
-  "#00FF00": "Green",
-  "#0000FF": "Blue",
-  "#FFFF00": "Yellow",
-  "#FFA500": "Orange",
-  "#800080": "Purple",
-  "#FFC0CB": "Pink",
-  "#FFFFFF": "White",
-  "#000000": "Black",
-  "#C0C0C0": "Silver",
-  "#FFD700": "Gold",
-  "#7E69AB": "Purple"
-}
-
-export const getColorName = (hexColor: string) => {
-  return colorMap[hexColor.toUpperCase()] || hexColor
-}
-
-export const getInventoryStatus = (available: number, required: number): 'in-stock' | 'low' | 'out-of-stock' => {
-  console.log(`Checking status for available: ${available}, required: ${required}`)
-  if (available === 0) return 'out-of-stock'
-  if (available < required) return 'out-of-stock'
-  if (available >= required * 1.2) return 'in-stock'
-  return 'low'
-}
-
-export const calculateBalloonsPerColor = (colorClusters: ColorCluster[]) => {
-  console.log("Calculating balloons per color for clusters:", colorClusters)
-  return colorClusters.map(cluster => {
-    const totalClusters = cluster.baseClusters + cluster.extraClusters
-    return {
-      color: cluster.color,
-      balloons11: totalClusters * 11,
-      balloons16: totalClusters * 2
-    }
-  })
-}
-
-// Improved color name normalization function
-export const normalizeColorName = (colorName: string): string => {
-  if (!colorName) return "";
-  
-  // Convert to lowercase and remove spaces
-  const normalized = colorName.toLowerCase().replace(/\s+/g, "");
-  
-  // Special case handling for common naming variations
-  const specialCases: Record<string, string> = {
-    "wildberry": "wildberry",
-    "wild berry": "wildberry",
-    "goldenrod": "goldenrod",
-    "golden rod": "goldenrod",
-    // Add more variations as needed
-  };
-  
-  // Check if this is a special case
-  for (const [variant, standard] of Object.entries(specialCases)) {
-    if (colorName.toLowerCase() === variant || normalized === standard) {
-      return standard;
-    }
-  }
-  
-  return normalized;
-}
-
-// This function gets the latest inventory data directly from the database
-export const getLatestInventory = async (): Promise<Record<string, Record<string, number>>> => {
-  const { data: allInventoryRecords, error: fetchError } = await supabase
-    .from('balloon_inventory')
-    .select('*')
-
-  if (fetchError) {
-    console.error('Error fetching all inventory:', fetchError)
-    toast.error('Failed to fetch inventory data')
-    return {}
-  }
-
-  // Create a nested object organized by color and size for easy lookup
-  const inventory: Record<string, Record<string, number>> = {}
-  
-  allInventoryRecords.forEach(item => {
-    // Store both normalized and original versions of the color name
-    const colorNormalized = normalizeColorName(item.color)
-    const colorOriginal = item.color.toLowerCase()
-    const size = item.size
-
-    // Add entry with normalized color name (no spaces)
-    if (!inventory[colorNormalized]) {
-      inventory[colorNormalized] = {}
-    }
-    
-    // Also add entry with original format (may have spaces)
-    if (!inventory[colorOriginal]) {
-      inventory[colorOriginal] = {}
-    }
-    
-    // Always use the standardized sizes
-    const normalizedSize = size.includes('11') ? '11in' : size.includes('16') ? '16in' : size
-    
-    // Store quantity in both normalized and original color entries
-    inventory[colorNormalized][normalizedSize] = item.quantity
-    inventory[colorOriginal][normalizedSize] = item.quantity
-  })
-
-  console.log("Latest inventory data:", inventory)
-  return inventory
-}
+// Export all utility functions to maintain backward compatibility
+export { getColorName, normalizeColorName } from "./utils/colorUtils"
+export { getInventoryStatus, calculateBalloonsPerColor } from "./utils/inventoryStatusUtils"
+export { getLatestInventory } from "./services/inventoryDataService"
 
 export const checkInventory = async (colorClusters: ColorCluster[]): Promise<InventoryItem[]> => {
   console.log("Checking inventory for color clusters:", colorClusters)
@@ -122,55 +22,10 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
 
   for (const colorData of balloonsByColor) {
     const colorDisplay = getColorName(colorData.color)
-    const colorLower = colorDisplay.toLowerCase()
-    const colorNormalized = normalizeColorName(colorDisplay)
     
-    console.log(`Processing color: ${colorDisplay} (normalized: ${colorNormalized})`)
-
     try {
-      // Try all possible color name formats for more robust matching
-      const possibleColorNames = [colorLower, colorNormalized]
-      let colorInventory = {}
-      
-      // Check each possible color name format
-      for (const nameFormat of possibleColorNames) {
-        if (latestInventory[nameFormat]) {
-          colorInventory = latestInventory[nameFormat]
-          console.log(`Found inventory match for ${nameFormat}:`, colorInventory)
-          break
-        }
-      }
-      
-      // If no exact match found, try partial matching
-      if (Object.keys(colorInventory).length === 0) {
-        // Find color that contains our search term
-        for (const dbColor in latestInventory) {
-          if (dbColor.includes(colorNormalized) || colorNormalized.includes(dbColor)) {
-            colorInventory = latestInventory[dbColor]
-            console.log(`Found partial match for ${colorDisplay} using ${dbColor}:`, colorInventory)
-            break
-          }
-        }
-      }
-      
-      // If still no match, try again with alternate color variations
-      if (Object.keys(colorInventory).length === 0) {
-        // Try matching special cases of color naming variations
-        const alternateNames = getAlternateColorNames(colorDisplay);
-        for (const altName of alternateNames) {
-          const normalizedAlt = normalizeColorName(altName);
-          for (const dbColor in latestInventory) {
-            if (dbColor === normalizedAlt || 
-                dbColor.includes(normalizedAlt) || 
-                normalizedAlt.includes(dbColor)) {
-              colorInventory = latestInventory[dbColor];
-              console.log(`Found match using alternate name ${altName} -> ${dbColor}:`, colorInventory);
-              break;
-            }
-          }
-          if (Object.keys(colorInventory).length > 0) break;
-        }
-      }
+      // Find inventory data for this color
+      const colorInventory = findColorInventory(latestInventory, colorDisplay)
       
       console.log(`Final inventory for ${colorDisplay}:`, colorInventory)
       
@@ -210,43 +65,4 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
 
   console.log("Final inventory list:", inventoryList)
   return inventoryList
-}
-
-// Helper function to generate alternative names for colors
-const getAlternateColorNames = (colorName: string): string[] => {
-  const alternates: string[] = [];
-  const colorLower = colorName.toLowerCase();
-  
-  // Common color name variations
-  const variations: Record<string, string[]> = {
-    "wild berry": ["wildberry", "wild-berry", "wild_berry"],
-    "wildberry": ["wild berry", "wild-berry", "wild_berry"],
-    "golden rod": ["goldenrod", "golden-rod", "gold rod"],
-    "goldenrod": ["golden rod", "golden-rod", "gold rod"],
-    // Add more variations as needed
-  };
-  
-  // Check if we have known variations for this color
-  for (const [base, variants] of Object.entries(variations)) {
-    if (colorLower === base || variants.includes(colorLower)) {
-      // Add all variations including the base
-      alternates.push(base, ...variants);
-      break;
-    }
-  }
-  
-  // If no predefined variations, try basic transformations
-  if (alternates.length === 0) {
-    // Add with and without spaces
-    if (colorLower.includes(' ')) {
-      alternates.push(colorLower.replace(/\s+/g, ''));
-    } else {
-      // Try to split camelCase or insert spaces at logical points
-      alternates.push(
-        colorLower.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
-      );
-    }
-  }
-  
-  return alternates;
 }

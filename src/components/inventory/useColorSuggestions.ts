@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/integrations/supabase/client"
-import { normalizeColorName } from "@/components/design/inventory/inventoryService"
+import { normalizeColorName } from "@/components/design/inventory/utils/colorUtils"
 import type { SuggestionColor } from "./ColorSuggestions"
 
 export function useColorSuggestions() {
