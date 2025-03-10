@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client"
 import type { BalloonInventory } from "@/components/inventory/types"
 import { ArrowLeft } from "lucide-react"
 import { enableRealtimeForInventory } from "@/utils/inventoryValidation"
+import { BalloonType } from "@/types/inventory"
 import {
   Sheet,
   SheetContent,
@@ -25,6 +27,7 @@ export default function Inventory() {
   const fromDesign = location.state?.fromDesign
 
   const [inventory, setInventory] = useState<BalloonInventory[]>([])
+  const [balloonTypes, setBalloonTypes] = useState<BalloonType[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [inventoryRefreshTrigger, setInventoryRefreshTrigger] = useState(Date.now())
 
@@ -34,11 +37,17 @@ export default function Inventory() {
       const { data, error } = await supabase
         .from('balloon_inventory')
         .select('*')
+        .order('color')
+        .order('size')
         
       if (error) {
         throw error
       }
 
+      // Set the BalloonType data for the inventory table
+      setBalloonTypes(data as BalloonType[])
+
+      // Transform data for the InventoryCheckForm
       const transformedData: BalloonInventory[] = data.map(item => ({
         type: item.color,
         style: item.size,
@@ -154,11 +163,13 @@ export default function Inventory() {
           )}
         </div>
 
-        <CurrentInventorySection 
-          inventory={inventory}
-          isLoading={isLoading}
-          onInventoryUpdate={handleInventoryUpdate}
-        />
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <CurrentInventorySection 
+            balloonTypes={balloonTypes}
+            onBalloonAdded={handleInventoryUpdate}
+            onQuantityUpdate={handleInventoryUpdate}
+          />
+        </div>
 
         {/* Only show one version of the InventoryCheckForm based on fromDesign flag */}
         {fromDesign && designData ? (
