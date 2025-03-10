@@ -117,9 +117,20 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
 
       // Size is already standardized from the dropdown
       console.log(`Adding new balloon: ${color} ${size} - ${quantity}`)
+      
+      // Standardize color name format to match "Wild Berry" instead of "Wildberry"
+      // Try to find a matching standard color first
+      let standardizedColor = color;
+      const matchingColor = colorSuggestions.find(c => 
+        normalizeColorName(c.display_name) === normalizeColorName(color)
+      );
+      
+      if (matchingColor) {
+        standardizedColor = matchingColor.display_name;
+      }
 
       const success = await addNewBalloonType(
-        color,
+        standardizedColor,
         size,
         parseInt(quantity)
       )
@@ -131,7 +142,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         setQuantity("")
         
         // Notify success
-        toast.success(`Added ${quantity} ${color} ${size} balloons to inventory`)
+        toast.success(`Added ${quantity} ${standardizedColor} ${size} balloons to inventory`)
         
         // Trigger event for realtime updates
         await supabase
