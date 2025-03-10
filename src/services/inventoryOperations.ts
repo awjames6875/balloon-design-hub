@@ -1,8 +1,69 @@
-
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { validateInventoryUpdate, checkExistingBalloon } from "@/utils/inventoryValidation"
 import { BalloonType } from "@/types/inventory"
+
+export const addBalloonType = async (balloonType: BalloonType): Promise<boolean> => {
+  try {
+    console.log("Adding balloon type:", balloonType);
+    
+    // Check if a balloon with the same color and size already exists
+    const existingBalloon = await checkExistingBalloon(balloonType.color, balloonType.size);
+    
+    if (existingBalloon) {
+      console.log("Found existing balloon with same color and size:", existingBalloon);
+      
+      // Update existing balloon by adding to quantity
+      const newQuantity = existingBalloon.quantity + balloonType.quantity;
+      const { error: updateError } = await supabase
+        .from("balloon_inventory")
+        .update({ 
+          quantity: newQuantity,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", existingBalloon.id);
+      
+      if (updateError) {
+        console.error("Error updating existing balloon:", updateError);
+        throw new Error("Failed to update existing balloon quantity");
+      }
+      
+      toast.success("Inventory updated", {
+        description: `Added ${balloonType.quantity} to existing ${balloonType.color} ${balloonType.size} balloons`
+      });
+      
+      return true;
+    } else {
+      // Insert new balloon type
+      const { error: insertError } = await supabase
+        .from("balloon_inventory")
+        .insert([
+          {
+            color: balloonType.color,
+            size: balloonType.size,
+            quantity: balloonType.quantity,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ]);
+      
+      if (insertError) {
+        console.error("Error inserting new balloon type:", insertError);
+        throw new Error("Failed to add new balloon type");
+      }
+      
+      toast.success("New balloon type added", {
+        description: `Added ${balloonType.color} ${balloonType.size} balloons with quantity ${balloonType.quantity}`
+      });
+      
+      return true;
+    }
+  } catch (error) {
+    console.error("Error in addBalloonType:", error);
+    toast.error("Failed to add balloon type");
+    return false;
+  }
+};
 
 export const addNewBalloonType = async (
   color: string,

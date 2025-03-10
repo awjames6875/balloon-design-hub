@@ -1,103 +1,120 @@
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { addNewBalloonType } from "@/services/inventoryOperations"
-import { toast } from "sonner"
-import { supabase } from "@/integrations/supabase/client"
-import BalloonFormFields from "./BalloonFormFields"
-import { BalloonType } from "@/types/inventory"
+// AddBalloonForm.tsx
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import BalloonFormFields from './BalloonFormFields';
+import { BalloonType } from '@/types/inventory';
+import { addBalloonType } from '@/services/inventoryOperations';
+import { validateBalloonType } from '@/utils/inventoryValidation';
 
 interface AddBalloonFormProps {
-  onBalloonAdded: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
-  const [formValues, setFormValues] = useState<Partial<BalloonType>>({
-    color: "",
-    size: "",
+const AddBalloonForm: React.FC<AddBalloonFormProps> = ({
+  open,
+  onOpenChange,
+  onSuccess
+}) => {
+  const [formData, setFormData] = useState<Partial<BalloonType>>({
+    color: '',
+    size: '',
     quantity: 0
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleFormChange = (values: Partial<BalloonType>) => {
-    setFormValues(values)
-  }
+    setFormData(values);
+    // Clear errors for fields that have been changed
+    const updatedErrors = { ...errors };
+    Object.keys(values).forEach(key => {
+      if (key in updatedErrors) {
+        delete updatedErrors[key as keyof BalloonType];
+      }
+    });
+    setErrors(updatedErrors);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Submit button clicked with values:", formValues)
+    e.preventDefault();
     
-    // Only validate that fields are not empty
-    if (!formValues.color || formValues.color.trim() === "") {
-      toast.error("Please enter a color name")
-      return
-    }
-
-    if (!formValues.size || formValues.size === "") {
-      toast.error("Please select a balloon size")
-      return
-    }
-
-    const quantity = formValues.quantity || 0
-    if (quantity < 0) {
-      toast.error("Please enter a valid quantity (minimum 0)")
-      return
-    }
+    // Validate form data
+    const validation = validateBalloonType(formData);
     
-    setIsSubmitting(true)
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
     
     try {
-      console.log("Submitting form with values:", formValues)
+      setIsSubmitting(true);
+      // Add some debugging to see what's being submitted
+      console.log('Submitting balloon type:', formData);
       
-      const cleanedColor = formValues.color.trim()
-      console.log("Using final color:", cleanedColor)
-
-      // Add the balloon type
-      const success = await addNewBalloonType(
-        cleanedColor,
-        formValues.size,
-        quantity
-      )
-
-      if (success) {
-        // Reset form
-        setFormValues({
-          color: "",
-          size: "",
-          quantity: 0
-        })
-        
-        // Trigger event for realtime updates
-        await supabase
-          .from('balloon_inventory')
-          .select('*')
-          .limit(1)
-          
-        // Call callback
-        onBalloonAdded()
+      // Make sure we're passing a clean object to the database
+      const balloonType: BalloonType = {
+        color: formData.color?.trim() || '',
+        size: formData.size || '',
+        quantity: typeof formData.quantity === 'number' ? formData.quantity : 0
+      };
+      
+      await addBalloonType(balloonType);
+      
+      toast.success('Balloon type added successfully');
+      setFormData({ color: '', size: '', quantity: 0 });
+      onOpenChange(false);
+      
+      if (onSuccess) {
+        onSuccess();
       }
     } catch (error) {
-      console.error("Error adding balloon type:", error)
-      toast.error("Failed to add balloon type")
+      console.error('Error adding balloon type:', error);
+      toast.error('Failed to add balloon type');
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4">Add New Balloon Type</h3>
-      <BalloonFormFields 
-        initialValues={formValues}
-        onChange={handleFormChange}
-      />
-      <Button 
-        type="submit" 
-        disabled={isSubmitting}
-        className="w-full md:w-auto mt-4"
-      >
-        {isSubmitting ? "Adding..." : "Add Balloon Type"}
-      </Button>
-    </form>
-  )
-}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add New Balloon Type</DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit}>
+          <BalloonFormFields 
+            initialValues={formData}
+            onChange={handleFormChange}
+          />
+          
+          {/* Show validation errors */}
+          {Object.entries(errors).length > 0 && (
+            <div className="mt-4 text-sm text-red-500">
+              {Object.entries(errors).map(([field, message]) => (
+                <p key={field}>{message}</p>
+              ))}
+            </div>
+          )}
+          
+          <DialogFooter className="mt-6">
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="w-full"
+            >
+              {isSubmitting ? 'Adding...' : 'Add Balloon Type'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default AddBalloonForm;
