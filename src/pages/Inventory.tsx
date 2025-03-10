@@ -7,6 +7,7 @@ import CurrentInventorySection from '@/components/inventory/CurrentInventorySect
 import NavigationCard from '@/components/NavigationCard';
 import { Header } from '@/components/Header';
 import { Home } from 'lucide-react';
+import InventoryCheckSection from '@/components/inventory/InventoryCheckSection';
 
 const Inventory = () => {
   const [balloonTypes, setBalloonTypes] = useState<BalloonType[]>([]);
@@ -57,11 +58,18 @@ const Inventory = () => {
           {isLoading ? (
             <div className="text-center py-12">Loading inventory data...</div>
           ) : (
-            <CurrentInventorySection 
-              balloonTypes={balloonTypes} 
-              onBalloonAdded={handleBalloonAdded}
-              onQuantityUpdate={handleQuantityUpdate}
-            />
+            <>
+              <CurrentInventorySection 
+                balloonTypes={balloonTypes} 
+                onBalloonAdded={handleBalloonAdded}
+                onQuantityUpdate={handleQuantityUpdate}
+              />
+              
+              <InventoryCheckSection 
+                balloonTypes={balloonTypes}
+                refreshTrigger={balloonTypes.length}
+              />
+            </>
           )}
         </div>
       </div>
