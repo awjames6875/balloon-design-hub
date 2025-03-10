@@ -64,10 +64,15 @@ export default function Inventory() {
   }
 
   useEffect(() => {
-    // Enable realtime for inventory table when component mounts
+    // Initialize realtime for inventory when component mounts
     enableRealtimeForInventory()
-      .then(() => console.log("Realtime enabled for inventory"))
-      .catch(err => console.error("Failed to enable realtime:", err))
+      .then(success => {
+        if (success) {
+          console.log("Realtime enabled for inventory")
+        } else {
+          console.error("Failed to enable realtime for inventory")
+        }
+      })
     
     fetchInventory()
   }, [])
