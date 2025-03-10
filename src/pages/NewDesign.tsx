@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
@@ -94,6 +93,7 @@ export default function NewDesign() {
 
             {analysisData && (
               <>
+                {/* DesignStateManager is now hidden but still processes data */}
                 <DesignStateManager analysisData={analysisData} />
                 
                 <div className="flex justify-end">

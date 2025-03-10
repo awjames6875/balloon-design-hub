@@ -1,8 +1,4 @@
-
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { BalloonSummary } from "./analysis/BalloonSummary"
-import { AnalysisResults } from "./analysis/AnalysisResults"
 import type { AIAnalysisData } from "@/utils/designCalculations"
 
 interface ColorDistribution {
@@ -90,14 +86,6 @@ export const DesignStateManager = ({ analysisData }: DesignStateManagerProps) =>
 
   if (!analysisData) return null
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Design Analysis Results</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <AnalysisResults data={analysisData} />
-      </CardContent>
-    </Card>
-  )
+  // No rendering anymore, this is just a data processor component
+  return null
 }
