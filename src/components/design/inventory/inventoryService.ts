@@ -42,13 +42,8 @@ export const calculateBalloonsPerColor = (colorClusters: ColorCluster[]) => {
   })
 }
 
-export const checkInventory = async (colorClusters: ColorCluster[]): Promise<InventoryItem[]> => {
-  console.log("Checking inventory for color clusters:", colorClusters)
-  const balloonsByColor = calculateBalloonsPerColor(colorClusters)
-  console.log("Calculated balloons by color:", balloonsByColor)
-  const inventoryList: InventoryItem[] = []
-
-  // Get all inventory records in one query to reduce database calls
+// This function gets the latest inventory data directly from the database
+export const getLatestInventory = async (): Promise<Record<string, Record<string, number>>> => {
   const { data: allInventoryRecords, error: fetchError } = await supabase
     .from('balloon_inventory')
     .select('*')
@@ -56,41 +51,53 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
   if (fetchError) {
     console.error('Error fetching all inventory:', fetchError)
     toast.error('Failed to fetch inventory data')
-    return []
+    return {}
   }
 
-  console.log("All inventory records:", allInventoryRecords)
+  // Create a nested object organized by color and size for easy lookup
+  const inventory: Record<string, Record<string, number>> = {}
+  
+  allInventoryRecords.forEach(item => {
+    const colorName = item.color.toLowerCase()
+    const size = item.size
+
+    if (!inventory[colorName]) {
+      inventory[colorName] = {}
+    }
+    
+    // Always use the standardized sizes
+    const normalizedSize = size.includes('11') ? '11in' : size.includes('16') ? '16in' : size
+    inventory[colorName][normalizedSize] = item.quantity
+  })
+
+  console.log("Latest inventory data:", inventory)
+  return inventory
+}
+
+export const checkInventory = async (colorClusters: ColorCluster[]): Promise<InventoryItem[]> => {
+  console.log("Checking inventory for color clusters:", colorClusters)
+  const balloonsByColor = calculateBalloonsPerColor(colorClusters)
+  console.log("Calculated balloons by color:", balloonsByColor)
+  const inventoryList: InventoryItem[] = []
+
+  // Get the latest inventory data
+  const latestInventory = await getLatestInventory()
 
   for (const colorData of balloonsByColor) {
     const colorName = getColorName(colorData.color)
     console.log(`Processing color: ${colorName}`)
 
     try {
-      // Filter inventory for this color using case-insensitive comparison
-      const colorInventory = allInventoryRecords.filter(item => 
-        item.color.toLowerCase() === colorName.toLowerCase()
-      )
+      // Look up inventory for this color (case-insensitive)
+      const colorInventory = latestInventory[colorName.toLowerCase()] || {}
       
       console.log(`Inventory for ${colorName}:`, colorInventory)
       
-      // Find 11" balloons using normalized size format
-      const match11 = colorInventory.find(item => 
-        item.size === '11in' ||
-        item.size === '11' ||
-        item.size.toLowerCase().includes('11')
-      )
-
-      const quantity11 = match11?.quantity || 0
+      // Get quantities for both sizes
+      const quantity11 = colorInventory['11in'] || 0
       console.log(`11" balloons available for ${colorName}:`, quantity11)
 
-      // Find 16" balloons using normalized size format
-      const match16 = colorInventory.find(item => 
-        item.size === '16in' ||
-        item.size === '16' ||
-        item.size.toLowerCase().includes('16')
-      )
-
-      const quantity16 = match16?.quantity || 0
+      const quantity16 = colorInventory['16in'] || 0
       console.log(`16" balloons available for ${colorName}:`, quantity16)
 
       inventoryList.push({

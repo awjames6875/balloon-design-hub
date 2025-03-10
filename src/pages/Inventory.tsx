@@ -6,7 +6,7 @@ import { CurrentInventorySection } from "@/components/inventory/CurrentInventory
 import { StockAnalyticsSection } from "@/components/inventory/StockAnalyticsSection"
 import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
-import { InventoryCheckForm } from "@/components/design/InventoryCheckForm"
+import { InventoryCheckForm } from "@/components/design/inventory/InventoryCheckForm"
 import { supabase } from "@/integrations/supabase/client"
 import type { BalloonInventory } from "@/components/inventory/types"
 import { ArrowLeft } from "lucide-react"
@@ -28,9 +28,11 @@ export default function Inventory() {
 
   const [inventory, setInventory] = useState<BalloonInventory[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [inventoryRefreshTrigger, setInventoryRefreshTrigger] = useState(Date.now())
 
   const fetchInventory = async () => {
     try {
+      setIsLoading(true)
       const { data, error } = await supabase
         .from('balloon_inventory')
         .select('*')
@@ -57,6 +59,8 @@ export default function Inventory() {
 
   const handleInventoryUpdate = () => {
     fetchInventory()
+    // Force refresh of the inventory check component
+    setInventoryRefreshTrigger(Date.now())
   }
 
   const handleGoBack = () => {
@@ -117,7 +121,7 @@ export default function Inventory() {
           className="flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Design
+          Back
         </Button>
         <BackToHome />
       </div>
@@ -167,6 +171,22 @@ export default function Inventory() {
             projectName={designData.projectName}
             dimensions={designData.length}
             style={designData.style}
+            refreshTrigger={inventoryRefreshTrigger}
+          />
+        )}
+        
+        {/* Always show inventory check even when not coming from design page */}
+        {!fromDesign && (
+          <InventoryCheckForm
+            colorClusters={[]}
+            calculations={undefined}
+            onInventoryChecked={() => {}}
+            clientName=""
+            projectName=""
+            dimensions=""
+            style=""
+            refreshTrigger={inventoryRefreshTrigger}
+            showDemoMessage={true}
           />
         )}
 

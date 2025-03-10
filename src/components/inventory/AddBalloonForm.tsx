@@ -36,7 +36,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       }
 
       if (!size.trim()) {
-        toast.error("Please enter a balloon size")
+        toast.error("Please select a balloon size")
         return
       }
 
@@ -45,24 +45,12 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         return
       }
 
-      // Ensure size is in the correct format
-      let normalizedSize = size.trim();
-      if (normalizedSize !== '11in' && normalizedSize !== '16in') {
-        if (normalizedSize.includes('11')) {
-          normalizedSize = '11in';
-        } else if (normalizedSize.includes('16')) {
-          normalizedSize = '16in';
-        } else {
-          toast.error("Size must be either 11in or 16in")
-          return;
-        }
-      }
-
-      console.log(`Adding new balloon: ${color} ${normalizedSize} - ${quantity}`)
+      // Size is already standardized from the dropdown
+      console.log(`Adding new balloon: ${color} ${size} - ${quantity}`)
 
       const success = await addNewBalloonType(
         color,
-        normalizedSize,
+        size,
         parseInt(quantity)
       )
 
@@ -73,7 +61,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         setQuantity("")
         
         // Notify success
-        toast.success(`Added ${quantity} ${color} ${normalizedSize} balloons to inventory`)
+        toast.success(`Added ${quantity} ${color} ${size} balloons to inventory`)
         
         // Trigger event for realtime updates
         await supabase
