@@ -37,6 +37,7 @@ export const getValidColors = async (): Promise<string[]> => {
 
 /**
  * Validates if a color string is valid by checking against color_standards table
+ * This function is kept for reference but no longer used for strict validation
  * @param color The color string to validate
  * @returns Promise that resolves to true if the color is valid, false otherwise
  */
@@ -157,16 +158,8 @@ export const validateInventoryUpdate = async (
     return false
   }
 
-  // Check against valid color standards
-  const isValidColor = await validateColorAgainstStandards(color);
-  if (!isValidColor) {
-    console.error("Color validation failed - not a standard color:", color);
-    toast.error("Please use a standard color name or hex code", {
-      description: "The color name must match one of the standard balloon colors."
-    });
-    return false;
-  }
-
+  // No longer checking against valid color standards
+  // We now accept any non-empty color string
   console.log("Validation successful for:", { color, size, quantity })
   return true
 }

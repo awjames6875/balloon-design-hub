@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import BalloonFormFields from './BalloonFormFields';
 import { BalloonType } from '@/types/inventory';
 import { addBalloonType } from '@/services/inventoryOperations';
-import { validateBalloonType, validateColorAgainstStandards } from '@/utils/inventoryValidation';
+import { validateBalloonType } from '@/utils/inventoryValidation';
 
 interface AddBalloonFormProps {
   open: boolean;
@@ -53,17 +53,7 @@ const AddBalloonForm: React.FC<AddBalloonFormProps> = ({
       return;
     }
     
-    // Additional color validation against standards
-    if (formData.color) {
-      const isValidColor = await validateColorAgainstStandards(formData.color);
-      if (!isValidColor) {
-        setErrors({
-          ...validation.errors,
-          color: "Please use a standard color name or hex code (e.g., 'Red', 'Blue', or '#FF0000')"
-        });
-        return;
-      }
-    }
+    // We no longer do additional color validation against standards
     
     try {
       setIsSubmitting(true);
@@ -105,7 +95,7 @@ const AddBalloonForm: React.FC<AddBalloonFormProps> = ({
         <DialogHeader>
           <DialogTitle>Add New Balloon Type</DialogTitle>
           <DialogDescription>
-            Enter the balloon details. Use standard color names like "Red", "Blue", or hex codes like "#FF0000".
+            Enter the balloon details. You can use any color name or hex code (e.g., "#FF0000").
           </DialogDescription>
         </DialogHeader>
         
