@@ -2,7 +2,7 @@
 // AddBalloonForm.tsx
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import BalloonFormFields from './BalloonFormFields';
 import { BalloonType } from '@/types/inventory';
@@ -67,8 +67,9 @@ const AddBalloonForm: React.FC<AddBalloonFormProps> = ({
       
       toast.success('Balloon type added successfully');
       setFormData({ color: '', size: '', quantity: 0 });
-      onOpenChange(false);
       
+      // Close the dialog and call onSuccess if provided
+      onOpenChange(false);
       if (onSuccess) {
         onSuccess();
       }
@@ -81,39 +82,31 @@ const AddBalloonForm: React.FC<AddBalloonFormProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Add New Balloon Type</DialogTitle>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit}>
-          <BalloonFormFields 
-            initialValues={formData}
-            onChange={handleFormChange}
-          />
-          
-          {/* Show validation errors */}
-          {Object.entries(errors).length > 0 && (
-            <div className="mt-4 text-sm text-red-500">
-              {Object.entries(errors).map(([field, message]) => (
-                <p key={field}>{message}</p>
-              ))}
-            </div>
-          )}
-          
-          <DialogFooter className="mt-6">
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="w-full"
-            >
-              {isSubmitting ? 'Adding...' : 'Add Balloon Type'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <form onSubmit={handleSubmit}>
+      <BalloonFormFields 
+        initialValues={formData}
+        onChange={handleFormChange}
+      />
+      
+      {/* Show validation errors */}
+      {Object.entries(errors).length > 0 && (
+        <div className="mt-4 text-sm text-red-500">
+          {Object.entries(errors).map(([field, message]) => (
+            <p key={field}>{message}</p>
+          ))}
+        </div>
+      )}
+      
+      <DialogFooter className="mt-6">
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="w-full"
+        >
+          {isSubmitting ? 'Adding...' : 'Add Balloon Type'}
+        </Button>
+      </DialogFooter>
+    </form>
   );
 };
 

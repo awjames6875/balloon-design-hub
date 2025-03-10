@@ -1,3 +1,4 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { InventoryUpdateForm } from "./InventoryUpdateForm"
 import AddBalloonForm from "./AddBalloonForm"
@@ -91,7 +92,11 @@ export const CurrentInventorySection = ({
             <DialogHeader>
               <DialogTitle>Add New Balloon Type</DialogTitle>
             </DialogHeader>
-            <AddBalloonForm onBalloonAdded={handleBalloonAdded} />
+            <AddBalloonForm 
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              onSuccess={handleBalloonAdded}
+            />
           </DialogContent>
         </Dialog>
       </div>
