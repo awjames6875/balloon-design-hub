@@ -11,29 +11,36 @@ interface ColorBalloonData {
 export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Promise<boolean> => {
   console.log("Starting inventory update with:", balloonsPerColor)
   
+  // Get all inventory records in one query to reduce database calls
+  const { data: allInventoryRecords, error: fetchError } = await supabase
+    .from('balloon_inventory')
+    .select('*')
+
+  if (fetchError) {
+    console.error('Error fetching all inventory:', fetchError)
+    toast.error('Failed to fetch inventory data')
+    return false
+  }
+
+  console.log("All inventory records:", allInventoryRecords)
+  
   for (const colorData of balloonsPerColor) {
     const colorName = colorData.color
     console.log(`Processing ${colorName}: ${colorData.balloons11} 11" and ${colorData.balloons16} 16" balloons`)
 
     try {
-      // Get all inventory for this color (case-insensitive)
-      const { data: allInventory, error: inventoryError } = await supabase
-        .from('balloon_inventory')
-        .select('*')
-        .ilike('color', colorName)
+      // Filter inventory for this color using case-insensitive comparison
+      const colorInventory = allInventoryRecords.filter(item => 
+        item.color.toLowerCase() === colorName.toLowerCase()
+      )
       
-      if (inventoryError) {
-        console.error(`Error fetching inventory for ${colorName}:`, inventoryError)
-        toast.error(`Error checking inventory for ${colorName} balloons`)
-        return false
-      }
-
-      console.log(`All inventory for ${colorName}:`, allInventory)
+      console.log(`Inventory for ${colorName}:`, colorInventory)
       
-      // Find 11" balloons
-      const data11 = allInventory?.find(item => 
-        item.color.toLowerCase() === colorName.toLowerCase() && 
-        item.size === '11in'
+      // Find 11" balloons with multiple possible formats
+      const data11 = colorInventory.find(item => 
+        item.size === '11in' ||
+        item.size === '11' ||
+        item.size.toLowerCase().includes('11')
       )
 
       if (!data11) {
@@ -73,10 +80,11 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
         }
       }
 
-      // Find 16" balloons
-      const data16 = allInventory?.find(item => 
-        item.color.toLowerCase() === colorName.toLowerCase() && 
-        item.size === '16in'
+      // Find 16" balloons with multiple possible formats
+      const data16 = colorInventory.find(item => 
+        item.size === '16in' ||
+        item.size === '16' ||
+        item.size.toLowerCase().includes('16')
       )
 
       if (!data16) {
@@ -138,12 +146,12 @@ export const checkInventoryLevels = async (colors: string[]): Promise<boolean> =
     
     const data11 = allInventory?.find(item => 
       item.color.toLowerCase() === color.toLowerCase() && 
-      item.size === '11in'
+      (item.size === '11in' || item.size.includes('11'))
     )
     
     const data16 = allInventory?.find(item => 
       item.color.toLowerCase() === color.toLowerCase() && 
-      item.size === '16in'
+      (item.size === '16in' || item.size.includes('16'))
     )
 
     if (!data11 || !data16 || data11.quantity < 100 || data16.quantity < 50) {

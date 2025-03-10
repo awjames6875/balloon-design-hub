@@ -48,39 +48,47 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
   console.log("Calculated balloons by color:", balloonsByColor)
   const inventoryList: InventoryItem[] = []
 
+  // Get all inventory records in one query to reduce database calls
+  const { data: allInventoryRecords, error: fetchError } = await supabase
+    .from('balloon_inventory')
+    .select('*')
+
+  if (fetchError) {
+    console.error('Error fetching all inventory:', fetchError)
+    toast.error('Failed to fetch inventory data')
+    return []
+  }
+
+  console.log("All inventory records:", allInventoryRecords)
+
   for (const colorData of balloonsByColor) {
     const colorName = getColorName(colorData.color)
     console.log(`Processing color: ${colorName}`)
 
     try {
-      // Get all inventory for this color regardless of exact case
-      const { data: allInventory, error: inventoryError } = await supabase
-        .from('balloon_inventory')
-        .select('*')
-        .ilike('color', colorName)
+      // Filter inventory for this color using case-insensitive comparison
+      const colorInventory = allInventoryRecords.filter(item => 
+        item.color.toLowerCase() === colorName.toLowerCase()
+      )
       
-      if (inventoryError) {
-        console.error(`Error fetching inventory for ${colorName}:`, inventoryError)
-        toast.error(`Error checking inventory for ${colorName} balloons`)
-        continue
-      }
-
-      console.log(`All inventory for ${colorName}:`, allInventory)
+      console.log(`Inventory for ${colorName}:`, colorInventory)
       
-      // Find 11" balloons
-      const match11 = allInventory?.find(item => 
-        item.color.toLowerCase() === colorName.toLowerCase() && 
-        item.size === '11in'
-      );
+      // Find 11" balloons using normalized size format
+      const match11 = colorInventory.find(item => 
+        item.size === '11in' ||
+        item.size === '11' ||
+        item.size.toLowerCase().includes('11')
+      )
 
       const quantity11 = match11?.quantity || 0
       console.log(`11" balloons available for ${colorName}:`, quantity11)
 
-      // Find 16" balloons
-      const match16 = allInventory?.find(item => 
-        item.color.toLowerCase() === colorName.toLowerCase() && 
-        item.size === '16in'
-      );
+      // Find 16" balloons using normalized size format
+      const match16 = colorInventory.find(item => 
+        item.size === '16in' ||
+        item.size === '16' ||
+        item.size.toLowerCase().includes('16')
+      )
 
       const quantity16 = match16?.quantity || 0
       console.log(`16" balloons available for ${colorName}:`, quantity16)

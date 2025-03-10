@@ -35,6 +35,7 @@ export const InventoryCheckForm = ({
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isGeneratingForm, setIsGeneratingForm] = useState(false)
+  const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now())
 
   const handleInventoryCheck = async () => {
     setIsLoading(true)
@@ -123,6 +124,13 @@ export const InventoryCheckForm = ({
     }
   }
 
+  // Force refresh inventory when the refresh button is clicked
+  const handleRefreshInventory = () => {
+    setLastUpdateTime(Date.now())
+    handleInventoryCheck()
+    toast.success("Refreshing inventory data...")
+  }
+
   // Set up a realtime subscription to inventory changes and do initial check
   useEffect(() => {
     // Initial inventory check
@@ -149,7 +157,7 @@ export const InventoryCheckForm = ({
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [colorClusters])
+  }, [colorClusters, lastUpdateTime])
 
   // Make sure we refresh when color clusters change
   useEffect(() => {
@@ -172,7 +180,7 @@ export const InventoryCheckForm = ({
 
           <div className="flex gap-4">
             <Button 
-              onClick={handleInventoryCheck} 
+              onClick={handleRefreshInventory} 
               variant="outline"
               disabled={isLoading || isGeneratingForm}
             >

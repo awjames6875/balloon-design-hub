@@ -6,6 +6,13 @@ import { Label } from "@/components/ui/label"
 import { addNewBalloonType } from "@/services/inventoryOperations"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface AddBalloonFormProps {
   onBalloonAdded: () => void
@@ -38,11 +45,24 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         return
       }
 
-      console.log(`Adding new balloon: ${color} ${size} - ${quantity}`)
+      // Ensure size is in the correct format
+      let normalizedSize = size.trim();
+      if (normalizedSize !== '11in' && normalizedSize !== '16in') {
+        if (normalizedSize.includes('11')) {
+          normalizedSize = '11in';
+        } else if (normalizedSize.includes('16')) {
+          normalizedSize = '16in';
+        } else {
+          toast.error("Size must be either 11in or 16in")
+          return;
+        }
+      }
+
+      console.log(`Adding new balloon: ${color} ${normalizedSize} - ${quantity}`)
 
       const success = await addNewBalloonType(
         color,
-        size,
+        normalizedSize,
         parseInt(quantity)
       )
 
@@ -53,7 +73,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         setQuantity("")
         
         // Notify success
-        toast.success(`Added ${quantity} ${color} ${size} balloons to inventory`)
+        toast.success(`Added ${quantity} ${color} ${normalizedSize} balloons to inventory`)
         
         // Trigger event for realtime updates
         await supabase
@@ -88,13 +108,19 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         </div>
         <div className="space-y-2">
           <Label htmlFor="size">Size</Label>
-          <Input
-            id="size"
-            value={size}
-            onChange={(e) => setSize(e.target.value)}
-            placeholder="Enter balloon size (e.g. 11in, 16in)"
+          <Select 
+            value={size} 
+            onValueChange={setSize}
             disabled={isSubmitting}
-          />
+          >
+            <SelectTrigger id="size">
+              <SelectValue placeholder="Select balloon size" />
+            </SelectTrigger>
+            <SelectContent position="popper">
+              <SelectItem value="11in">11 inch</SelectItem>
+              <SelectItem value="16in">16 inch</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="quantity">Initial Quantity</Label>
