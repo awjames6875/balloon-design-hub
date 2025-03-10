@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { normalizeColorName, getAlternateColorNames } from "@/components/design/inventory/utils/colorUtils"
@@ -231,43 +232,4 @@ export const checkInventoryLevels = async (colors: string[]): Promise<boolean> =
   }
 
   return true
-}
-
-// Helper function to generate alternative names for colors
-const getAlternateColorNames = (colorName: string): string[] => {
-  const alternates: string[] = [];
-  const colorLower = colorName.toLowerCase();
-  
-  // Common color name variations
-  const variations: Record<string, string[]> = {
-    "wild berry": ["wildberry", "wild-berry", "wild_berry"],
-    "wildberry": ["wild berry", "wild-berry", "wild_berry"],
-    "golden rod": ["goldenrod", "golden-rod", "gold rod"],
-    "goldenrod": ["golden rod", "golden-rod", "gold rod"],
-    // Add more variations as needed
-  };
-  
-  // Check if we have known variations for this color
-  for (const [base, variants] of Object.entries(variations)) {
-    if (colorLower === base || variants.includes(colorLower)) {
-      // Add all variations including the base
-      alternates.push(base, ...variants);
-      break;
-    }
-  }
-  
-  // If no predefined variations, try basic transformations
-  if (alternates.length === 0) {
-    // Add with and without spaces
-    if (colorLower.includes(' ')) {
-      alternates.push(colorLower.replace(/\s+/g, ''));
-    } else {
-      // Try to split camelCase or insert spaces at logical points
-      alternates.push(
-        colorLower.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
-      );
-    }
-  }
-  
-  return alternates;
 }
