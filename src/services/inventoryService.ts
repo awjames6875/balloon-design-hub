@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
@@ -15,19 +16,23 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
     console.log(`Processing ${colorName}: ${colorData.balloons11} 11" and ${colorData.balloons16} 16" balloons`)
 
     try {
-      // Update 11" balloons
-      const { data: data11, error: error11 } = await supabase
+      // Update 11" balloons - Use case-insensitive search
+      const { data: matches11, error: matchError11 } = await supabase
         .from('balloon_inventory')
-        .select('quantity')
-        .eq('color', colorName)  // Using color instead of colors
+        .select('id, quantity, color')
+        .ilike('color', colorName)  // Using case-insensitive match
         .eq('size', '11in')
-        .maybeSingle()
-
-      if (error11) {
-        console.error('Error checking 11" balloon inventory:', error11)
+      
+      if (matchError11) {
+        console.error('Error checking 11" balloon inventory:', matchError11)
         toast.error(`Error checking inventory for ${colorName} 11" balloons`)
         return false
       }
+
+      // Find best match or null
+      const data11 = matches11 && matches11.length > 0 
+        ? matches11.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || matches11[0]
+        : null
 
       if (!data11) {
         // If no inventory exists, create a new record
@@ -35,7 +40,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
           .from('balloon_inventory')
           .insert([
             {
-              color: colorName,  // Using color instead of colors
+              color: colorName,
               size: '11in',
               quantity: colorData.balloons11
             }
@@ -57,8 +62,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
         const { error: updateError11 } = await supabase
           .from('balloon_inventory')
           .update({ quantity: newQuantity11 })
-          .eq('color', colorName)  // Using color instead of colors
-          .eq('size', '11in')
+          .eq('id', data11.id)
 
         if (updateError11) {
           console.error('Error updating 11" balloon inventory:', updateError11)
@@ -67,19 +71,23 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
         }
       }
 
-      // Update 16" balloons
-      const { data: data16, error: error16 } = await supabase
+      // Update 16" balloons - Use case-insensitive search
+      const { data: matches16, error: matchError16 } = await supabase
         .from('balloon_inventory')
-        .select('quantity')
-        .eq('color', colorName)  // Using color instead of colors
+        .select('id, quantity, color')
+        .ilike('color', colorName)  // Using case-insensitive match
         .eq('size', '16in')
-        .maybeSingle()
-
-      if (error16) {
-        console.error('Error checking 16" balloon inventory:', error16)
+      
+      if (matchError16) {
+        console.error('Error checking 16" balloon inventory:', matchError16)
         toast.error(`Error checking inventory for ${colorName} 16" balloons`)
         return false
       }
+
+      // Find best match or null
+      const data16 = matches16 && matches16.length > 0
+        ? matches16.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || matches16[0]
+        : null
 
       if (!data16) {
         // If no inventory exists, create a new record
@@ -87,7 +95,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
           .from('balloon_inventory')
           .insert([
             {
-              color: colorName,  // Using color instead of colors
+              color: colorName,
               size: '16in',
               quantity: colorData.balloons16
             }
@@ -109,8 +117,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
         const { error: updateError16 } = await supabase
           .from('balloon_inventory')
           .update({ quantity: newQuantity16 })
-          .eq('color', colorName)  // Using color instead of colors
-          .eq('size', '16in')
+          .eq('id', data16.id)
 
         if (updateError16) {
           console.error('Error updating 16" balloon inventory:', updateError16)
@@ -132,20 +139,23 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 }
 
 export const checkInventoryLevels = async (colors: string[]): Promise<boolean> => {
-  for (const color of colors) {  // Using color instead of colors
-    const { data: data11 } = await supabase
+  for (const color of colors) {
+    // Use case-insensitive queries for inventory check
+    const { data: matches11 } = await supabase
       .from('balloon_inventory')
       .select('quantity')
-      .eq('color', color)  // Using color instead of colors
+      .ilike('color', color)
       .eq('size', '11in')
-      .maybeSingle()
-
-    const { data: data16 } = await supabase
+    
+    const data11 = matches11 && matches11.length > 0 ? matches11[0] : null
+    
+    const { data: matches16 } = await supabase
       .from('balloon_inventory')
       .select('quantity')
-      .eq('color', color)  // Using color instead of colors
+      .ilike('color', color)
       .eq('size', '16in')
-      .maybeSingle()
+    
+    const data16 = matches16 && matches16.length > 0 ? matches16[0] : null
 
     if (!data11 || !data16 || data11.quantity < 100 || data16.quantity < 50) {
       toast.warning(`Low inventory for ${color} balloons`)

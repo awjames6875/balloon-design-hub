@@ -53,13 +53,12 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
     console.log(`Processing color: ${colorName}`)
 
     try {
-      // Check 11" balloons
+      // Check 11" balloons - Use case-insensitive search with ilike
       const { data: data11, error: error11 } = await supabase
         .from('balloon_inventory')
-        .select('quantity')
-        .eq('color', colorName)
+        .select('quantity, color')
+        .ilike('color', colorName) // Using ilike for case-insensitive matching
         .eq('size', '11in')
-        .maybeSingle()
 
       if (error11) {
         console.error(`Error checking 11" balloon inventory:`, error11)
@@ -67,15 +66,19 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
         continue
       }
 
-      console.log(`11" balloons available for ${colorName}:`, data11?.quantity || 0)
+      // Find the best match from the results (might get multiple results with ilike)
+      const match11 = data11 && data11.length > 0 
+        ? data11.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || data11[0]
+        : null
 
-      // Check 16" balloons
+      console.log(`11" balloons available for ${colorName}:`, match11?.quantity || 0)
+
+      // Check 16" balloons - Use case-insensitive search with ilike
       const { data: data16, error: error16 } = await supabase
         .from('balloon_inventory')
-        .select('quantity')
-        .eq('color', colorName)
+        .select('quantity, color')
+        .ilike('color', colorName) // Using ilike for case-insensitive matching
         .eq('size', '16in')
-        .maybeSingle()
 
       if (error16) {
         console.error(`Error checking 16" balloon inventory:`, error16)
@@ -83,23 +86,28 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
         continue
       }
 
-      console.log(`16" balloons available for ${colorName}:`, data16?.quantity || 0)
+      // Find the best match from the results (might get multiple results with ilike)
+      const match16 = data16 && data16.length > 0
+        ? data16.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || data16[0]
+        : null
+      
+      console.log(`16" balloons available for ${colorName}:`, match16?.quantity || 0, `(color record: ${match16?.color || 'none'})`)
 
       // Add inventory items to the list
       inventoryList.push({
         color: colorName,
         size: '11in',
-        quantity: data11?.quantity || 0,
+        quantity: match11?.quantity || 0,
         required: colorData.balloons11,
-        status: getInventoryStatus(data11?.quantity || 0, colorData.balloons11)
+        status: getInventoryStatus(match11?.quantity || 0, colorData.balloons11)
       })
 
       inventoryList.push({
         color: colorName,
         size: '16in',
-        quantity: data16?.quantity || 0,
+        quantity: match16?.quantity || 0,
         required: colorData.balloons16,
-        status: getInventoryStatus(data16?.quantity || 0, colorData.balloons16)
+        status: getInventoryStatus(match16?.quantity || 0, colorData.balloons16)
       })
     } catch (error) {
       console.error(`Unexpected error while processing ${colorName}:`, error)
