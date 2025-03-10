@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ImageUpload } from "./ImageUpload"
@@ -10,6 +11,7 @@ import { recalculateDesignValues, type AIAnalysisData } from "@/utils/designCalc
 import { saveDesignAnalysis, updateDesignAnalysis } from "@/services/designAnalysisService"
 import { DesignAssistant } from "./DesignAssistant/DesignAssistant"
 import type { CorrectionProps } from "./BalloonGeni/types"
+import type { ColorCluster } from "./ColorClusterManager"
 
 interface AIDesignUploadProps {
   onAnalysisComplete: (data: AIAnalysisData) => void
@@ -52,6 +54,8 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       const colorsFromKey = Object.values(numberedDesignAnalysis?.colorKey || {}) as string[]
       
       const analysisData = recalculateDesignValues(totalClusters, colorsFromKey)
+      analysisData.numberedAnalysis = numberedDesignAnalysis
+      
       const savedAnalysis = await saveDesignAnalysis(
         totalClusters,
         colorsFromKey,
@@ -74,16 +78,66 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
   }
 
   const handleDesignAssistantUpdate = async (correction: CorrectionProps) => {
-    if (!analysisData?.colors) {
-      toast.error('Cannot update design: No color data available')
+    if (!analysisData) {
+      toast.error('Cannot update design: No analysis data available')
       return
     }
 
     try {
-      const newAnalysisData = recalculateDesignValues(
-        correction.type === 'total_clusters' ? correction.clusterCount! : analysisData.clusters,
-        analysisData.colors
-      )
+      console.log("Processing correction:", correction)
+      
+      let newAnalysisData: AIAnalysisData
+      
+      if (correction.type === 'total_clusters') {
+        // Update total clusters
+        newAnalysisData = recalculateDesignValues(
+          correction.clusterCount!, 
+          analysisData.colors
+        )
+      } else if (correction.type === 'cluster_count' && correction.color) {
+        // Update specific color cluster count
+        if (!analysisData.numberedAnalysis) {
+          toast.error('Cannot update color: No color analysis available')
+          return
+        }
+        
+        // Find the cluster to update
+        const updatedClusters = [...analysisData.numberedAnalysis.clusters]
+        const clusterIndex = updatedClusters.findIndex(
+          c => c.definedColor.toLowerCase() === correction.color!.toLowerCase()
+        )
+        
+        if (clusterIndex === -1) {
+          toast.error(`Color ${correction.color} not found in analysis`)
+          return
+        }
+        
+        // Update the cluster count
+        updatedClusters[clusterIndex].count = correction.clusterCount!
+        
+        // Calculate new total
+        const newTotalClusters = updatedClusters.reduce(
+          (sum, cluster) => sum + cluster.count, 
+          0
+        )
+        
+        // Create new analysis with updated data
+        newAnalysisData = {
+          ...analysisData,
+          clusters: newTotalClusters,
+          sizes: [
+            { size: "11in", quantity: newTotalClusters * 11 },
+            { size: "16in", quantity: newTotalClusters * 2 }
+          ],
+          numberedAnalysis: {
+            ...analysisData.numberedAnalysis,
+            clusters: updatedClusters
+          }
+        }
+      } else {
+        toast.error('Invalid correction type')
+        return
+      }
       
       if (currentDesignId) {
         const success = await updateDesignAnalysis(
@@ -95,12 +149,13 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
         if (success) {
           setAnalysisData(newAnalysisData)
           onAnalysisComplete(newAnalysisData)
-          toast.success('Design analysis updated successfully')
+          return true
         }
       }
     } catch (error) {
       console.error('Error updating analysis:', error)
       toast.error('Failed to update analysis')
+      throw error
     }
   }
 
@@ -141,11 +196,7 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
             />
             <DesignAssistant 
               onUpdate={handleDesignAssistantUpdate}
-              colorClusters={analysisData.numberedAnalysis?.clusters.map(c => ({
-                color: c.definedColor,
-                baseClusters: Math.ceil(c.count * 0.7),
-                extraClusters: Math.floor(c.count * 0.3)
-              }))}
+              colorClusters={analysisData.numberedAnalysis?.clusters}
             />
           </>
         )}

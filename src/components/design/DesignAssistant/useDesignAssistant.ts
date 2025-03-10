@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
@@ -21,10 +22,19 @@ export const useDesignAssistant = ({ onUpdate, colorClusters }: UseDesignAssista
     setIsProcessing(true)
     
     try {
+      // Map colorClusters to the format expected by the API
+      const apiClusters = colorClusters?.map(c => ({
+        color: c.color,
+        definedColor: c.color,
+        count: c.baseClusters + c.extraClusters,
+        baseClusters: c.baseClusters,
+        extraClusters: c.extraClusters
+      })) || []
+      
       const { data, error } = await supabase.functions.invoke('process-design-command', {
         body: { 
           command,
-          currentClusters: colorClusters
+          currentClusters: apiClusters
         }
       })
 

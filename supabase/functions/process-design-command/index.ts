@@ -1,5 +1,4 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts"
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -99,15 +98,24 @@ serve(async (req) => {
 
       // Add originalValue if not present
       if (correction.type === 'cluster_count' && currentClusters) {
+        // Find the matching cluster by color name (case-insensitive)
         const matchingCluster = currentClusters.find(c => 
-          c.color.toLowerCase() === correction.color.toLowerCase()
+          c.color.toLowerCase() === correction.color.toLowerCase() || 
+          c.definedColor?.toLowerCase() === correction.color.toLowerCase()
         )
-        correction.originalValue = matchingCluster ? 
-          matchingCluster.baseClusters + matchingCluster.extraClusters : 
-          0
+        
+        if (matchingCluster) {
+          correction.originalValue = matchingCluster.count || 
+                                    (matchingCluster.baseClusters + matchingCluster.extraClusters) || 
+                                    0
+        } else {
+          console.warn(`No matching cluster found for color: ${correction.color}`)
+          correction.originalValue = 0
+        }
       } else if (correction.type === 'total_clusters' && currentClusters) {
+        // Calculate total from either count property or baseClusters + extraClusters
         correction.originalValue = currentClusters.reduce(
-          (sum, c) => sum + c.baseClusters + c.extraClusters, 
+          (sum, c) => sum + (c.count || (c.baseClusters + c.extraClusters) || 0), 
           0
         )
       }
