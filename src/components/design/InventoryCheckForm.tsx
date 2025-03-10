@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import { saveDesignToProduction } from "@/services/productionService"
 import { updateInventory } from "@/services/inventoryService"
 import { calculateBalloonsPerColor } from "@/utils/balloonCalculationUtils"
 import type { InventoryItem, ColorCluster, Calculations } from "./inventory/types"
+import { supabase } from "@/integrations/supabase/client"
 
 interface InventoryCheckProps {
   colorClusters: ColorCluster[]
@@ -120,9 +122,33 @@ export const InventoryCheckForm = ({
     }
   }
 
+  // Set up a realtime subscription to inventory changes
   useEffect(() => {
+    // Initial inventory check
     handleInventoryCheck()
-  }, [])
+    
+    // Set up realtime subscription to inventory table changes
+    const channel = supabase
+      .channel('inventory-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen for all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'balloon_inventory'
+        },
+        () => {
+          console.log('Inventory changed, refreshing inventory check...')
+          handleInventoryCheck() // Refresh inventory data when changes occur
+        }
+      )
+      .subscribe()
+
+    // Clean up subscription on unmount
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [colorClusters])
 
   const canProceed = !inventoryItems.some(item => item.status === 'out-of-stock')
 

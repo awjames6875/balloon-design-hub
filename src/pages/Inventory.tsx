@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import { InventoryCheckForm } from "@/components/design/InventoryCheckForm"
 import { supabase } from "@/integrations/supabase/client"
 import type { BalloonInventory } from "@/components/inventory/types"
 import { ArrowLeft } from "lucide-react"
+import { enableRealtimeForInventory } from "@/utils/inventoryValidation"
 import {
   Sheet,
   SheetContent,
@@ -62,6 +64,11 @@ export default function Inventory() {
   }
 
   useEffect(() => {
+    // Enable realtime for inventory table when component mounts
+    enableRealtimeForInventory()
+      .then(() => console.log("Realtime enabled for inventory"))
+      .catch(err => console.error("Failed to enable realtime:", err))
+    
     fetchInventory()
   }, [])
 
@@ -71,6 +78,30 @@ export default function Inventory() {
       toast.success("Proceeding to production form")
     }
   }
+
+  // Set up realtime subscription for the inventory table
+  useEffect(() => {
+    const channel = supabase
+      .channel('inventory-page-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen for all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'balloon_inventory'
+        },
+        () => {
+          console.log('Inventory changed, refreshing main inventory list...')
+          fetchInventory() // Refresh inventory data when changes occur
+        }
+      )
+      .subscribe()
+
+    // Clean up subscription on unmount
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   return (
     <div className="container mx-auto px-4 py-8">
