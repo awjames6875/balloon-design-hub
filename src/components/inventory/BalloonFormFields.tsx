@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ColorSuggestions } from "./ColorSuggestions"
-import { useColorInput } from "./useColorInput"
+import { supabase } from "@/integrations/supabase/client"
 
 interface BalloonFormFieldsProps {
   isSubmitting: boolean;
@@ -25,11 +25,10 @@ export const BalloonFormFields = ({
   const [size, setSize] = useState("")
   const [quantity, setQuantity] = useState("")
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [colorSuggestions, setColorSuggestions] = useState<any[]>([])
   const [filteredSuggestions, setFilteredSuggestions] = useState<any[]>([])
   
   // Fetch color suggestions
-  const [colorSuggestions, setColorSuggestions] = useState<any[]>([])
-  
   useEffect(() => {
     async function fetchColorStandards() {
       try {
@@ -72,7 +71,6 @@ export const BalloonFormFields = ({
 
   // Update parent component when fields change
   useEffect(() => {
-    console.log("Fields changed, updating parent:", { color, size, quantity })
     onFieldsChange({
       color,
       size,
@@ -164,6 +162,3 @@ export const BalloonFormFields = ({
     </div>
   )
 }
-
-// Import supabase for fetching color standards
-import { supabase } from "@/integrations/supabase/client"

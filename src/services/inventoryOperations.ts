@@ -82,15 +82,9 @@ export const addNewBalloonType = async (
         // Log the full error for debugging
         console.error("Full error details:", JSON.stringify(insertError, null, 2))
         
-        if (insertError.message && insertError.message.includes("Invalid color format")) {
-          toast.error("Invalid color format", {
-            description: "Please check the color name and try again"
-          })
-        } else {
-          toast.error("Failed to add balloon type", {
-            description: insertError.message
-          })
-        }
+        toast.error("Failed to add balloon type", {
+          description: "Please try again or contact support"
+        })
         return false
       }
 

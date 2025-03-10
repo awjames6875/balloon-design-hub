@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
@@ -26,28 +27,10 @@ export const validateInventoryUpdate = async (
     return false
   }
 
-  // Check if the color exists in color_standards table
-  try {
-    const { data, error } = await supabase
-      .from('color_standards')
-      .select('*')
-      .ilike('display_name', color)
-      .maybeSingle()
-      
-    // If we got an exact match, validation is successful
-    if (data) {
-      console.log("Color validated successfully against standards:", data)
-      return true
-    }
-    
-    // Otherwise, accept any non-empty string as a valid color
-    // This allows for custom colors not in the standards table
-    return true
-  } catch (err) {
-    console.error("Error validating color against standards:", err)
-    // Even if validation check fails, accept any non-empty string as a valid color
-    return true
-  }
+  // Always consider non-empty color strings as valid
+  // This bypasses the strict validation that was causing errors
+  console.log("Color validation successful for:", color)
+  return true
 }
 
 export const checkExistingBalloon = async (

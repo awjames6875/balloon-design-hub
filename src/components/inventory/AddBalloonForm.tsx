@@ -5,7 +5,6 @@ import { addNewBalloonType } from "@/services/inventoryOperations"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { BalloonFormFields } from "./BalloonFormFields"
-import { useColorInput } from "./useColorInput"
 
 interface AddBalloonFormProps {
   onBalloonAdded: () => void
@@ -20,7 +19,6 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const handleFieldsChange = (fields: { color: string; size: string; quantity: string }) => {
-    console.log("Form fields changing to:", fields)
     setFormValues(fields)
   }
 
@@ -28,7 +26,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     e.preventDefault()
     console.log("Submit button clicked with values:", formValues)
     
-    // Validate all inputs before proceeding
+    // Basic validation
     if (!formValues.color || formValues.color.trim() === "") {
       toast.error("Please enter a color name")
       return
@@ -52,6 +50,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       const cleanedColor = formValues.color.trim()
       console.log("Using final color:", cleanedColor)
 
+      // Add the balloon type
       const success = await addNewBalloonType(
         cleanedColor,
         formValues.size,
@@ -65,9 +64,6 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
           size: "",
           quantity: ""
         })
-        
-        // Notify success
-        toast.success(`Added ${formValues.quantity} ${cleanedColor} ${formValues.size} balloons to inventory`)
         
         // Trigger event for realtime updates
         await supabase
