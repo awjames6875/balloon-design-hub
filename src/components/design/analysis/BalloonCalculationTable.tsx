@@ -1,3 +1,4 @@
+
 import {
   Table,
   TableBody,
@@ -67,8 +68,8 @@ export const BalloonCalculationTable = ({
         <TableRow className="font-medium bg-muted/50">
           <TableCell>Total</TableCell>
           <TableCell className="text-right">{totalClusters}</TableCell>
-          <TableCell className="text-right">-</TableCell>
-          <TableCell className="text-right">-</TableCell>
+          <TableCell className="text-right">{BALLOONS_11_PER_CLUSTER}</TableCell>
+          <TableCell className="text-right">{BALLOONS_16_PER_CLUSTER}</TableCell>
           <TableCell className="text-right">{totalBalloons11}</TableCell>
           <TableCell className="text-right">{totalBalloons16}</TableCell>
         </TableRow>
