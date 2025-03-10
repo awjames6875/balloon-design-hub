@@ -4,6 +4,72 @@ import { toast } from "sonner"
 import { BalloonType } from '../types/inventory'
 
 /**
+ * Fetches valid colors from the color_standards table
+ * @returns Array of valid color names
+ */
+export const getValidColors = async (): Promise<string[]> => {
+  try {
+    const { data, error } = await supabase
+      .from("color_standards")
+      .select("display_name, color_name, hex_code");
+    
+    if (error) {
+      console.error("Error fetching valid colors:", error);
+      return [];
+    }
+    
+    // Create array of valid colors (display_names, color_names, and hex_codes)
+    const validColors: string[] = [];
+    data.forEach(color => {
+      validColors.push(color.display_name.toLowerCase());
+      validColors.push(color.color_name.toLowerCase());
+      if (color.hex_code) {
+        validColors.push(color.hex_code.toLowerCase());
+      }
+    });
+    
+    return validColors;
+  } catch (error) {
+    console.error("Error in getValidColors:", error);
+    return [];
+  }
+};
+
+/**
+ * Validates if a color string is valid by checking against color_standards table
+ * @param color The color string to validate
+ * @returns Promise that resolves to true if the color is valid, false otherwise
+ */
+export const validateColorAgainstStandards = async (color: string): Promise<boolean> => {
+  try {
+    if (!color || color.trim() === '') return false;
+    
+    const colorValue = color.trim().toLowerCase();
+    
+    // Check if it's a hex code
+    if (colorValue.match(/^#([a-f0-9]{6})$/i)) {
+      return true;
+    }
+    
+    // Check against the color_standards table
+    const { data, error } = await supabase
+      .from("color_standards")
+      .select("*")
+      .or(`lower(display_name).eq.${colorValue},lower(color_name).eq.${colorValue}`);
+    
+    if (error) {
+      console.error("Error checking color against standards:", error);
+      return false;
+    }
+    
+    return data && data.length > 0;
+  } catch (error) {
+    console.error("Error validating color against standards:", error);
+    return false;
+  }
+};
+
+/**
  * Validates if a color string is valid
  * Modified to be more lenient - accepts any non-empty string
  * @param color The color string to validate
@@ -91,7 +157,16 @@ export const validateInventoryUpdate = async (
     return false
   }
 
-  // Always consider any non-empty color string as valid
+  // Check against valid color standards
+  const isValidColor = await validateColorAgainstStandards(color);
+  if (!isValidColor) {
+    console.error("Color validation failed - not a standard color:", color);
+    toast.error("Please use a standard color name or hex code", {
+      description: "The color name must match one of the standard balloon colors."
+    });
+    return false;
+  }
+
   console.log("Validation successful for:", { color, size, quantity })
   return true
 }

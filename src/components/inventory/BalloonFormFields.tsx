@@ -46,7 +46,7 @@ const BalloonFormFields: React.FC<BalloonFormFieldsProps> = ({
           placeholder="Enter balloon color"
         />
         <div className="text-sm text-muted-foreground">
-          Use standard color names like "Wild Berry" or "Golden Rod"
+          Use standard color names like "Red", "Blue", "Gold", "Silver" or hex codes
         </div>
       </div>
       

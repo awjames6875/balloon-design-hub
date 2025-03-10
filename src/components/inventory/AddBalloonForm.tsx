@@ -1,12 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import BalloonFormFields from './BalloonFormFields';
 import { BalloonType } from '@/types/inventory';
 import { addBalloonType } from '@/services/inventoryOperations';
-import { validateBalloonType } from '@/utils/inventoryValidation';
+import { validateBalloonType, validateColorAgainstStandards } from '@/utils/inventoryValidation';
 
 interface AddBalloonFormProps {
   open: boolean;
@@ -42,12 +42,27 @@ const AddBalloonForm: React.FC<AddBalloonFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form data
+    // Reset errors
+    setErrors({});
+    
+    // Basic form validation
     const validation = validateBalloonType(formData);
     
     if (!validation.isValid) {
       setErrors(validation.errors);
       return;
+    }
+    
+    // Additional color validation against standards
+    if (formData.color) {
+      const isValidColor = await validateColorAgainstStandards(formData.color);
+      if (!isValidColor) {
+        setErrors({
+          ...validation.errors,
+          color: "Please use a standard color name or hex code (e.g., 'Red', 'Blue', or '#FF0000')"
+        });
+        return;
+      }
     }
     
     try {
@@ -89,6 +104,9 @@ const AddBalloonForm: React.FC<AddBalloonFormProps> = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add New Balloon Type</DialogTitle>
+          <DialogDescription>
+            Enter the balloon details. Use standard color names like "Red", "Blue", or hex codes like "#FF0000".
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit}>
