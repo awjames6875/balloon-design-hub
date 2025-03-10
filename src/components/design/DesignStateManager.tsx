@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react"
-import { BalloonChart } from "@/components/charts/BalloonChart"
 import type { AIAnalysisData } from "@/utils/designCalculations"
 
 interface ColorDistribution {
@@ -82,19 +81,5 @@ export const DesignStateManager = ({ analysisData }: DesignStateManagerProps) =>
     }
   }, [analysisData])
 
-  // Transform design data for the chart
-  const chartData = Object.entries(designData.colorDistribution).map(([color, data]) => ({
-    name: color,
-    actual: data.balloons11,
-    effective: data.balloons16
-  }))
-
-  return (
-    <div className="space-y-6">
-      <div className="p-4 bg-white rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-4">Design Distribution</h3>
-        <BalloonChart data={chartData} />
-      </div>
-    </div>
-  )
+  return null
 }
