@@ -18,7 +18,6 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     quantity: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const colorHook = useColorInput()
   
   const handleFieldsChange = (fields: { color: string; size: string; quantity: string }) => {
     console.log("Form fields changing to:", fields)
@@ -50,15 +49,11 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     try {
       console.log("Submitting form with values:", formValues)
       
-      // Standardize color name if possible
-      const standardizedColor = colorHook.findStandardizedColor()
-      
-      // Use the standardized color or fall back to the current color if no match found
-      const finalColor = standardizedColor || formValues.color;
-      console.log("Using final color:", finalColor)
+      const cleanedColor = formValues.color.trim()
+      console.log("Using final color:", cleanedColor)
 
       const success = await addNewBalloonType(
-        finalColor,
+        cleanedColor,
         formValues.size,
         parseInt(formValues.quantity)
       )
@@ -70,10 +65,9 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
           size: "",
           quantity: ""
         })
-        colorHook.resetColor() // Reset the color in the color hook
         
         // Notify success
-        toast.success(`Added ${formValues.quantity} ${finalColor} ${formValues.size} balloons to inventory`)
+        toast.success(`Added ${formValues.quantity} ${cleanedColor} ${formValues.size} balloons to inventory`)
         
         // Trigger event for realtime updates
         await supabase

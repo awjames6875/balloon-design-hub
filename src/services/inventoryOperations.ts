@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { validateInventoryUpdate, checkExistingBalloon } from "@/utils/inventoryValidation"
@@ -78,12 +79,17 @@ export const addNewBalloonType = async (
 
       if (insertError) {
         console.error("Error adding balloon type:", insertError)
-        if (insertError.message.includes("Invalid color format")) {
+        // Log the full error for debugging
+        console.error("Full error details:", JSON.stringify(insertError, null, 2))
+        
+        if (insertError.message && insertError.message.includes("Invalid color format")) {
           toast.error("Invalid color format", {
             description: "Please check the color name and try again"
           })
         } else {
-          toast.error("Failed to add balloon type: " + insertError.message)
+          toast.error("Failed to add balloon type", {
+            description: insertError.message
+          })
         }
         return false
       }

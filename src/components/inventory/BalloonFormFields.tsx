@@ -21,16 +21,54 @@ export const BalloonFormFields = ({
   isSubmitting, 
   onFieldsChange 
 }: BalloonFormFieldsProps) => {
-  const {
-    color,
-    filteredSuggestions,
-    showSuggestions,
-    handleColorChange,
-    handleSelectSuggestion
-  } = useColorInput()
-  
+  const [color, setColor] = useState("")
   const [size, setSize] = useState("")
   const [quantity, setQuantity] = useState("")
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [filteredSuggestions, setFilteredSuggestions] = useState<any[]>([])
+  
+  // Fetch color suggestions
+  const [colorSuggestions, setColorSuggestions] = useState<any[]>([])
+  
+  useEffect(() => {
+    async function fetchColorStandards() {
+      try {
+        const { data, error } = await supabase
+          .from('color_standards')
+          .select('color_name, display_name')
+          .order('display_name', { ascending: true })
+        
+        if (error) {
+          console.error('Error fetching color standards:', error)
+          return
+        }
+        
+        const transformedData = data?.map(item => ({
+          name: item.color_name,
+          display_name: item.display_name
+        })) || []
+        
+        setColorSuggestions(transformedData)
+      } catch (err) {
+        console.error('Failed to fetch color standards:', err)
+      }
+    }
+    
+    fetchColorStandards()
+  }, [])
+  
+  // Filter suggestions when color input changes
+  useEffect(() => {
+    if (color.length > 1) {
+      const filtered = colorSuggestions.filter(c => 
+        c.display_name.toLowerCase().includes(color.toLowerCase())
+      )
+      setFilteredSuggestions(filtered)
+      setShowSuggestions(filtered.length > 0)
+    } else {
+      setShowSuggestions(false)
+    }
+  }, [color, colorSuggestions])
 
   // Update parent component when fields change
   useEffect(() => {
@@ -42,10 +80,22 @@ export const BalloonFormFields = ({
     })
   }, [color, size, quantity, onFieldsChange])
 
-  // Handle color selection
-  const handleSuggestionSelect = (suggestion: string) => {
-    console.log("Selected suggestion in BalloonFormFields:", suggestion)
-    handleSelectSuggestion(suggestion)
+  // Handle color input change
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("Color changing to:", e.target.value)
+    setColor(e.target.value)
+    if (e.target.value.length > 1) {
+      setShowSuggestions(true)
+    } else {
+      setShowSuggestions(false)
+    }
+  }
+  
+  // Handle color suggestion selection
+  const handleSelectSuggestion = (suggestion: string) => {
+    console.log("Selected suggestion:", suggestion)
+    setColor(suggestion)
+    setShowSuggestions(false)
   }
 
   // Handle size change
@@ -75,7 +125,7 @@ export const BalloonFormFields = ({
         <ColorSuggestions 
           suggestions={filteredSuggestions}
           visible={showSuggestions}
-          onSelect={handleSuggestionSelect}
+          onSelect={handleSelectSuggestion}
         />
         <p className="text-xs text-gray-500 mt-1">
           Use standard color names like "Wild Berry" or "Golden Rod"
@@ -114,3 +164,6 @@ export const BalloonFormFields = ({
     </div>
   )
 }
+
+// Import supabase for fetching color standards
+import { supabase } from "@/integrations/supabase/client"
