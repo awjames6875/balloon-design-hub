@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { normalizeColorName, getAlternateColorNames } from "@/components/design/inventory/utils/colorUtils"
@@ -156,7 +155,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 
         if (updateError16) {
           console.error('Error updating 16" balloon inventory:', updateError16)
-          toast.error(`Failed to create inventory for ${colorName} 16" balloons`)
+          toast.error(`Failed to update inventory for ${colorName} 16" balloons`)
           return false
         }
       }
