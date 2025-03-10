@@ -80,16 +80,16 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
   console.log("Calculated balloons by color:", balloonsByColor)
   const inventoryList: InventoryItem[] = []
 
-  // Get the latest inventory data
+  // Get the latest inventory data from the database
   const latestInventory = await getLatestInventory()
 
   for (const colorData of balloonsByColor) {
-    const colorName = getColorName(colorData.color)
+    const colorName = getColorName(colorData.color).toLowerCase()
     console.log(`Processing color: ${colorName}`)
 
     try {
       // Look up inventory for this color (case-insensitive)
-      const colorInventory = latestInventory[colorName.toLowerCase()] || {}
+      const colorInventory = latestInventory[colorName] || {}
       
       console.log(`Inventory for ${colorName}:`, colorInventory)
       
@@ -100,20 +100,26 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
       const quantity16 = colorInventory['16in'] || 0
       console.log(`16" balloons available for ${colorName}:`, quantity16)
 
+      // Calculate what would remain after this project
+      const remaining11 = quantity11 - colorData.balloons11
+      const remaining16 = quantity16 - colorData.balloons16
+
       inventoryList.push({
-        color: colorName,
+        color: getColorName(colorData.color),
         size: '11in',
         quantity: quantity11,
         required: colorData.balloons11,
-        status: getInventoryStatus(quantity11, colorData.balloons11)
+        status: getInventoryStatus(quantity11, colorData.balloons11),
+        remaining: Math.max(0, remaining11)
       })
 
       inventoryList.push({
-        color: colorName,
+        color: getColorName(colorData.color),
         size: '16in',
         quantity: quantity16,
         required: colorData.balloons16,
-        status: getInventoryStatus(quantity16, colorData.balloons16)
+        status: getInventoryStatus(quantity16, colorData.balloons16),
+        remaining: Math.max(0, remaining16)
       })
     } catch (error) {
       console.error(`Unexpected error while processing ${colorName}:`, error)

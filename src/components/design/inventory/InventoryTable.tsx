@@ -1,3 +1,4 @@
+
 import {
   Table,
   TableBody,
@@ -19,12 +20,13 @@ export const InventoryTable = ({ items, isLoading }: InventoryTableProps) => {
   // Calculate totals
   const totals = items.reduce((acc, item) => {
     if (!acc[item.size]) {
-      acc[item.size] = { required: 0, available: 0 }
+      acc[item.size] = { required: 0, available: 0, remaining: 0 }
     }
     acc[item.size].required += item.required
     acc[item.size].available += item.quantity
+    acc[item.size].remaining += (item.remaining || 0)
     return acc
-  }, {} as Record<string, { required: number; available: number }>)
+  }, {} as Record<string, { required: number; available: number; remaining: number }>)
 
   return (
     <div className="rounded-md border">
@@ -35,13 +37,14 @@ export const InventoryTable = ({ items, isLoading }: InventoryTableProps) => {
             <TableHead>Size</TableHead>
             <TableHead className="text-right">Required</TableHead>
             <TableHead className="text-right">Available</TableHead>
+            <TableHead className="text-right">Remaining</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center">
+              <TableCell colSpan={6} className="text-center">
                 Checking inventory...
               </TableCell>
             </TableRow>
@@ -53,6 +56,7 @@ export const InventoryTable = ({ items, isLoading }: InventoryTableProps) => {
                   <TableCell>{item.size}</TableCell>
                   <TableCell className="text-right">{item.required}</TableCell>
                   <TableCell className="text-right">{item.quantity}</TableCell>
+                  <TableCell className="text-right">{item.remaining !== undefined ? item.remaining : item.quantity - item.required}</TableCell>
                   <TableCell>
                     <InventoryStatus status={item.status} />
                   </TableCell>
@@ -65,6 +69,7 @@ export const InventoryTable = ({ items, isLoading }: InventoryTableProps) => {
                   <TableCell>{size}</TableCell>
                   <TableCell className="text-right">{total.required}</TableCell>
                   <TableCell className="text-right">{total.available}</TableCell>
+                  <TableCell className="text-right">{total.remaining}</TableCell>
                   <TableCell>
                     <InventoryStatus 
                       status={getInventoryStatus(total.available, total.required)} 

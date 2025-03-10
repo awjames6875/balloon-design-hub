@@ -1,9 +1,11 @@
+
 export interface InventoryItem {
   color: string
   size: string
   quantity: number
   required: number
   status: 'in-stock' | 'low' | 'out-of-stock'
+  remaining?: number
 }
 
 export interface ColorCluster {
