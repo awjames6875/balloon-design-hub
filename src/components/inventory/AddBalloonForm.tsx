@@ -5,7 +5,7 @@ import { addNewBalloonType } from "@/services/inventoryOperations"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { BalloonFormFields } from "./BalloonFormFields"
-import { useColorSuggestions } from "./useColorSuggestions"
+import { useColorInput } from "./useColorInput"
 
 interface AddBalloonFormProps {
   onBalloonAdded: () => void
@@ -18,9 +18,8 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     quantity: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const colorHook = useColorSuggestions()
-  const { color, findStandardizedColor, resetColor, isColorValid } = colorHook
-
+  const colorHook = useColorInput()
+  
   const handleFieldsChange = (fields: { color: string; size: string; quantity: string }) => {
     console.log("Form fields changing to:", fields)
     setFormValues(fields)
@@ -28,39 +27,34 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("Submit button clicked with values:", formValues)
+    
+    // Validate all inputs before proceeding
+    if (!formValues.color || formValues.color.trim() === "") {
+      toast.error("Please enter a color name")
+      return
+    }
+
+    if (!formValues.size || formValues.size === "") {
+      toast.error("Please select a balloon size")
+      return
+    }
+
+    if (!formValues.quantity || parseInt(formValues.quantity) < 1) {
+      toast.error("Please enter a valid quantity (minimum 1)")
+      return
+    }
+    
     setIsSubmitting(true)
     
     try {
-      console.log("Submitting form with values:", { color, size: formValues.size, quantity: formValues.quantity })
+      console.log("Submitting form with values:", formValues)
       
-      // Validate inputs
-      if (!isColorValid()) {
-        console.error("Color validation failed, current color:", color)
-        toast.error("Please enter a color name")
-        setIsSubmitting(false)
-        return
-      }
-
-      if (!formValues.size || !formValues.size.trim()) {
-        toast.error("Please select a balloon size")
-        setIsSubmitting(false)
-        return
-      }
-
-      if (!formValues.quantity.trim() || parseInt(formValues.quantity) < 0) {
-        toast.error("Please enter a valid quantity")
-        setIsSubmitting(false)
-        return
-      }
-
-      // Size is already standardized from the dropdown
-      console.log(`Adding new balloon: ${color} ${formValues.size} - ${formValues.quantity}`)
-      
-      // Standardize color name format
-      const standardizedColor = findStandardizedColor()
+      // Standardize color name if possible
+      const standardizedColor = colorHook.findStandardizedColor()
       
       // Use the standardized color or fall back to the current color if no match found
-      const finalColor = standardizedColor || color;
+      const finalColor = standardizedColor || formValues.color;
       console.log("Using final color:", finalColor)
 
       const success = await addNewBalloonType(
@@ -76,7 +70,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
           size: "",
           quantity: ""
         })
-        resetColor() // Reset the color in the useColorSuggestions hook
+        colorHook.resetColor() // Reset the color in the color hook
         
         // Notify success
         toast.success(`Added ${formValues.quantity} ${finalColor} ${formValues.size} balloons to inventory`)

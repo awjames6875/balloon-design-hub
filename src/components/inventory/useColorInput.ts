@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { normalizeColorName } from "@/components/design/inventory/utils/colorUtils"
 import type { SuggestionColor } from "./ColorSuggestions"
 
-export function useColorSuggestions() {
+export function useColorInput() {
   const [color, setColor] = useState("")
   const [colorSuggestions, setColorSuggestions] = useState<SuggestionColor[]>([])
   const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionColor[]>([])
@@ -70,8 +70,9 @@ export function useColorSuggestions() {
     }
   }
 
-  // Find matching standard color - corrected to ensure proper display_name format
+  // Find matching standard color
   const findStandardizedColor = () => {
+    console.log("Finding standardized color for:", color)
     if (!color || color.trim() === "") return "";
     
     const matchingColor = colorSuggestions.find(c => 
@@ -87,7 +88,9 @@ export function useColorSuggestions() {
   }
 
   const isColorValid = () => {
-    return color && color.trim() !== "";
+    const trimmedColor = color.trim();
+    console.log("Checking if color is valid:", trimmedColor, "Length:", trimmedColor.length)
+    return trimmedColor !== "" && trimmedColor.length > 0;
   }
 
   return {

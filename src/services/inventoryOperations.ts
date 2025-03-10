@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { validateInventoryUpdate, checkExistingBalloon } from "@/utils/inventoryValidation"
@@ -76,7 +75,6 @@ export const addNewBalloonType = async (
           }
         ])
         .select()
-        .maybeSingle()
 
       if (insertError) {
         console.error("Error adding balloon type:", insertError)

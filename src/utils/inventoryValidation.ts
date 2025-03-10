@@ -39,13 +39,16 @@ export const checkExistingBalloon = async (
     return null
   }
   
-  console.log("Checking for existing balloon:", { color: color.trim(), size: size.trim() })
+  const cleanColor = color.trim();
+  const cleanSize = size.trim();
+  
+  console.log("Checking for existing balloon:", { color: cleanColor, size: cleanSize })
   
   const { data, error } = await supabase
     .from("balloon_inventory")
     .select("*")
-    .eq("color", color.trim())
-    .eq("size", size.trim())
+    .eq("color", cleanColor)
+    .eq("size", cleanSize)
     .maybeSingle()
 
   if (error) {

@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ColorSuggestions } from "./ColorSuggestions"
-import { useColorSuggestions } from "./useColorSuggestions"
+import { useColorInput } from "./useColorInput"
 
 interface BalloonFormFieldsProps {
   isSubmitting: boolean;
@@ -27,7 +27,7 @@ export const BalloonFormFields = ({
     showSuggestions,
     handleColorChange,
     handleSelectSuggestion
-  } = useColorSuggestions()
+  } = useColorInput()
   
   const [size, setSize] = useState("")
   const [quantity, setQuantity] = useState("")
