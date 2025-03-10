@@ -44,6 +44,7 @@ export const DesignStateManager = ({ analysisData }: DesignStateManagerProps) =>
   // Update design data when analysis data changes
   useEffect(() => {
     if (analysisData) {
+      console.log("DesignStateManager received updated analysis data:", analysisData)
       const balloons11 = analysisData.sizes.find(size => size.size === "11in")?.quantity || 0
       const balloons16 = analysisData.sizes.find(size => size.size === "16in")?.quantity || 0
       
@@ -73,14 +74,17 @@ export const DesignStateManager = ({ analysisData }: DesignStateManagerProps) =>
         })
       }
       
-      setDesignData({
+      const newDesignData = {
         totalClusters: analysisData.clusters,
         colorDistribution,
         totalBalloons: {
           '11inch': balloons11,
           '16inch': balloons16
         }
-      })
+      }
+      
+      console.log("Updated designData:", newDesignData)
+      setDesignData(newDesignData)
     }
   }, [analysisData])
 

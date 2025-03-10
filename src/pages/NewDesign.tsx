@@ -21,8 +21,8 @@ export default function NewDesign() {
   }
 
   const handleAnalysisComplete = (data: AIAnalysisData) => {
+    console.log("Analysis data received or updated:", data)
     setAnalysisData(data)
-    console.log("Analysis data received:", data)
     
     // Update URL with analysis data
     const searchParams = new URLSearchParams(window.location.search)
@@ -50,6 +50,8 @@ export default function NewDesign() {
       totalBalloons: analysisData.clusters * 13
     }
 
+    console.log("Proceeding to inventory with calculations:", calculations)
+
     // Navigate to inventory page with design data
     navigate("/inventory", {
       state: {
@@ -60,7 +62,8 @@ export default function NewDesign() {
           length: "10",
           style: "Garland",
           colorClusters,
-          calculations
+          calculations,
+          designAnalysisId: analysisData.id
         }
       }
     })

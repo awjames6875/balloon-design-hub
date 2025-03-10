@@ -1,4 +1,6 @@
+
 export interface AIAnalysisData {
+  id?: number
   clusters: number
   colors: string[]
   sizes: Array<{

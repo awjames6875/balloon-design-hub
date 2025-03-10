@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client"
 import { AIAnalysisData } from "@/utils/designCalculations"
 import { toast } from "sonner"
@@ -24,6 +25,7 @@ export const saveDesignAnalysis = async (
     return null
   }
 
+  console.log("Saved design analysis with ID:", savedAnalysis.id)
   return savedAnalysis
 }
 
@@ -32,6 +34,8 @@ export const updateDesignAnalysis = async (
   clusters: number,
   sizes: AIAnalysisData['sizes']
 ): Promise<boolean> => {
+  console.log(`Updating design analysis ${designId} with ${clusters} clusters`)
+  
   const { error } = await supabase
     .from('design_analysis')
     .update({
@@ -47,5 +51,6 @@ export const updateDesignAnalysis = async (
     return false
   }
 
+  console.log(`Successfully updated design analysis ${designId}`)
   return true
 }

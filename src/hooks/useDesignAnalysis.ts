@@ -91,6 +91,8 @@ export const useDesignAnalysis = ({
           correction.clusterCount!, 
           analysisData.colors
         )
+
+        console.log("Recalculated design values for total clusters:", newAnalysisData)
       } else if (correction.type === 'cluster_count' && correction.color) {
         // Update specific color cluster count
         if (!analysisData.numberedAnalysis) {
@@ -131,21 +133,34 @@ export const useDesignAnalysis = ({
             clusters: updatedClusters
           }
         }
+
+        console.log("Recalculated design values for specific color:", newAnalysisData)
       } else {
         toast.error('Invalid correction type')
         return
       }
       
+      // Update in database
       if (currentDesignId) {
-        await updateDesignAnalysis(
+        const updated = await updateDesignAnalysis(
           currentDesignId,
           newAnalysisData.clusters,
           newAnalysisData.sizes
         )
 
-        setAnalysisData(newAnalysisData)
-        onAnalysisComplete(newAnalysisData)
+        if (!updated) {
+          toast.error("Failed to update database with new values")
+          return
+        }
+
+        console.log("Updated database with new values")
       }
+
+      // Update local state and propagate change up
+      setAnalysisData(newAnalysisData)
+      onAnalysisComplete(newAnalysisData)
+      
+      toast.success("Design recalculated successfully")
     } catch (error) {
       console.error('Error updating analysis:', error)
       toast.error('Failed to update analysis')
