@@ -1,5 +1,4 @@
-
-import { normalizeColorName } from "@/components/design/inventory/inventoryService"
+import { normalizeColorName } from "@/components/design/inventory/utils/colorUtils"
 
 interface SuggestionColor {
   name: string;

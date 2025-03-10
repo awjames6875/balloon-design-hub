@@ -24,3 +24,6 @@ export interface Calculations {
   balloons16in: number
   totalBalloons: number
 }
+
+// Add export for ColorBalloonData type which was already in services/inventory/types.ts
+export type { ColorBalloonData } from '@/services/inventory/types'
