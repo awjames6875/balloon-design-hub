@@ -27,19 +27,19 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     e.preventDefault()
     console.log("Submit button clicked with values:", formValues)
     
-    // Basic client-side validation
-    if (!validateColor(formValues.color)) {
+    // Only validate that fields are not empty
+    if (!formValues.color || formValues.color.trim() === "") {
       toast.error("Please enter a color name")
       return
     }
 
-    if (!validateSize(formValues.size)) {
+    if (!formValues.size || formValues.size === "") {
       toast.error("Please select a balloon size")
       return
     }
 
     const quantity = parseInt(formValues.quantity)
-    if (!validateQuantity(quantity)) {
+    if (isNaN(quantity) || quantity < 0) {
       toast.error("Please enter a valid quantity (minimum 0)")
       return
     }

@@ -12,13 +12,14 @@ export const addNewBalloonType = async (
   try {
     console.log("Adding new balloon type:", { color, size, quantity })
     
-    // Final validation before submission
+    // Final validation before submission - only check if color is not empty
     if (!color || color.trim() === "") {
       console.error("Color validation failed at submission time")
       toast.error("Color name cannot be empty")
       return false
     }
 
+    // Simplified validation that allows any non-empty color string
     const isValid = await validateInventoryUpdate(color, size, quantity)
     if (!isValid) {
       console.error("Validation failed for balloon type")

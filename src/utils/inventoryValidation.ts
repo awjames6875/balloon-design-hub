@@ -46,24 +46,26 @@ export const validateInventoryUpdate = async (
 ): Promise<boolean> => {
   console.log("Validating inventory update:", { color, size, quantity })
   
-  if (!validateColor(color)) {
+  // Simplified validation that only checks if values are present
+  if (!color || color.trim() === '') {
     console.error("Color validation failed - empty value:", color)
     toast.error("Color name cannot be empty")
     return false
   }
 
-  if (!validateSize(size)) {
+  if (!size || size.trim() === '') {
     console.error("Size validation failed - empty value")
     toast.error("Please select a balloon size")
     return false
   }
 
-  if (!validateQuantity(quantity)) {
+  if (isNaN(quantity) || quantity < 0) {
     console.error("Quantity validation failed:", quantity)
     toast.error("Please enter a valid quantity")
     return false
   }
 
+  // Always consider any non-empty color string as valid
   console.log("Validation successful for:", { color, size, quantity })
   return true
 }
