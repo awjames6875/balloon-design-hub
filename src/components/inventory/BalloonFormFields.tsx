@@ -34,6 +34,7 @@ export const BalloonFormFields = ({
 
   // Update parent component when fields change
   useEffect(() => {
+    console.log("Fields changed, updating parent:", { color, size, quantity })
     onFieldsChange({
       color,
       size,
@@ -43,16 +44,19 @@ export const BalloonFormFields = ({
 
   // Handle color selection
   const handleSuggestionSelect = (suggestion: string) => {
+    console.log("Selected suggestion in BalloonFormFields:", suggestion)
     handleSelectSuggestion(suggestion)
   }
 
   // Handle size change
   const handleSizeChange = (value: string) => {
+    console.log("Size changed to:", value)
     setSize(value)
   }
 
   // Handle quantity change
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("Quantity changed to:", e.target.value)
     setQuantity(e.target.value)
   }
 

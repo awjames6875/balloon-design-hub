@@ -7,20 +7,22 @@ export const validateInventoryUpdate = async (
   size: string,
   quantity: number
 ): Promise<boolean> => {
+  console.log("Validating inventory update:", { color, size, quantity })
+  
   if (!color || color.trim() === '') {
-    console.error("Color cannot be empty")
+    console.error("Color validation failed - empty value:", color)
     toast.error("Color name cannot be empty")
     return false
   }
 
   if (!size || size.trim() === '') {
-    console.error("Size cannot be empty")
+    console.error("Size validation failed - empty value")
     toast.error("Please select a balloon size")
     return false
   }
 
   if (isNaN(quantity) || quantity < 0) {
-    console.error("Quantity must be a positive number")
+    console.error("Quantity validation failed:", quantity)
     toast.error("Please enter a valid quantity")
     return false
   }
@@ -32,6 +34,13 @@ export const checkExistingBalloon = async (
   color: string,
   size: string
 ) => {
+  if (!color || !size) {
+    console.error("Cannot check for existing balloon with empty color or size")
+    return null
+  }
+  
+  console.log("Checking for existing balloon:", { color: color.trim(), size: size.trim() })
+  
   const { data, error } = await supabase
     .from("balloon_inventory")
     .select("*")
@@ -44,6 +53,7 @@ export const checkExistingBalloon = async (
     return null
   }
   
+  console.log("Existing balloon check result:", data)
   return data
 }
 

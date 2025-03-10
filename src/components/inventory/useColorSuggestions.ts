@@ -55,11 +55,13 @@ export function useColorSuggestions() {
   }, [color, colorSuggestions])
 
   const handleSelectSuggestion = (suggestion: string) => {
+    console.log("Selected suggestion:", suggestion)
     setColor(suggestion)
     setShowSuggestions(false)
   }
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("Color changing to:", e.target.value)
     setColor(e.target.value)
     if (e.target.value.length > 1) {
       setShowSuggestions(true)
@@ -80,7 +82,12 @@ export function useColorSuggestions() {
   }
 
   const resetColor = () => {
+    console.log("Resetting color field")
     setColor("");
+  }
+
+  const isColorValid = () => {
+    return color && color.trim() !== "";
   }
 
   return {
@@ -91,6 +98,7 @@ export function useColorSuggestions() {
     handleColorChange,
     handleSelectSuggestion,
     findStandardizedColor,
-    resetColor
+    resetColor,
+    isColorValid
   }
 }

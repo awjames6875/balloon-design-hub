@@ -18,9 +18,11 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     quantity: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { color, resetColor, findStandardizedColor } = useColorSuggestions()
+  const colorHook = useColorSuggestions()
+  const { color, findStandardizedColor, resetColor, isColorValid } = colorHook
 
   const handleFieldsChange = (fields: { color: string; size: string; quantity: string }) => {
+    console.log("Form fields changing to:", fields)
     setFormValues(fields)
   }
 
@@ -29,14 +31,17 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     setIsSubmitting(true)
     
     try {
+      console.log("Submitting form with values:", { color, size: formValues.size, quantity: formValues.quantity })
+      
       // Validate inputs
-      if (!color || !color.trim()) {
+      if (!isColorValid()) {
+        console.error("Color validation failed, current color:", color)
         toast.error("Please enter a color name")
         setIsSubmitting(false)
         return
       }
 
-      if (!formValues.size.trim()) {
+      if (!formValues.size || !formValues.size.trim()) {
         toast.error("Please select a balloon size")
         setIsSubmitting(false)
         return
@@ -56,6 +61,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       
       // Use the standardized color or fall back to the current color if no match found
       const finalColor = standardizedColor || color;
+      console.log("Using final color:", finalColor)
 
       const success = await addNewBalloonType(
         finalColor,
