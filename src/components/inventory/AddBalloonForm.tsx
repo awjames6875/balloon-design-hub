@@ -1,8 +1,10 @@
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { addNewBalloonType } from "@/services/inventoryOperations"
+import { toast } from "sonner"
 
 interface AddBalloonFormProps {
   onBalloonAdded: () => void
@@ -29,7 +31,8 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         setColor("")
         setSize("")
         setQuantity("")
-        onBalloonAdded()
+        toast.success("Balloon added to inventory")
+        onBalloonAdded() // Trigger refresh in parent components
       }
     } finally {
       setIsSubmitting(false)

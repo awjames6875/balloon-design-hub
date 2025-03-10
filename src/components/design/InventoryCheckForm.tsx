@@ -129,7 +129,7 @@ export const InventoryCheckForm = ({
     
     // Set up realtime subscription to inventory table changes
     const channel = supabase
-      .channel('inventory-changes')
+      .channel('inventory-check-changes')
       .on(
         'postgres_changes',
         {
@@ -137,8 +137,8 @@ export const InventoryCheckForm = ({
           schema: 'public',
           table: 'balloon_inventory'
         },
-        () => {
-          console.log('Inventory changed, refreshing inventory check...')
+        (payload) => {
+          console.log('Inventory changed, refreshing inventory check:', payload)
           handleInventoryCheck() // Refresh inventory data when changes occur
         }
       )
