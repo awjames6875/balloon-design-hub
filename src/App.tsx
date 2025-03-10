@@ -1,23 +1,18 @@
+
 import React from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import Design from './pages/Design';
 import ProductionForms from './pages/ProductionForms';
-import Home from './pages/Home';
-import Inventory from './pages/Inventory'; // Ensure this import is correct
-import NotFound from './pages/NotFound';
+import Inventory from './pages/Inventory';
+import NotFound from './components/ui/NotFound';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <Inventory />,
     errorElement: <NotFound />,
-  },
-  {
-    path: "/design",
-    element: <Design />,
   },
   {
     path: "/production-forms",
