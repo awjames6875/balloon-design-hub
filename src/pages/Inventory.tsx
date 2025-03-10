@@ -42,7 +42,7 @@ const Inventory = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-purple-50">
-      <Header title="Balloon Artistry Management" />
+      <Header />
       <div className="container mx-auto px-5 py-8 md:px-10">
         <div className="grid grid-cols-1 gap-8 mb-16">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
