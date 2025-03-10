@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ImageUpload } from "./ImageUpload"
@@ -140,22 +139,18 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
       }
       
       if (currentDesignId) {
-        const success = await updateDesignAnalysis(
+        await updateDesignAnalysis(
           currentDesignId,
           newAnalysisData.clusters,
           newAnalysisData.sizes
         )
 
-        if (success) {
-          setAnalysisData(newAnalysisData)
-          onAnalysisComplete(newAnalysisData)
-          return true
-        }
+        setAnalysisData(newAnalysisData)
+        onAnalysisComplete(newAnalysisData)
       }
     } catch (error) {
       console.error('Error updating analysis:', error)
       toast.error('Failed to update analysis')
-      throw error
     }
   }
 
@@ -196,7 +191,11 @@ export const AIDesignUpload = ({ onAnalysisComplete, onImageUploaded }: AIDesign
             />
             <DesignAssistant 
               onUpdate={handleDesignAssistantUpdate}
-              colorClusters={analysisData.numberedAnalysis?.clusters}
+              colorClusters={analysisData.numberedAnalysis?.clusters.map(c => ({
+                color: c.definedColor,
+                baseClusters: Math.ceil(c.count * 0.7),
+                extraClusters: Math.floor(c.count * 0.3)
+              }))}
             />
           </>
         )}
