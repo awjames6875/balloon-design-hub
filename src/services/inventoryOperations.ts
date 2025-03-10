@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 import { validateInventoryUpdate, checkExistingBalloon } from "@/utils/inventoryValidation"
@@ -65,7 +64,7 @@ export const addBalloonType = async (balloonType: BalloonType): Promise<boolean>
       // Insert new balloon type
       console.log("No existing balloon found, creating new entry:", balloonType);
       
-      const { data, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from("balloon_inventory")
         .insert([
           {
@@ -75,15 +74,12 @@ export const addBalloonType = async (balloonType: BalloonType): Promise<boolean>
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
-        ])
-        .select();
+        ]);
       
       if (insertError) {
         console.error("Error inserting new balloon type:", insertError);
         throw new Error("Failed to add new balloon type");
       }
-      
-      console.log("Successfully created new balloon type:", data);
       
       toast.success("New balloon type added", {
         description: `Added ${balloonType.color} ${balloonType.size} balloons with quantity ${balloonType.quantity}`

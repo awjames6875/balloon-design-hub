@@ -5,6 +5,7 @@ import { BalloonType } from '@/types/inventory';
 import { getBalloonTypes } from '@/services/inventoryOperations';
 import NavigationCard from '@/components/NavigationCard';
 import CurrentInventorySection from '@/components/inventory/CurrentInventorySection';
+import { Home } from 'lucide-react';
 
 const Index = () => {
   const [balloonTypes, setBalloonTypes] = useState<BalloonType[]>([]);
@@ -43,7 +44,12 @@ const Index = () => {
         <div className="grid grid-cols-1 gap-8 mb-16">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <h1 className="text-3xl md:text-4xl font-bold text-center flex-1">Inventory Management</h1>
-            <NavigationCard />
+            <NavigationCard 
+              to="/" 
+              title="Home" 
+              description="Return to dashboard" 
+              icon={Home} 
+            />
           </div>
           
           {isLoading ? (

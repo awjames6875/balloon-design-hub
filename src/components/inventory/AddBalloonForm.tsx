@@ -73,6 +73,8 @@ const AddBalloonForm: React.FC<AddBalloonFormProps> = ({
         if (onSuccess) {
           onSuccess();
         }
+      } else {
+        toast.error('Failed to add balloon type');
       }
     } catch (error) {
       console.error('Error adding balloon type:', error);
