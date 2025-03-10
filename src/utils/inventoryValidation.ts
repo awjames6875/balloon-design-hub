@@ -33,6 +33,32 @@ export const validateQuantity = (quantity: number): boolean => {
 };
 
 /**
+ * Validates a balloon type object
+ * @param balloonType The balloon type object to validate
+ * @returns An object with validation results
+ */
+export const validateBalloonType = (balloonType: Partial<BalloonType>) => {
+  const errors: Record<string, string> = {};
+  
+  if (!balloonType.color || !validateColor(balloonType.color)) {
+    errors.color = 'Please enter a valid color name';
+  }
+  
+  if (!balloonType.size || !validateSize(balloonType.size)) {
+    errors.size = 'Please enter a valid size';
+  }
+  
+  if (balloonType.quantity === undefined || !validateQuantity(balloonType.quantity)) {
+    errors.quantity = 'Please enter a valid quantity';
+  }
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+};
+
+/**
  * Validates inventory update inputs
  * @param color The color string
  * @param size The size string
