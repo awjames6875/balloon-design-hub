@@ -39,7 +39,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       try {
         const { data, error } = await supabase
           .from('color_standards')
-          .select('name, display_name')
+          .select('color_name, display_name')
           .order('display_name', { ascending: true })
         
         if (error) {
@@ -47,7 +47,13 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
           return
         }
         
-        setColorSuggestions(data || [])
+        // Transform data to match the SuggestionColor interface
+        const transformedData: SuggestionColor[] = data?.map(item => ({
+          name: item.color_name,
+          display_name: item.display_name
+        })) || []
+        
+        setColorSuggestions(transformedData)
       } catch (err) {
         console.error('Failed to fetch color standards:', err)
       }
