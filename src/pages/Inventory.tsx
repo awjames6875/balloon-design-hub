@@ -8,6 +8,7 @@ import { BackToHome } from "@/components/BackToHome"
 import { InventoryCheckForm } from "@/components/design/InventoryCheckForm"
 import { supabase } from "@/integrations/supabase/client"
 import type { BalloonInventory } from "@/components/inventory/types"
+import { ArrowLeft } from "lucide-react"
 import {
   Sheet,
   SheetContent,
@@ -36,7 +37,6 @@ export default function Inventory() {
         throw error
       }
 
-      // Transform the data to match BalloonInventory type
       const transformedData: BalloonInventory[] = data.map(item => ({
         type: item.color,
         style: item.size,
@@ -57,6 +57,10 @@ export default function Inventory() {
     fetchInventory()
   }
 
+  const handleGoBack = () => {
+    navigate(-1)
+  }
+
   useEffect(() => {
     fetchInventory()
   }, [])
@@ -70,7 +74,17 @@ export default function Inventory() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <BackToHome />
+      <div className="flex items-center gap-4 mb-6">
+        <Button 
+          variant="outline" 
+          onClick={handleGoBack}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Design
+        </Button>
+        <BackToHome />
+      </div>
       
       <div className="space-y-8">
         <div className="flex justify-between items-center">
