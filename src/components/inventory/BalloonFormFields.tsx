@@ -1,5 +1,5 @@
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -33,41 +33,27 @@ export const BalloonFormFields = ({
   const [quantity, setQuantity] = useState("")
 
   // Update parent component when fields change
-  const updateParent = (
-    updatedColor = color, 
-    updatedSize = size, 
-    updatedQuantity = quantity
-  ) => {
+  useEffect(() => {
     onFieldsChange({
-      color: updatedColor,
-      size: updatedSize,
-      quantity: updatedQuantity
+      color,
+      size,
+      quantity
     })
-  }
+  }, [color, size, quantity, onFieldsChange])
 
   // Handle color selection
   const handleSuggestionSelect = (suggestion: string) => {
     handleSelectSuggestion(suggestion)
-    updateParent(suggestion, size, quantity)
   }
 
   // Handle size change
   const handleSizeChange = (value: string) => {
     setSize(value)
-    updateParent(color, value, quantity)
   }
 
   // Handle quantity change
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setQuantity(value)
-    updateParent(color, size, value)
-  }
-
-  // Handle input color change
-  const handleInputColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleColorChange(e)
-    updateParent(e.target.value, size, quantity)
+    setQuantity(e.target.value)
   }
 
   return (
@@ -77,7 +63,7 @@ export const BalloonFormFields = ({
         <Input
           id="color"
           value={color}
-          onChange={handleInputColorChange}
+          onChange={handleColorChange}
           placeholder="Enter balloon color"
           disabled={isSubmitting}
           className="relative"

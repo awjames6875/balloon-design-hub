@@ -18,7 +18,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     quantity: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { findStandardizedColor } = useColorSuggestions()
+  const { color, findStandardizedColor } = useColorSuggestions()
 
   const handleFieldsChange = (fields: { color: string; size: string; quantity: string }) => {
     setFormValues(fields)
@@ -29,8 +29,11 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     setIsSubmitting(true)
 
     try {
+      // Get the current color value directly from the hook
+      const currentColor = color;
+      
       // Validate inputs
-      if (!formValues.color.trim()) {
+      if (!currentColor || !currentColor.trim()) {
         toast.error("Please enter a color name")
         setIsSubmitting(false)
         return
@@ -49,13 +52,16 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       }
 
       // Size is already standardized from the dropdown
-      console.log(`Adding new balloon: ${formValues.color} ${formValues.size} - ${formValues.quantity}`)
+      console.log(`Adding new balloon: ${currentColor} ${formValues.size} - ${formValues.quantity}`)
       
       // Standardize color name format to match "Wild Berry" instead of "Wildberry"
       const standardizedColor = findStandardizedColor()
+      
+      // Use the standardized color or fall back to the current color if no match found
+      const finalColor = standardizedColor || currentColor;
 
       const success = await addNewBalloonType(
-        standardizedColor,
+        finalColor,
         formValues.size,
         parseInt(formValues.quantity)
       )
@@ -69,7 +75,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         })
         
         // Notify success
-        toast.success(`Added ${formValues.quantity} ${standardizedColor} ${formValues.size} balloons to inventory`)
+        toast.success(`Added ${formValues.quantity} ${finalColor} ${formValues.size} balloons to inventory`)
         
         // Trigger event for realtime updates
         await supabase
