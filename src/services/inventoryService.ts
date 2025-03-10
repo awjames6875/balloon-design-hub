@@ -31,11 +31,45 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
     console.log(`Processing ${colorName}: ${colorData.balloons11} 11" and ${colorData.balloons16} 16" balloons`)
 
     try {
-      // Filter inventory for this color using multiple formats for more robust matching
-      const colorInventory = allInventoryRecords.filter(item => 
-        item.color.toLowerCase() === colorName.toLowerCase() ||
-        normalizeColorName(item.color) === colorNormalized
+      // Enhanced inventory matching - try multiple approaches to find the correct inventory
+      // First, try exact match on color name (case-insensitive)
+      let colorInventory = allInventoryRecords.filter(item => 
+        item.color.toLowerCase() === colorName.toLowerCase()
       )
+      
+      // If no match, try normalized color names
+      if (colorInventory.length === 0) {
+        colorInventory = allInventoryRecords.filter(item => 
+          normalizeColorName(item.color) === colorNormalized
+        )
+      }
+      
+      // If still no match, try partial matching
+      if (colorInventory.length === 0) {
+        colorInventory = allInventoryRecords.filter(item => 
+          normalizeColorName(item.color).includes(colorNormalized) || 
+          colorNormalized.includes(normalizeColorName(item.color))
+        )
+      }
+      
+      // Try alternate names if we still have no match
+      if (colorInventory.length === 0) {
+        const alternateNames = getAlternateColorNames(colorName);
+        for (const altName of alternateNames) {
+          const altNormalized = normalizeColorName(altName);
+          const matchingItems = allInventoryRecords.filter(item => 
+            normalizeColorName(item.color) === altNormalized ||
+            normalizeColorName(item.color).includes(altNormalized) ||
+            altNormalized.includes(normalizeColorName(item.color))
+          );
+          
+          if (matchingItems.length > 0) {
+            colorInventory = matchingItems;
+            console.log(`Found match using alternate name ${altName}:`, colorInventory);
+            break;
+          }
+        }
+      }
       
       console.log(`Inventory for ${colorName}:`, colorInventory)
       
@@ -122,7 +156,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 
         if (updateError16) {
           console.error('Error updating 16" balloon inventory:', updateError16)
-          toast.error(`Failed to update inventory for ${colorName} 16" balloons`)
+          toast.error(`Failed to create inventory for ${colorName} 16" balloons`)
           return false
         }
       }
@@ -141,7 +175,7 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 
 export const checkInventoryLevels = async (colors: string[]): Promise<boolean> => {
   for (const color of colors) {
-    // Get all inventory for this color (case-insensitive and format-insensitive)
+    // Get all inventory for this color using improved matching
     const colorNormalized = normalizeColorName(color)
     
     const { data: allInventory } = await supabase
@@ -149,17 +183,47 @@ export const checkInventoryLevels = async (colors: string[]): Promise<boolean> =
       .select('*')
       .or(`color.ilike.%${color}%,color.ilike.%${colorNormalized}%`)
     
-    const data11 = allInventory?.find(item => 
-      (item.color.toLowerCase().includes(color.toLowerCase()) || 
-       normalizeColorName(item.color).includes(colorNormalized)) && 
+    // Enhanced matching for finding the right inventory records
+    let data11 = allInventory?.find(item => 
+      (item.color.toLowerCase() === color.toLowerCase() || 
+       normalizeColorName(item.color) === colorNormalized) && 
       (item.size === '11in' || item.size.includes('11'))
     )
     
-    const data16 = allInventory?.find(item => 
-      (item.color.toLowerCase().includes(color.toLowerCase()) || 
-       normalizeColorName(item.color).includes(colorNormalized)) && 
+    let data16 = allInventory?.find(item => 
+      (item.color.toLowerCase() === color.toLowerCase() || 
+       normalizeColorName(item.color) === colorNormalized) && 
       (item.size === '16in' || item.size.includes('16'))
     )
+    
+    // If no exact match was found, try fuzzy matching
+    if (!data11 || !data16) {
+      // Try alternate names
+      const alternateNames = getAlternateColorNames(color);
+      for (const altName of alternateNames) {
+        const altNormalized = normalizeColorName(altName);
+        
+        // Check for 11" if not found yet
+        if (!data11) {
+          data11 = allInventory?.find(item => 
+            (normalizeColorName(item.color).includes(altNormalized) || 
+             altNormalized.includes(normalizeColorName(item.color))) && 
+            (item.size === '11in' || item.size.includes('11'))
+          );
+        }
+        
+        // Check for 16" if not found yet
+        if (!data16) {
+          data16 = allInventory?.find(item => 
+            (normalizeColorName(item.color).includes(altNormalized) || 
+             altNormalized.includes(normalizeColorName(item.color))) && 
+            (item.size === '16in' || item.size.includes('16'))
+          );
+        }
+        
+        if (data11 && data16) break;
+      }
+    }
 
     if (!data11 || !data16 || data11.quantity < 100 || data16.quantity < 50) {
       toast.warning(`Low inventory for ${color} balloons`)
@@ -168,4 +232,43 @@ export const checkInventoryLevels = async (colors: string[]): Promise<boolean> =
   }
 
   return true
+}
+
+// Helper function to generate alternative names for colors
+const getAlternateColorNames = (colorName: string): string[] => {
+  const alternates: string[] = [];
+  const colorLower = colorName.toLowerCase();
+  
+  // Common color name variations
+  const variations: Record<string, string[]> = {
+    "wild berry": ["wildberry", "wild-berry", "wild_berry"],
+    "wildberry": ["wild berry", "wild-berry", "wild_berry"],
+    "golden rod": ["goldenrod", "golden-rod", "gold rod"],
+    "goldenrod": ["golden rod", "golden-rod", "gold rod"],
+    // Add more variations as needed
+  };
+  
+  // Check if we have known variations for this color
+  for (const [base, variants] of Object.entries(variations)) {
+    if (colorLower === base || variants.includes(colorLower)) {
+      // Add all variations including the base
+      alternates.push(base, ...variants);
+      break;
+    }
+  }
+  
+  // If no predefined variations, try basic transformations
+  if (alternates.length === 0) {
+    // Add with and without spaces
+    if (colorLower.includes(' ')) {
+      alternates.push(colorLower.replace(/\s+/g, ''));
+    } else {
+      // Try to split camelCase or insert spaces at logical points
+      alternates.push(
+        colorLower.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
+      );
+    }
+  }
+  
+  return alternates;
 }

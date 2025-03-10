@@ -42,9 +42,30 @@ export const calculateBalloonsPerColor = (colorClusters: ColorCluster[]) => {
   })
 }
 
-// Normalize color name by removing spaces and converting to lowercase
+// Improved color name normalization function
 export const normalizeColorName = (colorName: string): string => {
-  return colorName.toLowerCase().replace(/\s+/g, "");
+  if (!colorName) return "";
+  
+  // Convert to lowercase and remove spaces
+  const normalized = colorName.toLowerCase().replace(/\s+/g, "");
+  
+  // Special case handling for common naming variations
+  const specialCases: Record<string, string> = {
+    "wildberry": "wildberry",
+    "wild berry": "wildberry",
+    "goldenrod": "goldenrod",
+    "golden rod": "goldenrod",
+    // Add more variations as needed
+  };
+  
+  // Check if this is a special case
+  for (const [variant, standard] of Object.entries(specialCases)) {
+    if (colorName.toLowerCase() === variant || normalized === standard) {
+      return standard;
+    }
+  }
+  
+  return normalized;
 }
 
 // This function gets the latest inventory data directly from the database
@@ -132,6 +153,25 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
         }
       }
       
+      // If still no match, try again with alternate color variations
+      if (Object.keys(colorInventory).length === 0) {
+        // Try matching special cases of color naming variations
+        const alternateNames = getAlternateColorNames(colorDisplay);
+        for (const altName of alternateNames) {
+          const normalizedAlt = normalizeColorName(altName);
+          for (const dbColor in latestInventory) {
+            if (dbColor === normalizedAlt || 
+                dbColor.includes(normalizedAlt) || 
+                normalizedAlt.includes(dbColor)) {
+              colorInventory = latestInventory[dbColor];
+              console.log(`Found match using alternate name ${altName} -> ${dbColor}:`, colorInventory);
+              break;
+            }
+          }
+          if (Object.keys(colorInventory).length > 0) break;
+        }
+      }
+      
       console.log(`Final inventory for ${colorDisplay}:`, colorInventory)
       
       // Get quantities for both sizes
@@ -170,4 +210,43 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
 
   console.log("Final inventory list:", inventoryList)
   return inventoryList
+}
+
+// Helper function to generate alternative names for colors
+const getAlternateColorNames = (colorName: string): string[] => {
+  const alternates: string[] = [];
+  const colorLower = colorName.toLowerCase();
+  
+  // Common color name variations
+  const variations: Record<string, string[]> = {
+    "wild berry": ["wildberry", "wild-berry", "wild_berry"],
+    "wildberry": ["wild berry", "wild-berry", "wild_berry"],
+    "golden rod": ["goldenrod", "golden-rod", "gold rod"],
+    "goldenrod": ["golden rod", "golden-rod", "gold rod"],
+    // Add more variations as needed
+  };
+  
+  // Check if we have known variations for this color
+  for (const [base, variants] of Object.entries(variations)) {
+    if (colorLower === base || variants.includes(colorLower)) {
+      // Add all variations including the base
+      alternates.push(base, ...variants);
+      break;
+    }
+  }
+  
+  // If no predefined variations, try basic transformations
+  if (alternates.length === 0) {
+    // Add with and without spaces
+    if (colorLower.includes(' ')) {
+      alternates.push(colorLower.replace(/\s+/g, ''));
+    } else {
+      // Try to split camelCase or insert spaces at logical points
+      alternates.push(
+        colorLower.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
+      );
+    }
+  }
+  
+  return alternates;
 }
