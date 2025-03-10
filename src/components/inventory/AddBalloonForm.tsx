@@ -5,6 +5,7 @@ import { addNewBalloonType } from "@/services/inventoryOperations"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
 import { BalloonFormFields } from "./BalloonFormFields"
+import { validateColor, validateSize, validateQuantity } from "@/utils/inventoryValidation"
 
 interface AddBalloonFormProps {
   onBalloonAdded: () => void
@@ -26,19 +27,20 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     e.preventDefault()
     console.log("Submit button clicked with values:", formValues)
     
-    // Basic validation
-    if (!formValues.color || formValues.color.trim() === "") {
+    // Basic client-side validation
+    if (!validateColor(formValues.color)) {
       toast.error("Please enter a color name")
       return
     }
 
-    if (!formValues.size || formValues.size === "") {
+    if (!validateSize(formValues.size)) {
       toast.error("Please select a balloon size")
       return
     }
 
-    if (!formValues.quantity || parseInt(formValues.quantity) < 1) {
-      toast.error("Please enter a valid quantity (minimum 1)")
+    const quantity = parseInt(formValues.quantity)
+    if (!validateQuantity(quantity)) {
+      toast.error("Please enter a valid quantity (minimum 0)")
       return
     }
     

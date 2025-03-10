@@ -1,7 +1,44 @@
 
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
+import { BalloonType } from '../types/inventory'
 
+/**
+ * Validates if a color string is valid
+ * Modified to be more lenient - accepts any non-empty string
+ * @param color The color string to validate
+ * @returns true if the color is valid, false otherwise
+ */
+export const validateColor = (color: string): boolean => {
+  // Accept any non-empty string as a valid color
+  return color !== undefined && color.trim() !== '';
+};
+
+/**
+ * Validates if a balloon size is valid
+ * @param size The size string to validate
+ * @returns true if the size is valid, false otherwise
+ */
+export const validateSize = (size: string): boolean => {
+  return size !== undefined && size.trim() !== '';
+};
+
+/**
+ * Validates if a quantity is valid
+ * @param quantity The quantity to validate
+ * @returns true if the quantity is valid, false otherwise
+ */
+export const validateQuantity = (quantity: number): boolean => {
+  return !isNaN(quantity) && quantity >= 0;
+};
+
+/**
+ * Validates inventory update inputs
+ * @param color The color string
+ * @param size The size string
+ * @param quantity The quantity
+ * @returns true if all inputs are valid, false otherwise
+ */
 export const validateInventoryUpdate = async (
   color: string,
   size: string,
@@ -9,27 +46,25 @@ export const validateInventoryUpdate = async (
 ): Promise<boolean> => {
   console.log("Validating inventory update:", { color, size, quantity })
   
-  if (!color || color.trim() === '') {
+  if (!validateColor(color)) {
     console.error("Color validation failed - empty value:", color)
     toast.error("Color name cannot be empty")
     return false
   }
 
-  if (!size || size.trim() === '') {
+  if (!validateSize(size)) {
     console.error("Size validation failed - empty value")
     toast.error("Please select a balloon size")
     return false
   }
 
-  if (isNaN(quantity) || quantity < 0) {
+  if (!validateQuantity(quantity)) {
     console.error("Quantity validation failed:", quantity)
     toast.error("Please enter a valid quantity")
     return false
   }
 
-  // Always consider non-empty color strings as valid
-  // This bypasses the strict validation that was causing errors
-  console.log("Color validation successful for:", color)
+  console.log("Validation successful for:", { color, size, quantity })
   return true
 }
 
