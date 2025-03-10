@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
@@ -5,25 +6,18 @@ import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
 import { DesignStateManager } from "@/components/design/DesignStateManager"
 import { Card } from "@/components/ui/card"
+import type { AIAnalysisData } from "@/utils/designCalculations"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
-  const [analysisData, setAnalysisData] = useState<{
-    clusters: number
-    colors: string[]
-    sizes: { size: string; quantity: number }[]
-  } | null>(null)
+  const [analysisData, setAnalysisData] = useState<AIAnalysisData | null>(null)
   const navigate = useNavigate()
 
   const handleImageUploaded = (imagePath: string) => {
     setDesignImage(imagePath)
   }
 
-  const handleAnalysisComplete = (data: {
-    clusters: number
-    colors: string[]
-    sizes: { size: string; quantity: number }[]
-  }) => {
+  const handleAnalysisComplete = (data: AIAnalysisData) => {
     setAnalysisData(data)
     console.log("Analysis data received:", data)
     
@@ -55,7 +49,7 @@ export default function NewDesign() {
             </Card>
 
             {analysisData && (
-              <DesignStateManager />
+              <DesignStateManager analysisData={analysisData} />
             )}
           </div>
         </div>

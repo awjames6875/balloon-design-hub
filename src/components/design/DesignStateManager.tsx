@@ -1,5 +1,7 @@
-import { useState } from "react"
+
+import { useState, useEffect } from "react"
 import { BalloonChart } from "@/components/charts/BalloonChart"
+import type { AIAnalysisData } from "@/utils/designCalculations"
 
 interface ColorDistribution {
   [color: string]: {
@@ -18,7 +20,11 @@ interface DesignData {
   }
 }
 
-export const DesignStateManager = () => {
+interface DesignStateManagerProps {
+  analysisData?: AIAnalysisData | null
+}
+
+export const DesignStateManager = ({ analysisData }: DesignStateManagerProps) => {
   const [designData, setDesignData] = useState<DesignData>({
     totalClusters: 12,
     colorDistribution: {
@@ -33,62 +39,48 @@ export const DesignStateManager = () => {
     }
   })
 
-  const handleDesignUpdate = (update: { type: string; value: number; color?: string }) => {
-    if (update.type === 'UPDATE_TOTAL_CLUSTERS') {
-      const newClustersPerColor = Math.floor(update.value / Object.keys(designData.colorDistribution).length)
-      const remainingClusters = update.value % Object.keys(designData.colorDistribution).length
+  // Update design data when analysis data changes
+  useEffect(() => {
+    if (analysisData) {
+      const balloons11 = analysisData.sizes.find(size => size.size === "11in")?.quantity || 0
+      const balloons16 = analysisData.sizes.find(size => size.size === "16in")?.quantity || 0
       
-      const updatedColorDistribution = Object.fromEntries(
-        Object.entries(designData.colorDistribution).map(([color, _], index) => {
-          const colorClusters = newClustersPerColor + (index < remainingClusters ? 1 : 0)
-          return [color, {
+      const colorDistribution: ColorDistribution = {}
+      
+      // Create distribution from numbered analysis if available
+      if (analysisData.numberedAnalysis) {
+        analysisData.numberedAnalysis.clusters.forEach(cluster => {
+          colorDistribution[cluster.definedColor] = {
+            clusters: cluster.count,
+            balloons11: cluster.count * 11,
+            balloons16: cluster.count * 2
+          }
+        })
+      } else {
+        // Fallback to distributing evenly
+        const clustersPerColor = Math.floor(analysisData.clusters / analysisData.colors.length)
+        const remainingClusters = analysisData.clusters % analysisData.colors.length
+        
+        analysisData.colors.forEach((color, index) => {
+          const colorClusters = clustersPerColor + (index < remainingClusters ? 1 : 0)
+          colorDistribution[color] = {
             clusters: colorClusters,
             balloons11: colorClusters * 11,
             balloons16: colorClusters * 2
-          }]
+          }
         })
-      )
-
-      const totalBalloons11 = Object.values(updatedColorDistribution)
-        .reduce((sum, color) => sum + color.balloons11, 0)
-      const totalBalloons16 = Object.values(updatedColorDistribution)
-        .reduce((sum, color) => sum + color.balloons16, 0)
-
-      setDesignData({
-        totalClusters: update.value,
-        colorDistribution: updatedColorDistribution,
-        totalBalloons: {
-          '11inch': totalBalloons11,
-          '16inch': totalBalloons16
-        }
-      })
-    } else if (update.type === 'UPDATE_COLOR_CLUSTERS' && update.color) {
-      const updatedColorDistribution = {
-        ...designData.colorDistribution,
-        [update.color]: {
-          clusters: update.value,
-          balloons11: update.value * 11,
-          balloons16: update.value * 2
-        }
       }
-
-      const totalClusters = Object.values(updatedColorDistribution)
-        .reduce((sum, color) => sum + color.clusters, 0)
-      const totalBalloons11 = Object.values(updatedColorDistribution)
-        .reduce((sum, color) => sum + color.balloons11, 0)
-      const totalBalloons16 = Object.values(updatedColorDistribution)
-        .reduce((sum, color) => sum + color.balloons16, 0)
-
+      
       setDesignData({
-        totalClusters,
-        colorDistribution: updatedColorDistribution,
+        totalClusters: analysisData.clusters,
+        colorDistribution,
         totalBalloons: {
-          '11inch': totalBalloons11,
-          '16inch': totalBalloons16
+          '11inch': balloons11,
+          '16inch': balloons16
         }
       })
     }
-  }
+  }, [analysisData])
 
   // Transform design data for the chart
   const chartData = Object.entries(designData.colorDistribution).map(([color, data]) => ({
@@ -102,22 +94,6 @@ export const DesignStateManager = () => {
       <div className="p-4 bg-white rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold mb-4">Design Distribution</h3>
         <BalloonChart data={chartData} />
-      </div>
-
-      <div className="p-4 bg-white rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-2">Design Summary</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm text-gray-600">Total Clusters</p>
-            <p className="text-xl font-medium">{designData.totalClusters}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Total Balloons</p>
-            <p className="text-xl font-medium">
-              {designData.totalBalloons['11inch'] + designData.totalBalloons['16inch']}
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   )
