@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { InventoryUpdateForm } from "./InventoryUpdateForm"
-import { AddBalloonForm } from "./AddBalloonForm"
+import AddBalloonForm from "./AddBalloonForm"
 import { supabase } from "@/integrations/supabase/client"
 import { useEffect, useState } from "react"
 import type { BalloonInventory } from "./types"
@@ -43,7 +43,6 @@ export const CurrentInventorySection = ({
         return
       }
 
-      // Transform the data to match BalloonInventory type
       const transformedData: BalloonInventory[] = data.map(item => ({
         type: item.color,
         style: item.size,
@@ -59,14 +58,13 @@ export const CurrentInventorySection = ({
     }
   }
 
-  // Initial load
   useEffect(() => {
     fetchLatestInventory()
   }, [])
 
   const handleInventoryUpdate = async () => {
     await fetchLatestInventory()
-    onInventoryUpdate() // Call parent's update function as well
+    onInventoryUpdate()
   }
 
   const handleBalloonAdded = () => {
