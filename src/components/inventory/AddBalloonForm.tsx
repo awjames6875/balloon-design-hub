@@ -18,7 +18,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     quantity: ""
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { color, findStandardizedColor } = useColorSuggestions()
+  const { color, resetColor, findStandardizedColor } = useColorSuggestions()
 
   const handleFieldsChange = (fields: { color: string; size: string; quantity: string }) => {
     setFormValues(fields)
@@ -27,13 +27,10 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-
+    
     try {
-      // Get the current color value directly from the hook
-      const currentColor = color;
-      
       // Validate inputs
-      if (!currentColor || !currentColor.trim()) {
+      if (!color || !color.trim()) {
         toast.error("Please enter a color name")
         setIsSubmitting(false)
         return
@@ -52,13 +49,13 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       }
 
       // Size is already standardized from the dropdown
-      console.log(`Adding new balloon: ${currentColor} ${formValues.size} - ${formValues.quantity}`)
+      console.log(`Adding new balloon: ${color} ${formValues.size} - ${formValues.quantity}`)
       
-      // Standardize color name format to match "Wild Berry" instead of "Wildberry"
+      // Standardize color name format
       const standardizedColor = findStandardizedColor()
       
       // Use the standardized color or fall back to the current color if no match found
-      const finalColor = standardizedColor || currentColor;
+      const finalColor = standardizedColor || color;
 
       const success = await addNewBalloonType(
         finalColor,
@@ -73,6 +70,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
           size: "",
           quantity: ""
         })
+        resetColor() // Reset the color in the useColorSuggestions hook
         
         // Notify success
         toast.success(`Added ${formValues.quantity} ${finalColor} ${formValues.size} balloons to inventory`)

@@ -70,24 +70,27 @@ export function useColorSuggestions() {
 
   // Find matching standard color - corrected to ensure proper display_name format
   const findStandardizedColor = () => {
-    let standardizedColor = color;
+    if (!color || color.trim() === "") return "";
+    
     const matchingColor = colorSuggestions.find(c => 
       normalizeColorName(c.display_name) === normalizeColorName(color)
     );
     
-    if (matchingColor) {
-      standardizedColor = matchingColor.display_name;
-    }
-    
-    return standardizedColor;
+    return matchingColor ? matchingColor.display_name : color;
+  }
+
+  const resetColor = () => {
+    setColor("");
   }
 
   return {
     color,
+    setColor,
     filteredSuggestions,
     showSuggestions,
     handleColorChange,
     handleSelectSuggestion,
-    findStandardizedColor
+    findStandardizedColor,
+    resetColor
   }
 }

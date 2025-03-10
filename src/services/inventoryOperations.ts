@@ -9,6 +9,12 @@ export const addNewBalloonType = async (
 ): Promise<boolean> => {
   try {
     console.log("Adding new balloon type:", { color, size, quantity })
+    // Validate the color isn't empty after trimming
+    if (!color || color.trim() === "") {
+      toast.error("Color name cannot be empty")
+      return false
+    }
+
     const isValid = await validateInventoryUpdate(color, size, quantity)
     if (!isValid) return false
 
@@ -38,6 +44,7 @@ export const addNewBalloonType = async (
       })
     } else {
       // Add new balloon type
+      console.log("Inserting new balloon:", { color: color.trim(), size: size.trim(), quantity })
       const { data: insertData, error: insertError } = await supabase
         .from("balloon_inventory")
         .insert([
@@ -59,11 +66,12 @@ export const addNewBalloonType = async (
             description: "Please check the color name and try again"
           })
         } else {
-          toast.error("Failed to add balloon type")
+          toast.error("Failed to add balloon type: " + insertError.message)
         }
         return false
       }
 
+      console.log("Successfully added balloon:", insertData)
       toast.success("New balloon type added", {
         description: `Added ${color} ${size} balloons with quantity ${quantity}.`
       })

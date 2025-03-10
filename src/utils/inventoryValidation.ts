@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client"
+import { toast } from "sonner"
 
 export const validateInventoryUpdate = async (
   color: string,
@@ -8,16 +9,19 @@ export const validateInventoryUpdate = async (
 ): Promise<boolean> => {
   if (!color || color.trim() === '') {
     console.error("Color cannot be empty")
+    toast.error("Color name cannot be empty")
     return false
   }
 
   if (!size || size.trim() === '') {
     console.error("Size cannot be empty")
+    toast.error("Please select a balloon size")
     return false
   }
 
   if (isNaN(quantity) || quantity < 0) {
     console.error("Quantity must be a positive number")
+    toast.error("Please enter a valid quantity")
     return false
   }
 
