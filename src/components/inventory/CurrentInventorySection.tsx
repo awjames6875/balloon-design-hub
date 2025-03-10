@@ -11,7 +11,7 @@ interface CurrentInventorySectionProps {
   onQuantityUpdate?: () => void;
 }
 
-export const CurrentInventorySection: React.FC<CurrentInventorySectionProps> = ({
+const CurrentInventorySection: React.FC<CurrentInventorySectionProps> = ({
   balloonTypes,
   onBalloonAdded,
   onQuantityUpdate

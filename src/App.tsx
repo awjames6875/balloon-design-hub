@@ -1,22 +1,40 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import Index from "./pages/Index"
-import NewDesign from "./pages/NewDesign"
-import Inventory from "./pages/Inventory"
-import ProductionForms from "./pages/ProductionForms"
-import CompletedProjects from "./pages/CompletedProjects"
+import React from 'react';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import Design from './pages/Design';
+import ProductionForms from './pages/ProductionForms';
+import Home from './pages/Home';
+import Inventory from './pages/Inventory'; // Ensure this import is correct
+import NotFound from './pages/NotFound';
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/design",
+    element: <Design />,
+  },
+  {
+    path: "/production-forms",
+    element: <ProductionForms />,
+  },
+  {
+    path: "/inventory",
+    element: <Inventory />,
+  },
+]);
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/new-design" element={<NewDesign />} />
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/production-forms" element={<ProductionForms />} />
-        <Route path="/completed-projects" element={<CompletedProjects />} />
-      </Routes>
-    </Router>
-  )
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
+  );
 }
 
-export default App
+export default App;
