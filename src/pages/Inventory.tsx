@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -161,7 +160,8 @@ export default function Inventory() {
           onInventoryUpdate={handleInventoryUpdate}
         />
 
-        {fromDesign && designData && (
+        {/* Only show one version of the InventoryCheckForm based on fromDesign flag */}
+        {fromDesign && designData ? (
           <InventoryCheckForm
             colorClusters={designData.colorClusters}
             calculations={designData.calculations}
@@ -172,10 +172,7 @@ export default function Inventory() {
             style={designData.style}
             refreshTrigger={inventoryRefreshTrigger}
           />
-        )}
-        
-        {/* Always show inventory check even when not coming from design page */}
-        {!fromDesign && (
+        ) : (
           <InventoryCheckForm
             colorClusters={[]}
             calculations={undefined}
