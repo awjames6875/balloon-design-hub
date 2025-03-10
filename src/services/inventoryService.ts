@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
+import { normalizeColorName } from "@/components/design/inventory/inventoryService"
 
 interface ColorBalloonData {
   color: string  
@@ -26,12 +27,14 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
   
   for (const colorData of balloonsPerColor) {
     const colorName = colorData.color
+    const colorNormalized = normalizeColorName(colorName)
     console.log(`Processing ${colorName}: ${colorData.balloons11} 11" and ${colorData.balloons16} 16" balloons`)
 
     try {
-      // Filter inventory for this color using case-insensitive comparison
+      // Filter inventory for this color using multiple formats for more robust matching
       const colorInventory = allInventoryRecords.filter(item => 
-        item.color.toLowerCase() === colorName.toLowerCase()
+        item.color.toLowerCase() === colorName.toLowerCase() ||
+        normalizeColorName(item.color) === colorNormalized
       )
       
       console.log(`Inventory for ${colorName}:`, colorInventory)
@@ -138,19 +141,23 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 
 export const checkInventoryLevels = async (colors: string[]): Promise<boolean> => {
   for (const color of colors) {
-    // Get all inventory for this color (case-insensitive)
+    // Get all inventory for this color (case-insensitive and format-insensitive)
+    const colorNormalized = normalizeColorName(color)
+    
     const { data: allInventory } = await supabase
       .from('balloon_inventory')
       .select('*')
-      .ilike('color', color)
+      .or(`color.ilike.%${color}%,color.ilike.%${colorNormalized}%`)
     
     const data11 = allInventory?.find(item => 
-      item.color.toLowerCase() === color.toLowerCase() && 
+      (item.color.toLowerCase().includes(color.toLowerCase()) || 
+       normalizeColorName(item.color).includes(colorNormalized)) && 
       (item.size === '11in' || item.size.includes('11'))
     )
     
     const data16 = allInventory?.find(item => 
-      item.color.toLowerCase() === color.toLowerCase() && 
+      (item.color.toLowerCase().includes(color.toLowerCase()) || 
+       normalizeColorName(item.color).includes(colorNormalized)) && 
       (item.size === '16in' || item.size.includes('16'))
     )
 

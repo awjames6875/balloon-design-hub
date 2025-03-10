@@ -42,6 +42,11 @@ export const calculateBalloonsPerColor = (colorClusters: ColorCluster[]) => {
   })
 }
 
+// Normalize color name by removing spaces and converting to lowercase
+export const normalizeColorName = (colorName: string): string => {
+  return colorName.toLowerCase().replace(/\s+/g, "");
+}
+
 // This function gets the latest inventory data directly from the database
 export const getLatestInventory = async (): Promise<Record<string, Record<string, number>>> => {
   const { data: allInventoryRecords, error: fetchError } = await supabase
@@ -58,16 +63,27 @@ export const getLatestInventory = async (): Promise<Record<string, Record<string
   const inventory: Record<string, Record<string, number>> = {}
   
   allInventoryRecords.forEach(item => {
-    const colorName = item.color.toLowerCase()
+    // Store both normalized and original versions of the color name
+    const colorNormalized = normalizeColorName(item.color)
+    const colorOriginal = item.color.toLowerCase()
     const size = item.size
 
-    if (!inventory[colorName]) {
-      inventory[colorName] = {}
+    // Add entry with normalized color name (no spaces)
+    if (!inventory[colorNormalized]) {
+      inventory[colorNormalized] = {}
+    }
+    
+    // Also add entry with original format (may have spaces)
+    if (!inventory[colorOriginal]) {
+      inventory[colorOriginal] = {}
     }
     
     // Always use the standardized sizes
     const normalizedSize = size.includes('11') ? '11in' : size.includes('16') ? '16in' : size
-    inventory[colorName][normalizedSize] = item.quantity
+    
+    // Store quantity in both normalized and original color entries
+    inventory[colorNormalized][normalizedSize] = item.quantity
+    inventory[colorOriginal][normalizedSize] = item.quantity
   })
 
   console.log("Latest inventory data:", inventory)
@@ -84,28 +100,53 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
   const latestInventory = await getLatestInventory()
 
   for (const colorData of balloonsByColor) {
-    const colorName = getColorName(colorData.color).toLowerCase()
-    console.log(`Processing color: ${colorName}`)
+    const colorDisplay = getColorName(colorData.color)
+    const colorLower = colorDisplay.toLowerCase()
+    const colorNormalized = normalizeColorName(colorDisplay)
+    
+    console.log(`Processing color: ${colorDisplay} (normalized: ${colorNormalized})`)
 
     try {
-      // Look up inventory for this color (case-insensitive)
-      const colorInventory = latestInventory[colorName] || {}
+      // Try all possible color name formats for more robust matching
+      const possibleColorNames = [colorLower, colorNormalized]
+      let colorInventory = {}
       
-      console.log(`Inventory for ${colorName}:`, colorInventory)
+      // Check each possible color name format
+      for (const nameFormat of possibleColorNames) {
+        if (latestInventory[nameFormat]) {
+          colorInventory = latestInventory[nameFormat]
+          console.log(`Found inventory match for ${nameFormat}:`, colorInventory)
+          break
+        }
+      }
+      
+      // If no exact match found, try partial matching
+      if (Object.keys(colorInventory).length === 0) {
+        // Find color that contains our search term
+        for (const dbColor in latestInventory) {
+          if (dbColor.includes(colorNormalized) || colorNormalized.includes(dbColor)) {
+            colorInventory = latestInventory[dbColor]
+            console.log(`Found partial match for ${colorDisplay} using ${dbColor}:`, colorInventory)
+            break
+          }
+        }
+      }
+      
+      console.log(`Final inventory for ${colorDisplay}:`, colorInventory)
       
       // Get quantities for both sizes
       const quantity11 = colorInventory['11in'] || 0
-      console.log(`11" balloons available for ${colorName}:`, quantity11)
+      console.log(`11" balloons available for ${colorDisplay}:`, quantity11)
 
       const quantity16 = colorInventory['16in'] || 0
-      console.log(`16" balloons available for ${colorName}:`, quantity16)
+      console.log(`16" balloons available for ${colorDisplay}:`, quantity16)
 
       // Calculate what would remain after this project
       const remaining11 = quantity11 - colorData.balloons11
       const remaining16 = quantity16 - colorData.balloons16
 
       inventoryList.push({
-        color: getColorName(colorData.color),
+        color: colorDisplay,
         size: '11in',
         quantity: quantity11,
         required: colorData.balloons11,
@@ -114,7 +155,7 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
       })
 
       inventoryList.push({
-        color: getColorName(colorData.color),
+        color: colorDisplay,
         size: '16in',
         quantity: quantity16,
         required: colorData.balloons16,
@@ -122,7 +163,7 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
         remaining: Math.max(0, remaining16)
       })
     } catch (error) {
-      console.error(`Unexpected error while processing ${colorName}:`, error)
+      console.error(`Unexpected error while processing ${colorDisplay}:`, error)
       toast.error("Something went wrong while checking inventory. Please try again.")
     }
   }
