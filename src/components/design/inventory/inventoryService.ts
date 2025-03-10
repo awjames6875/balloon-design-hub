@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client"
 import { InventoryItem, ColorCluster } from "./types"
 import { toast } from "sonner"
@@ -15,7 +14,7 @@ const colorMap: { [key: string]: string } = {
   "#000000": "Black",
   "#C0C0C0": "Silver",
   "#FFD700": "Gold",
-  "#7E69AB": "Purple" // Additional purple shade
+  "#7E69AB": "Purple"
 }
 
 export const getColorName = (hexColor: string) => {
@@ -23,15 +22,13 @@ export const getColorName = (hexColor: string) => {
 }
 
 export const getInventoryStatus = (available: number, required: number): 'in-stock' | 'low' | 'out-of-stock' => {
-  if (available >= required) {
-    return available >= required * 1.2 ? 'in-stock' : 'low'
-  }
-  return 'out-of-stock'
+  if (available === 0) return 'out-of-stock'
+  if (available >= required * 1.2) return 'in-stock'
+  return 'low'
 }
 
 export const calculateBalloonsPerColor = (colorClusters: ColorCluster[]) => {
   console.log("Calculating balloons per color for clusters:", colorClusters)
-  // Each cluster has exactly 11 11-inch balloons and 2 16-inch balloons
   return colorClusters.map(cluster => {
     const totalClusters = cluster.baseClusters + cluster.extraClusters
     return {
@@ -53,11 +50,10 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
     console.log(`Processing color: ${colorName}`)
 
     try {
-      // Check 11" balloons - Use case-insensitive search with ilike
       const { data: data11, error: error11 } = await supabase
         .from('balloon_inventory')
         .select('quantity, color')
-        .ilike('color', colorName) // Using ilike for case-insensitive matching
+        .ilike('color', colorName)
         .eq('size', '11in')
 
       if (error11) {
@@ -66,18 +62,17 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
         continue
       }
 
-      // Find the best match from the results (might get multiple results with ilike)
       const match11 = data11 && data11.length > 0 
         ? data11.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || data11[0]
         : null
 
-      console.log(`11" balloons available for ${colorName}:`, match11?.quantity || 0)
+      const quantity11 = match11?.quantity || 0
+      console.log(`11" balloons available for ${colorName}:`, quantity11)
 
-      // Check 16" balloons - Use case-insensitive search with ilike
       const { data: data16, error: error16 } = await supabase
         .from('balloon_inventory')
         .select('quantity, color')
-        .ilike('color', colorName) // Using ilike for case-insensitive matching
+        .ilike('color', colorName)
         .eq('size', '16in')
 
       if (error16) {
@@ -86,28 +81,27 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
         continue
       }
 
-      // Find the best match from the results (might get multiple results with ilike)
       const match16 = data16 && data16.length > 0
         ? data16.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || data16[0]
         : null
-      
-      console.log(`16" balloons available for ${colorName}:`, match16?.quantity || 0, `(color record: ${match16?.color || 'none'})`)
 
-      // Add inventory items to the list
+      const quantity16 = match16?.quantity || 0
+      console.log(`16" balloons available for ${colorName}:`, quantity16)
+
       inventoryList.push({
         color: colorName,
         size: '11in',
-        quantity: match11?.quantity || 0,
+        quantity: quantity11,
         required: colorData.balloons11,
-        status: getInventoryStatus(match11?.quantity || 0, colorData.balloons11)
+        status: getInventoryStatus(quantity11, colorData.balloons11)
       })
 
       inventoryList.push({
         color: colorName,
         size: '16in',
-        quantity: match16?.quantity || 0,
+        quantity: quantity16,
         required: colorData.balloons16,
-        status: getInventoryStatus(match16?.quantity || 0, colorData.balloons16)
+        status: getInventoryStatus(quantity16, colorData.balloons16)
       })
     } catch (error) {
       console.error(`Unexpected error while processing ${colorName}:`, error)
