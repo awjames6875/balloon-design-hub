@@ -1,94 +1,27 @@
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { addNewBalloonType } from "@/services/inventoryOperations"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { normalizeColorName } from "@/components/design/inventory/inventoryService"
+import { BalloonFormFields } from "./BalloonFormFields"
+import { useColorSuggestions } from "./useColorSuggestions"
 
 interface AddBalloonFormProps {
   onBalloonAdded: () => void
 }
 
-interface SuggestionColor {
-  name: string;
-  display_name: string;
-}
-
 export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
-  const [color, setColor] = useState("")
-  const [size, setSize] = useState("")
-  const [quantity, setQuantity] = useState("")
+  const [formValues, setFormValues] = useState({
+    color: "",
+    size: "",
+    quantity: ""
+  })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [colorSuggestions, setColorSuggestions] = useState<SuggestionColor[]>([])
-  const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionColor[]>([])
-  const [showSuggestions, setShowSuggestions] = useState(false)
+  const { findStandardizedColor } = useColorSuggestions()
 
-  // Fetch color standards from database for autocomplete
-  useEffect(() => {
-    async function fetchColorStandards() {
-      try {
-        const { data, error } = await supabase
-          .from('color_standards')
-          .select('color_name, display_name')
-          .order('display_name', { ascending: true })
-        
-        if (error) {
-          console.error('Error fetching color standards:', error)
-          return
-        }
-        
-        // Transform data to match the SuggestionColor interface
-        const transformedData: SuggestionColor[] = data?.map(item => ({
-          name: item.color_name,
-          display_name: item.display_name
-        })) || []
-        
-        setColorSuggestions(transformedData)
-      } catch (err) {
-        console.error('Failed to fetch color standards:', err)
-      }
-    }
-    
-    fetchColorStandards()
-  }, [])
-
-  // Update filtered suggestions when color input changes
-  useEffect(() => {
-    if (color.length > 1) {
-      const normalized = normalizeColorName(color)
-      const filtered = colorSuggestions.filter(c => 
-        c.display_name.toLowerCase().includes(color.toLowerCase()) ||
-        normalizeColorName(c.display_name).includes(normalized)
-      )
-      setFilteredSuggestions(filtered)
-      setShowSuggestions(filtered.length > 0)
-    } else {
-      setShowSuggestions(false)
-    }
-  }, [color, colorSuggestions])
-
-  const handleSelectSuggestion = (suggestion: string) => {
-    setColor(suggestion)
-    setShowSuggestions(false)
-  }
-
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setColor(e.target.value)
-    if (e.target.value.length > 1) {
-      setShowSuggestions(true)
-    } else {
-      setShowSuggestions(false)
-    }
+  const handleFieldsChange = (fields: { color: string; size: string; quantity: string }) => {
+    setFormValues(fields)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,52 +30,46 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
 
     try {
       // Validate inputs
-      if (!color.trim()) {
+      if (!formValues.color.trim()) {
         toast.error("Please enter a color name")
         setIsSubmitting(false)
         return
       }
 
-      if (!size.trim()) {
+      if (!formValues.size.trim()) {
         toast.error("Please select a balloon size")
         setIsSubmitting(false)
         return
       }
 
-      if (!quantity.trim() || parseInt(quantity) < 0) {
+      if (!formValues.quantity.trim() || parseInt(formValues.quantity) < 0) {
         toast.error("Please enter a valid quantity")
         setIsSubmitting(false)
         return
       }
 
       // Size is already standardized from the dropdown
-      console.log(`Adding new balloon: ${color} ${size} - ${quantity}`)
+      console.log(`Adding new balloon: ${formValues.color} ${formValues.size} - ${formValues.quantity}`)
       
       // Standardize color name format to match "Wild Berry" instead of "Wildberry"
-      // Try to find a matching standard color first
-      let standardizedColor = color;
-      const matchingColor = colorSuggestions.find(c => 
-        normalizeColorName(c.display_name) === normalizeColorName(color)
-      );
-      
-      if (matchingColor) {
-        standardizedColor = matchingColor.display_name;
-      }
+      const standardizedColor = findStandardizedColor()
 
       const success = await addNewBalloonType(
         standardizedColor,
-        size,
-        parseInt(quantity)
+        formValues.size,
+        parseInt(formValues.quantity)
       )
 
       if (success) {
         // Reset form
-        setColor("")
-        setSize("")
-        setQuantity("")
+        setFormValues({
+          color: "",
+          size: "",
+          quantity: ""
+        })
         
         // Notify success
-        toast.success(`Added ${quantity} ${standardizedColor} ${size} balloons to inventory`)
+        toast.success(`Added ${formValues.quantity} ${standardizedColor} ${formValues.size} balloons to inventory`)
         
         // Trigger event for realtime updates
         await supabase
@@ -164,63 +91,10 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold mb-4">Add New Balloon Type</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="space-y-2 relative">
-          <Label htmlFor="color">Color</Label>
-          <Input
-            id="color"
-            value={color}
-            onChange={handleColorChange}
-            placeholder="Enter balloon color"
-            disabled={isSubmitting}
-            className="relative"
-          />
-          {showSuggestions && (
-            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-              {filteredSuggestions.map((suggestion, index) => (
-                <div 
-                  key={index}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleSelectSuggestion(suggestion.display_name)}
-                >
-                  {suggestion.display_name}
-                </div>
-              ))}
-            </div>
-          )}
-          <p className="text-xs text-gray-500 mt-1">
-            Use standard color names like "Wild Berry" or "Golden Rod"
-          </p>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="size">Size</Label>
-          <Select 
-            value={size} 
-            onValueChange={setSize}
-            disabled={isSubmitting}
-          >
-            <SelectTrigger id="size">
-              <SelectValue placeholder="Select balloon size" />
-            </SelectTrigger>
-            <SelectContent position="popper">
-              <SelectItem value="11in">11 inch</SelectItem>
-              <SelectItem value="16in">16 inch</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="quantity">Initial Quantity</Label>
-          <Input
-            id="quantity"
-            type="number"
-            min="0"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            placeholder="Enter initial quantity"
-            disabled={isSubmitting}
-          />
-        </div>
-      </div>
+      <BalloonFormFields 
+        isSubmitting={isSubmitting}
+        onFieldsChange={handleFieldsChange}
+      />
       <Button 
         type="submit" 
         disabled={isSubmitting}
