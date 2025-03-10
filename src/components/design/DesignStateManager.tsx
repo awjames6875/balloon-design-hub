@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"
 import type { AIAnalysisData } from "@/utils/designCalculations"
 
@@ -49,10 +50,11 @@ export const DesignStateManager = ({ analysisData }: DesignStateManagerProps) =>
       // Create distribution from numbered analysis if available
       if (analysisData.numberedAnalysis) {
         analysisData.numberedAnalysis.clusters.forEach(cluster => {
+          const clusterCount = cluster.count;
           colorDistribution[cluster.definedColor] = {
-            clusters: cluster.count,
-            balloons11: cluster.count * 11,
-            balloons16: cluster.count * 2
+            clusters: clusterCount,
+            balloons11: clusterCount * 11,
+            balloons16: clusterCount * 2
           }
         })
       } else {

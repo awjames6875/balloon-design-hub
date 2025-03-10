@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
@@ -35,8 +36,20 @@ export default function NewDesign() {
       return
     }
 
-    // Create design data for inventory check
-    const colorClusters = distributeClustersByColor(analysisData.clusters, analysisData.colors)
+    // Use the color distribution from the numbered analysis if available
+    let colorClusters
+    
+    if (analysisData.numberedAnalysis) {
+      // Create a more accurate color distribution using the actual numbered analysis
+      colorClusters = analysisData.numberedAnalysis.clusters.map(cluster => ({
+        color: cluster.definedColor,
+        baseClusters: Math.ceil(cluster.count * 0.7),
+        extraClusters: Math.floor(cluster.count * 0.3)
+      }))
+    } else {
+      // Fallback to even distribution if no numbered analysis
+      colorClusters = distributeClustersByColor(analysisData.clusters, analysisData.colors)
+    }
     
     const calculations = {
       baseClusters: Math.ceil(analysisData.clusters * 0.7),
@@ -50,6 +63,7 @@ export default function NewDesign() {
     }
 
     console.log("Proceeding to inventory with calculations:", calculations)
+    console.log("Color clusters for inventory:", colorClusters)
 
     // Navigate to inventory page with design data
     navigate("/inventory", {

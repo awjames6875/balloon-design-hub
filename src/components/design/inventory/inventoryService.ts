@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client"
 import { InventoryItem, ColorCluster } from "./types"
 import { toast } from "sonner"
@@ -30,16 +31,15 @@ export const getInventoryStatus = (available: number, required: number): 'in-sto
 
 export const calculateBalloonsPerColor = (colorClusters: ColorCluster[]) => {
   console.log("Calculating balloons per color for clusters:", colorClusters)
-  const balloonsPerCluster = {
-    '11inch': 11,
-    '16inch': 2
-  }
-
-  return colorClusters.map(cluster => ({
-    color: cluster.color,
-    balloons11: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['11inch']),
-    balloons16: Math.round((cluster.baseClusters + cluster.extraClusters) * balloonsPerCluster['16inch'])
-  }))
+  // Each cluster has exactly 11 11-inch balloons and 2 16-inch balloons
+  return colorClusters.map(cluster => {
+    const totalClusters = cluster.baseClusters + cluster.extraClusters
+    return {
+      color: cluster.color,
+      balloons11: totalClusters * 11,
+      balloons16: totalClusters * 2
+    }
+  })
 }
 
 export const checkInventory = async (colorClusters: ColorCluster[]): Promise<InventoryItem[]> => {
