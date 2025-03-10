@@ -68,7 +68,7 @@ export function useColorSuggestions() {
     }
   }
 
-  // Find matching standard color
+  // Find matching standard color - corrected to ensure proper display_name format
   const findStandardizedColor = () => {
     let standardizedColor = color;
     const matchingColor = colorSuggestions.find(c => 
