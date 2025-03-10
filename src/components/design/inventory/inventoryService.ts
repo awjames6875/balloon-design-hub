@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client"
 import { InventoryItem, ColorCluster } from "./types"
 import { toast } from "sonner"
@@ -22,7 +23,9 @@ export const getColorName = (hexColor: string) => {
 }
 
 export const getInventoryStatus = (available: number, required: number): 'in-stock' | 'low' | 'out-of-stock' => {
+  console.log(`Checking status for available: ${available}, required: ${required}`)
   if (available === 0) return 'out-of-stock'
+  if (available < required) return 'out-of-stock'
   if (available >= required * 1.2) return 'in-stock'
   return 'low'
 }
@@ -50,40 +53,34 @@ export const checkInventory = async (colorClusters: ColorCluster[]): Promise<Inv
     console.log(`Processing color: ${colorName}`)
 
     try {
-      const { data: data11, error: error11 } = await supabase
+      // Get all inventory for this color regardless of exact case
+      const { data: allInventory, error: inventoryError } = await supabase
         .from('balloon_inventory')
-        .select('quantity, color')
+        .select('*')
         .ilike('color', colorName)
-        .eq('size', '11in')
-
-      if (error11) {
-        console.error(`Error checking 11" balloon inventory:`, error11)
-        toast.error(`Error checking inventory for ${colorName} 11" balloons`)
+      
+      if (inventoryError) {
+        console.error(`Error fetching inventory for ${colorName}:`, inventoryError)
+        toast.error(`Error checking inventory for ${colorName} balloons`)
         continue
       }
 
-      const match11 = data11 && data11.length > 0 
-        ? data11.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || data11[0]
-        : null
+      console.log(`All inventory for ${colorName}:`, allInventory)
+      
+      // Find 11" balloons
+      const match11 = allInventory?.find(item => 
+        item.color.toLowerCase() === colorName.toLowerCase() && 
+        item.size === '11in'
+      );
 
       const quantity11 = match11?.quantity || 0
       console.log(`11" balloons available for ${colorName}:`, quantity11)
 
-      const { data: data16, error: error16 } = await supabase
-        .from('balloon_inventory')
-        .select('quantity, color')
-        .ilike('color', colorName)
-        .eq('size', '16in')
-
-      if (error16) {
-        console.error(`Error checking 16" balloon inventory:`, error16)
-        toast.error(`Error checking inventory for ${colorName} 16" balloons`)
-        continue
-      }
-
-      const match16 = data16 && data16.length > 0
-        ? data16.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || data16[0]
-        : null
+      // Find 16" balloons
+      const match16 = allInventory?.find(item => 
+        item.color.toLowerCase() === colorName.toLowerCase() && 
+        item.size === '16in'
+      );
 
       const quantity16 = match16?.quantity || 0
       console.log(`16" balloons available for ${colorName}:`, quantity16)

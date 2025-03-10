@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { addNewBalloonType } from "@/services/inventoryOperations"
 import { toast } from "sonner"
+import { supabase } from "@/integrations/supabase/client"
 
 interface AddBalloonFormProps {
   onBalloonAdded: () => void
@@ -21,6 +22,24 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     setIsSubmitting(true)
 
     try {
+      // Validate inputs
+      if (!color.trim()) {
+        toast.error("Please enter a color name")
+        return
+      }
+
+      if (!size.trim()) {
+        toast.error("Please enter a balloon size")
+        return
+      }
+
+      if (!quantity.trim() || parseInt(quantity) < 0) {
+        toast.error("Please enter a valid quantity")
+        return
+      }
+
+      console.log(`Adding new balloon: ${color} ${size} - ${quantity}`)
+
       const success = await addNewBalloonType(
         color,
         size,
@@ -28,12 +47,26 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       )
 
       if (success) {
+        // Reset form
         setColor("")
         setSize("")
         setQuantity("")
-        toast.success("Balloon added to inventory")
-        onBalloonAdded() // Trigger refresh in parent components
+        
+        // Notify success
+        toast.success(`Added ${quantity} ${color} ${size} balloons to inventory`)
+        
+        // Trigger event for realtime updates
+        await supabase
+          .from('balloon_inventory')
+          .select('*')
+          .limit(1)
+          
+        // Call callback
+        onBalloonAdded()
       }
+    } catch (error) {
+      console.error("Error adding balloon type:", error)
+      toast.error("Failed to add balloon type")
     } finally {
       setIsSubmitting(false)
     }
@@ -59,7 +92,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
             id="size"
             value={size}
             onChange={(e) => setSize(e.target.value)}
-            placeholder="Enter balloon size"
+            placeholder="Enter balloon size (e.g. 11in, 16in)"
             disabled={isSubmitting}
           />
         </div>

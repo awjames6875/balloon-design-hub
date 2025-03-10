@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
 
 interface ColorBalloonData {
-  color: string  // Changed from colors to color
+  color: string  
   balloons11: number
   balloons16: number
 }
@@ -12,27 +12,29 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
   console.log("Starting inventory update with:", balloonsPerColor)
   
   for (const colorData of balloonsPerColor) {
-    const colorName = colorData.color  // Using color instead of colors
+    const colorName = colorData.color
     console.log(`Processing ${colorName}: ${colorData.balloons11} 11" and ${colorData.balloons16} 16" balloons`)
 
     try {
-      // Update 11" balloons - Use case-insensitive search
-      const { data: matches11, error: matchError11 } = await supabase
+      // Get all inventory for this color (case-insensitive)
+      const { data: allInventory, error: inventoryError } = await supabase
         .from('balloon_inventory')
-        .select('id, quantity, color')
-        .ilike('color', colorName)  // Using case-insensitive match
-        .eq('size', '11in')
+        .select('*')
+        .ilike('color', colorName)
       
-      if (matchError11) {
-        console.error('Error checking 11" balloon inventory:', matchError11)
-        toast.error(`Error checking inventory for ${colorName} 11" balloons`)
+      if (inventoryError) {
+        console.error(`Error fetching inventory for ${colorName}:`, inventoryError)
+        toast.error(`Error checking inventory for ${colorName} balloons`)
         return false
       }
 
-      // Find best match or null
-      const data11 = matches11 && matches11.length > 0 
-        ? matches11.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || matches11[0]
-        : null
+      console.log(`All inventory for ${colorName}:`, allInventory)
+      
+      // Find 11" balloons
+      const data11 = allInventory?.find(item => 
+        item.color.toLowerCase() === colorName.toLowerCase() && 
+        item.size === '11in'
+      )
 
       if (!data11) {
         // If no inventory exists, create a new record
@@ -71,23 +73,11 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
         }
       }
 
-      // Update 16" balloons - Use case-insensitive search
-      const { data: matches16, error: matchError16 } = await supabase
-        .from('balloon_inventory')
-        .select('id, quantity, color')
-        .ilike('color', colorName)  // Using case-insensitive match
-        .eq('size', '16in')
-      
-      if (matchError16) {
-        console.error('Error checking 16" balloon inventory:', matchError16)
-        toast.error(`Error checking inventory for ${colorName} 16" balloons`)
-        return false
-      }
-
-      // Find best match or null
-      const data16 = matches16 && matches16.length > 0
-        ? matches16.find(item => item.color.toLowerCase() === colorName.toLowerCase()) || matches16[0]
-        : null
+      // Find 16" balloons
+      const data16 = allInventory?.find(item => 
+        item.color.toLowerCase() === colorName.toLowerCase() && 
+        item.size === '16in'
+      )
 
       if (!data16) {
         // If no inventory exists, create a new record
@@ -140,22 +130,21 @@ export const updateInventory = async (balloonsPerColor: ColorBalloonData[]): Pro
 
 export const checkInventoryLevels = async (colors: string[]): Promise<boolean> => {
   for (const color of colors) {
-    // Use case-insensitive queries for inventory check
-    const { data: matches11 } = await supabase
+    // Get all inventory for this color (case-insensitive)
+    const { data: allInventory } = await supabase
       .from('balloon_inventory')
-      .select('quantity')
+      .select('*')
       .ilike('color', color)
-      .eq('size', '11in')
     
-    const data11 = matches11 && matches11.length > 0 ? matches11[0] : null
+    const data11 = allInventory?.find(item => 
+      item.color.toLowerCase() === color.toLowerCase() && 
+      item.size === '11in'
+    )
     
-    const { data: matches16 } = await supabase
-      .from('balloon_inventory')
-      .select('quantity')
-      .ilike('color', color)
-      .eq('size', '16in')
-    
-    const data16 = matches16 && matches16.length > 0 ? matches16[0] : null
+    const data16 = allInventory?.find(item => 
+      item.color.toLowerCase() === color.toLowerCase() && 
+      item.size === '16in'
+    )
 
     if (!data11 || !data16 || data11.quantity < 100 || data16.quantity < 50) {
       toast.warning(`Low inventory for ${color} balloons`)

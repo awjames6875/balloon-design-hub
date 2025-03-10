@@ -39,6 +39,7 @@ export const InventoryCheckForm = ({
   const handleInventoryCheck = async () => {
     setIsLoading(true)
     try {
+      console.log("Running inventory check for color clusters:", colorClusters)
       const items = await checkInventory(colorClusters)
       setInventoryItems(items)
       
@@ -122,7 +123,7 @@ export const InventoryCheckForm = ({
     }
   }
 
-  // Set up a realtime subscription to inventory changes
+  // Set up a realtime subscription to inventory changes and do initial check
   useEffect(() => {
     // Initial inventory check
     handleInventoryCheck()
@@ -148,6 +149,11 @@ export const InventoryCheckForm = ({
     return () => {
       supabase.removeChannel(channel)
     }
+  }, [colorClusters])
+
+  // Make sure we refresh when color clusters change
+  useEffect(() => {
+    handleInventoryCheck()
   }, [colorClusters])
 
   const canProceed = !inventoryItems.some(item => item.status === 'out-of-stock')
