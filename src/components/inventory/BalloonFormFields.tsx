@@ -24,6 +24,8 @@ const BalloonFormFields: React.FC<BalloonFormFieldsProps> = ({
   }, [initialValues]);
   
   const handleChange = (field: keyof BalloonType, value: string | number) => {
+    console.log(`Field changed: ${field} = ${value}`);
+    
     const newValues = {
       ...formValues,
       [field]: value
