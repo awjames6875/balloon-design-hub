@@ -3,7 +3,6 @@ import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { CurrentInventorySection } from "@/components/inventory/CurrentInventorySection"
-import { StockAnalyticsSection } from "@/components/inventory/StockAnalyticsSection"
 import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
 import { InventoryCheckForm } from "@/components/design/inventory/InventoryCheckForm"
@@ -189,8 +188,6 @@ export default function Inventory() {
             showDemoMessage={true}
           />
         )}
-
-        <StockAnalyticsSection inventory={inventory} />
       </div>
     </div>
   )
