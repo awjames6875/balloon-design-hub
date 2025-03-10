@@ -5,7 +5,10 @@ import { toast } from "sonner"
 import { BackToHome } from "@/components/BackToHome"
 import { AIDesignUpload } from "@/components/design/AIDesignUpload"
 import { DesignStateManager } from "@/components/design/DesignStateManager"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { ArrowRight } from "lucide-react"
+import { distributeClustersByColor } from "@/utils/designCalculations"
 import type { AIAnalysisData } from "@/utils/designCalculations"
 
 export default function NewDesign() {
@@ -25,6 +28,44 @@ export default function NewDesign() {
     const searchParams = new URLSearchParams(window.location.search)
     searchParams.set('analysisData', JSON.stringify(data))
     window.history.replaceState(null, '', `?${searchParams.toString()}`)
+  }
+
+  const handleProceedToInventory = () => {
+    if (!analysisData) {
+      toast.error("Please complete the design analysis first")
+      return
+    }
+
+    // Create design data for inventory check
+    const colorClusters = distributeClustersByColor(analysisData.clusters, analysisData.colors)
+    
+    const calculations = {
+      baseClusters: Math.ceil(analysisData.clusters * 0.7),
+      extraClusters: Math.floor(analysisData.clusters * 0.3),
+      totalClusters: analysisData.clusters,
+      littlesQuantity: analysisData.clusters * 11,
+      grapesQuantity: analysisData.clusters * 2,
+      balloons11in: analysisData.clusters * 11,
+      balloons16in: analysisData.clusters * 2,
+      totalBalloons: analysisData.clusters * 13
+    }
+
+    // Navigate to inventory page with design data
+    navigate("/inventory", {
+      state: {
+        fromDesign: true,
+        designData: {
+          clientName: "New Client",
+          projectName: "Balloon Design Project",
+          length: "10",
+          style: "Garland",
+          colorClusters,
+          calculations
+        }
+      }
+    })
+
+    toast.success("Proceeding to inventory check")
   }
 
   return (
@@ -49,7 +90,19 @@ export default function NewDesign() {
             </Card>
 
             {analysisData && (
-              <DesignStateManager analysisData={analysisData} />
+              <>
+                <DesignStateManager analysisData={analysisData} />
+                
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={handleProceedToInventory}
+                    className="gap-2"
+                  >
+                    Next: Check Inventory
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </>
             )}
           </div>
         </div>
