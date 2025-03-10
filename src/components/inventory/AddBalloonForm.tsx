@@ -4,23 +4,23 @@ import { Button } from "@/components/ui/button"
 import { addNewBalloonType } from "@/services/inventoryOperations"
 import { toast } from "sonner"
 import { supabase } from "@/integrations/supabase/client"
-import { BalloonFormFields } from "./BalloonFormFields"
-import { validateColor, validateSize, validateQuantity } from "@/utils/inventoryValidation"
+import BalloonFormFields from "./BalloonFormFields"
+import { BalloonType } from "@/types/inventory"
 
 interface AddBalloonFormProps {
   onBalloonAdded: () => void
 }
 
 export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
-  const [formValues, setFormValues] = useState({
+  const [formValues, setFormValues] = useState<Partial<BalloonType>>({
     color: "",
     size: "",
-    quantity: ""
+    quantity: 0
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   
-  const handleFieldsChange = (fields: { color: string; size: string; quantity: string }) => {
-    setFormValues(fields)
+  const handleFormChange = (values: Partial<BalloonType>) => {
+    setFormValues(values)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,8 +38,8 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       return
     }
 
-    const quantity = parseInt(formValues.quantity)
-    if (isNaN(quantity) || quantity < 0) {
+    const quantity = formValues.quantity || 0
+    if (quantity < 0) {
       toast.error("Please enter a valid quantity (minimum 0)")
       return
     }
@@ -56,7 +56,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
       const success = await addNewBalloonType(
         cleanedColor,
         formValues.size,
-        parseInt(formValues.quantity)
+        quantity
       )
 
       if (success) {
@@ -64,7 +64,7 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
         setFormValues({
           color: "",
           size: "",
-          quantity: ""
+          quantity: 0
         })
         
         // Trigger event for realtime updates
@@ -88,13 +88,13 @@ export const AddBalloonForm = ({ onBalloonAdded }: AddBalloonFormProps) => {
     <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold mb-4">Add New Balloon Type</h3>
       <BalloonFormFields 
-        isSubmitting={isSubmitting}
-        onFieldsChange={handleFieldsChange}
+        initialValues={formValues}
+        onChange={handleFormChange}
       />
       <Button 
         type="submit" 
         disabled={isSubmitting}
-        className="w-full md:w-auto"
+        className="w-full md:w-auto mt-4"
       >
         {isSubmitting ? "Adding..." : "Add Balloon Type"}
       </Button>
