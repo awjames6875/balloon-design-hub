@@ -64,7 +64,7 @@ const Inventory = () => {
                 onBalloonAdded={handleBalloonAdded}
                 onQuantityUpdate={handleQuantityUpdate}
               />
-              
+
               <InventoryCheckSection 
                 balloonTypes={balloonTypes}
                 refreshTrigger={balloonTypes.length}
