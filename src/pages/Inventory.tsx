@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { BalloonType } from '@/types/inventory';
@@ -49,6 +50,7 @@ const Inventory = () => {
             <NavigationCard 
               to="/" 
               title="Home" 
+              description="Main dashboard" 
               icon={Home} 
             />
           </div>
