@@ -7,6 +7,7 @@ import {
 import ProductionForms from './pages/ProductionForms';
 import Inventory from './pages/Inventory';
 import NotFound from './components/ui/NotFound';
+import NewDesign from './pages/NewDesign';
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: "/inventory",
     element: <Inventory />,
+  },
+  {
+    path: "/new-design",
+    element: <NewDesign />,
   },
 ]);
 

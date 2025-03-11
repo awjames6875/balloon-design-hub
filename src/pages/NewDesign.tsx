@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
 import { distributeClustersByColor } from "@/utils/designCalculations"
 import type { AIAnalysisData } from "@/utils/designCalculations"
+import { Header } from "@/components/Header"
 
 export default function NewDesign() {
   const [designImage, setDesignImage] = useState<string | null>(null)
@@ -86,6 +87,7 @@ export default function NewDesign() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background">
+      <Header />
       <div className="container mx-auto px-4 py-8">
         <BackToHome />
 
